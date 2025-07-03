@@ -159,3 +159,7 @@ yarn-error.log*
 *.key
 *.pem
 secrets.json
+
+# Logs directory
+logs/
+*.log

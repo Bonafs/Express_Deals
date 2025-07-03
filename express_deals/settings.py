@@ -174,6 +174,10 @@ STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', 'pk_test_...')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', 'sk_test_...')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', 'whsec_...')
 
+# Ensure logs directory exists
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(exist_ok=True)
+
 # Logging Configuration
 LOGGING = {
     'version': 1,
@@ -192,7 +196,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
+            'filename': LOGS_DIR / 'django.log',
             'formatter': 'verbose',
         },
         'console': {
