@@ -1,0 +1,564 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Alert Preferences{% endblock %}
+
+{% block extra_head %}
+<style>
+    .preferences-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .preference-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border: 1px solid #dee2e6;
+    }
+    .preference-section h5 {
+        color: #495057;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #007bff;
+    }
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+    .frequency-selector {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+    }
+    .test-notification {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+    }
+    .test-notification:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .quiet-hours {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="preferences-container">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1 class="display-6">
+                <i class="fas fa-cog text-primary"></i>
+                Alert Preferences
+            </h1>
+            <p class="text-muted">Customize how and when you receive price alerts</p>
+        </div>
+
+        <form method="post" id="preferencesForm">
+            {% csrf_token %}
+            
+            <!-- Notification Methods -->
+            <div class="preference-section">
+                <h5><i class="fas fa-bell text-primary"></i> Notification Methods</h5>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label d-flex align-items-center justify-content-between">
+                                <span>
+                                    <i class="fas fa-envelope text-info"></i>
+                                    Email Notifications
+                                </span>
+                                <label class="toggle-switch">
+                                    {{ form.email_enabled }}
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                            <small class="text-muted">
+                                Receive alerts via email at {{ user.email }}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label d-flex align-items-center justify-content-between">
+                                <span>
+                                    <i class="fas fa-sms text-success"></i>
+                                    SMS Notifications
+                                </span>
+                                <label class="toggle-switch">
+                                    {{ form.sms_enabled }}
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                            <small class="text-muted">
+                                Send alerts to your phone
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label d-flex align-items-center justify-content-between">
+                                <span>
+                                    <i class="fas fa-mobile-alt text-warning"></i>
+                                    Push Notifications
+                                </span>
+                                <label class="toggle-switch">
+                                    {{ form.push_enabled }}
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                            <small class="text-muted">
+                                Browser push notifications
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phone Number for SMS -->
+                <div class="row" id="phoneNumberSection" style="display: none;">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.phone_number.id_for_label }}" class="form-label">
+                                Phone Number
+                            </label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                                <div class="text-danger">{{ form.phone_number.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Enter your phone number to receive SMS alerts
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Test SMS</label>
+                            <div>
+                                <button type="button" class="btn test-notification" id="testSMS">
+                                    <i class="fas fa-paper-plane"></i> Send Test SMS
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Frequency -->
+            <div class="preference-section">
+                <h5><i class="fas fa-clock text-primary"></i> Alert Frequency</h5>
+                
+                <div class="frequency-selector">
+                    <div class="mb-3">
+                        <label for="{{ form.max_alerts_per_day.id_for_label }}" class="form-label">
+                            Maximum Alerts Per Day
+                        </label>
+                        {{ form.max_alerts_per_day }}
+                        {% if form.max_alerts_per_day.errors %}
+                            <div class="text-danger">{{ form.max_alerts_per_day.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">
+                            Limit the number of alerts you receive daily (0 = unlimited)
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.min_discount_percentage.id_for_label }}" class="form-label">
+                            Minimum Discount Percentage
+                        </label>
+                        <div class="input-group">
+                            {{ form.min_discount_percentage }}
+                            <span class="input-group-text">%</span>
+                        </div>
+                        {% if form.min_discount_percentage.errors %}
+                            <div class="text-danger">{{ form.min_discount_percentage.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">
+                            Only alert for discounts above this percentage
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiet Hours -->
+            <div class="preference-section">
+                <h5><i class="fas fa-moon text-primary"></i> Quiet Hours</h5>
+                
+                <div class="quiet-hours">
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.quiet_hours_enabled }}
+                            <label class="form-check-label" for="{{ form.quiet_hours_enabled.id_for_label }}">
+                                Enable quiet hours (no notifications during specified times)
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="row" id="quietHoursSettings" style="display: none;">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.quiet_hours_start.id_for_label }}" class="form-label">
+                                    Start Time
+                                </label>
+                                {{ form.quiet_hours_start }}
+                                {% if form.quiet_hours_start.errors %}
+                                    <div class="text-danger">{{ form.quiet_hours_start.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.quiet_hours_end.id_for_label }}" class="form-label">
+                                    End Time
+                                </label>
+                                {{ form.quiet_hours_end }}
+                                {% if form.quiet_hours_end.errors %}
+                                    <div class="text-danger">{{ form.quiet_hours_end.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="preference-section">
+                <h5><i class="fas fa-sliders-h text-primary"></i> Advanced Settings</h5>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.bundle_notifications }}
+                                <label class="form-check-label" for="{{ form.bundle_notifications.id_for_label }}">
+                                    Bundle multiple alerts into digest emails
+                                </label>
+                            </div>
+                            <small class="text-muted">
+                                Combine multiple alerts into a single email
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.include_competitors }}
+                                <label class="form-check-label" for="{{ form.include_competitors.id_for_label }}">
+                                    Include competitor price comparisons
+                                </label>
+                            </div>
+                            <small class="text-muted">
+                                Show prices from other retailers
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.price_history_enabled }}
+                                <label class="form-check-label" for="{{ form.price_history_enabled.id_for_label }}">
+                                    Include price history in alerts
+                                </label>
+                            </div>
+                            <small class="text-muted">
+                                Show price trends and history
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.smart_recommendations }}
+                                <label class="form-check-label" for="{{ form.smart_recommendations.id_for_label }}">
+                                    Enable smart deal recommendations
+                                </label>
+                            </div>
+                            <small class="text-muted">
+                                Get AI-powered deal suggestions
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Notifications -->
+            <div class="preference-section">
+                <h5><i class="fas fa-flask text-primary"></i> Test Notifications</h5>
+                <p class="text-muted mb-3">
+                    Test your notification settings to ensure they work correctly.
+                </p>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <button type="button" class="btn test-notification w-100" id="testEmail">
+                            <i class="fas fa-envelope"></i> Test Email
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn test-notification w-100" id="testPush">
+                            <i class="fas fa-bell"></i> Test Push
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn test-notification w-100" id="testAll">
+                            <i class="fas fa-broadcast-tower"></i> Test All
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="fas fa-save"></i> Save Preferences
+                </button>
+                <a href="{% url 'alerts:dashboard' %}" class="btn btn-secondary btn-lg px-5 ms-3">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Test Notification Modal -->
+<div class="modal fade" id="testModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-paper-plane text-success"></i> Test Notification Sent
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="testMessage">Your test notification has been sent successfully!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show/hide phone number section based on SMS toggle
+    const smsToggle = document.querySelector('input[name="sms_enabled"]');
+    const phoneSection = document.getElementById('phoneNumberSection');
+    
+    function togglePhoneSection() {
+        if (smsToggle.checked) {
+            phoneSection.style.display = 'block';
+        } else {
+            phoneSection.style.display = 'none';
+        }
+    }
+    
+    if (smsToggle) {
+        smsToggle.addEventListener('change', togglePhoneSection);
+        togglePhoneSection(); // Initial state
+    }
+
+    // Show/hide quiet hours settings
+    const quietHoursToggle = document.querySelector('input[name="quiet_hours_enabled"]');
+    const quietHoursSettings = document.getElementById('quietHoursSettings');
+    
+    function toggleQuietHours() {
+        if (quietHoursToggle.checked) {
+            quietHoursSettings.style.display = 'block';
+        } else {
+            quietHoursSettings.style.display = 'none';
+        }
+    }
+    
+    if (quietHoursToggle) {
+        quietHoursToggle.addEventListener('change', toggleQuietHours);
+        toggleQuietHours(); // Initial state
+    }
+
+    // Test notification functions
+    const testButtons = {
+        'testEmail': 'email',
+        'testSMS': 'sms',
+        'testPush': 'push',
+        'testAll': 'all'
+    };
+
+    Object.keys(testButtons).forEach(buttonId => {
+        const button = document.getElementById(buttonId);
+        if (button) {
+            button.addEventListener('click', function() {
+                testNotification(testButtons[buttonId], this);
+            });
+        }
+    });
+
+    function testNotification(type, button) {
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        button.disabled = true;
+
+        fetch('{% url "alerts:test_notification" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ type: type })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const modal = new bootstrap.Modal(document.getElementById('testModal'));
+                document.getElementById('testMessage').textContent = data.message;
+                modal.show();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while sending the test notification.');
+        })
+        .finally(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        });
+    }
+
+    // Form submission with AJAX
+    const preferencesForm = document.getElementById('preferencesForm');
+    if (preferencesForm) {
+        preferencesForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            submitBtn.disabled = true;
+            
+            fetch(this.action || window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-success alert-dismissible fade show';
+                    alert.innerHTML = `
+                        <i class="fas fa-check-circle"></i> ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('.preferences-container').insertBefore(
+                        alert, 
+                        document.querySelector('.text-center')
+                    );
+                    
+                    // Auto-hide after 5 seconds
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 5000);
+                } else {
+                    // Handle form errors
+                    Object.keys(data.errors || {}).forEach(field => {
+                        const input = document.querySelector(`[name="${field}"]`);
+                        if (input) {
+                            const errorDiv = input.parentNode.querySelector('.text-danger') || 
+                                           document.createElement('div');
+                            errorDiv.className = 'text-danger';
+                            errorDiv.textContent = data.errors[field][0];
+                            if (!input.parentNode.querySelector('.text-danger')) {
+                                input.parentNode.appendChild(errorDiv);
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+    }
+
+    // Request push notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+        const pushToggle = document.querySelector('input[name="push_enabled"]');
+        if (pushToggle) {
+            pushToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    Notification.requestPermission().then(permission => {
+                        if (permission !== 'granted') {
+                            this.checked = false;
+                            alert('Push notifications require permission. Please enable them in your browser settings.');
+                        }
+                    });
+                }
+            });
+        }
+    }
+});
+</script>
+{% endblock %}

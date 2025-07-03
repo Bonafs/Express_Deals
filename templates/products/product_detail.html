@@ -76,15 +76,45 @@
 
                 <!-- Price -->
                 <div class="price-section mb-4">
-                    {% if product.is_on_sale %}
-                    <span class="h2 text-success">${{ product.price }}</span>
-                    <span class="h5 text-muted text-decoration-line-through ms-2">
-                        ${{ product.original_price }}
-                    </span>
-                    <span class="badge bg-danger ms-2">{{ product.discount_percentage }}% OFF</span>
-                    {% else %}
-                    <span class="h2 text-success">${{ product.price }}</span>
-                    {% endif %}
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            {% if product.is_on_sale %}
+                            <span class="h2 text-success" id="currentPrice">${{ product.price }}</span>
+                            <span class="h5 text-muted text-decoration-line-through ms-2">
+                                ${{ product.original_price }}
+                            </span>
+                            <span class="badge bg-danger ms-2">{{ product.discount_percentage }}% OFF</span>
+                            {% else %}
+                            <span class="h2 text-success" id="currentPrice">${{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                        <!-- Price Alert Button -->
+                        <div class="price-alert-section">
+                            {% if user.is_authenticated %}
+                            <button class="btn btn-outline-warning btn-sm" 
+                                    id="priceAlertBtn"
+                                    data-product-id="{{ product.id }}"
+                                    data-current-price="{{ product.price }}"
+                                    onclick="showPriceAlertModal()">
+                                <i class="fas fa-bell"></i> 
+                                <span id="alertBtnText">Set Price Alert</span>
+                            </button>
+                            {% else %}
+                            <a href="{% url 'accounts:login' %}?next={{ request.path }}" 
+                               class="btn btn-outline-warning btn-sm">
+                                <i class="fas fa-bell"></i> Login for Price Alerts
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Real-time Price Updates -->
+                    <div id="priceHistory" class="mt-2" style="display: none;">
+                        <small class="text-muted">
+                            <i class="fas fa-chart-line"></i> 
+                            Price changed <span id="priceChangeTime"></span>
+                        </small>
+                    </div>
                 </div>
 
                 <!-- Stock Status -->
@@ -424,5 +454,181 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
         });
     });
 });
+
+// Price Alert Functionality
+function showPriceAlertModal() {
+    const modal = new bootstrap.Modal(document.getElementById('priceAlertModal'));
+    const currentPrice = document.getElementById('currentPrice').textContent.replace('$', '');
+    const suggestedPrice = (parseFloat(currentPrice) * 0.9).toFixed(2);
+    
+    document.getElementById('alertCurrentPrice').textContent = currentPrice;
+    document.getElementById('alertTargetPrice').value = suggestedPrice;
+    
+    modal.show();
+}
+
+function createPriceAlert() {
+    const productId = document.getElementById('priceAlertBtn').dataset.productId;
+    const targetPrice = document.getElementById('alertTargetPrice').value;
+    const emailEnabled = document.getElementById('alertEmail').checked;
+    const smsEnabled = document.getElementById('alertSMS').checked;
+    
+    const submitBtn = document.getElementById('createAlertBtn');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+    submitBtn.disabled = true;
+    
+    fetch('{% url "alerts:create_api" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            target_price: targetPrice,
+            email_enabled: emailEnabled,
+            sms_enabled: smsEnabled
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('priceAlertModal'));
+            modal.hide();
+            
+            // Update alert button
+            const alertBtn = document.getElementById('priceAlertBtn');
+            alertBtn.classList.remove('btn-outline-warning');
+            alertBtn.classList.add('btn-warning');
+            document.getElementById('alertBtnText').textContent = 'Alert Active';
+            
+            // Show success message
+            showNotification('Price alert created successfully!', 'success');
+        } else {
+            showNotification('Error creating alert: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while creating the alert.', 'error');
+    })
+    .finally(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+function showNotification(message, type) {
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+    alert.style.top = '20px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        alert.remove();
+    }, 5000);
+}
+
+// Real-time price updates via WebSocket
+{% if user.is_authenticated %}
+const productId = {{ product.id }};
+const socket = new WebSocket('ws://' + window.location.host + '/ws/price_updates/' + productId + '/');
+
+socket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    
+    if (data.type === 'price_update') {
+        const oldPrice = parseFloat(document.getElementById('currentPrice').textContent.replace('$', ''));
+        const newPrice = parseFloat(data.price);
+        
+        // Update price display
+        document.getElementById('currentPrice').textContent = '$' + newPrice.toFixed(2);
+        
+        // Show price change notification
+        const priceHistory = document.getElementById('priceHistory');
+        const priceChangeTime = document.getElementById('priceChangeTime');
+        
+        if (newPrice < oldPrice) {
+            priceHistory.style.display = 'block';
+            priceHistory.className = 'mt-2 text-success';
+            priceChangeTime.textContent = 'just now (↓ $' + (oldPrice - newPrice).toFixed(2) + ')';
+            
+            // Show notification
+            showNotification('Price dropped to $' + newPrice.toFixed(2) + '!', 'success');
+        } else if (newPrice > oldPrice) {
+            priceHistory.style.display = 'block';
+            priceHistory.className = 'mt-2 text-danger';
+            priceChangeTime.textContent = 'just now (↑ $' + (newPrice - oldPrice).toFixed(2) + ')';
+        }
+    }
+};
+
+socket.onclose = function(e) {
+    console.error('Price update socket closed unexpectedly');
+};
+{% endif %}
 </script>
 {% endblock %}
+
+<!-- Price Alert Modal -->
+<div class="modal fade" id="priceAlertModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-bell text-warning"></i> Set Price Alert
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h6>{{ product.name }}</h6>
+                    <p class="text-muted">Current Price: $<span id="alertCurrentPrice"></span></p>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="alertTargetPrice" class="form-label">Target Price</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="alertTargetPrice" 
+                               step="0.01" min="0.01" required>
+                    </div>
+                    <div class="form-text">
+                        You'll be notified when the price drops to or below this amount
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Notification Preferences</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="alertEmail" checked>
+                        <label class="form-check-label" for="alertEmail">
+                            Email notifications
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="alertSMS">
+                        <label class="form-check-label" for="alertSMS">
+                            SMS notifications
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="createAlertBtn" onclick="createPriceAlert()">
+                    <i class="fas fa-bell"></i> Create Alert
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

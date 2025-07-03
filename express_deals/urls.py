@@ -13,6 +13,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('orders/', include('orders.urls')),
     path('payments/', include('payments.urls')),
+    path('alerts/', include('scraping.urls')),
 ]
 
 # Serve media files in development
