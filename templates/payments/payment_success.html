@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Successful - Express Deals{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Payment Successful!
+                    </h4>
+                </div>
+                <div class="card-body text-center">
+                    {% if order %}
+                        <div class="mb-4">
+                            <h5>Thank you for your order!</h5>
+                            <p class="text-muted">Your payment has been processed successfully.</p>
+                        </div>
+                        
+                        <!-- Order Details -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="border rounded p-3 h-100">
+                                    <h6 class="text-success mb-3">
+                                        <i class="fas fa-receipt me-2"></i>
+                                        Order Information
+                                    </h6>
+                                    <p class="mb-1"><strong>Order Number:</strong> {{ order.order_number }}</p>
+                                    <p class="mb-1"><strong>Total Paid:</strong> ${{ order.total }}</p>
+                                    <p class="mb-1"><strong>Payment Status:</strong> 
+                                        <span class="badge bg-success">Paid</span>
+                                    </p>
+                                    <p class="mb-0"><strong>Order Status:</strong> 
+                                        <span class="badge bg-info">Processing</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="border rounded p-3 h-100">
+                                    <h6 class="text-success mb-3">
+                                        <i class="fas fa-shipping-fast me-2"></i>
+                                        Shipping Information
+                                    </h6>
+                                    <p class="mb-1"><strong>{{ order.shipping_name }}</strong></p>
+                                    <p class="mb-1">{{ order.shipping_address_line1 }}</p>
+                                    {% if order.shipping_address_line2 %}
+                                        <p class="mb-1">{{ order.shipping_address_line2 }}</p>
+                                    {% endif %}
+                                    <p class="mb-0">{{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_postal_code }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Order Items -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-shopping-bag me-2"></i>
+                                    Order Items
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                {% for item in order.items.all %}
+                                    <div class="row align-items-center mb-2 {% if not forloop.last %}border-bottom pb-2{% endif %}">
+                                        <div class="col-md-6">
+                                            <strong>{{ item.product.name }}</strong>
+                                            <br><small class="text-muted">Quantity: {{ item.quantity }}</small>
+                                        </div>
+                                        <div class="col-md-3 text-center">
+                                            ${{ item.price }} each
+                                        </div>
+                                        <div class="col-md-3 text-end">
+                                            <strong>${{ item.get_total_price }}</strong>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- What's Next -->
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-info-circle me-2"></i>
+                                What happens next?
+                            </h6>
+                            <p class="mb-2">✅ You'll receive an order confirmation email shortly</p>
+                            <p class="mb-2">📦 We'll prepare your order for shipping</p>
+                            <p class="mb-0">🚚 You'll get a tracking number once your order ships</p>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-primary">
+                                <i class="fas fa-eye me-2"></i>
+                                View Order Details
+                            </a>
+                            <a href="{% url 'orders:order_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-list me-2"></i>
+                                View All Orders
+                            </a>
+                            <a href="{% url 'products:product_list' %}" class="btn btn-outline-success">
+                                <i class="fas fa-shopping-bag me-2"></i>
+                                Continue Shopping
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="mb-4">
+                            <h5>Payment Processed</h5>
+                            <p class="text-muted">Your payment has been processed, but we couldn't find the order details.</p>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="{% url 'orders:order_list' %}" class="btn btn-primary">
+                                <i class="fas fa-list me-2"></i>
+                                View Your Orders
+                            </a>
+                            <a href="{% url 'products:product_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-shopping-bag me-2"></i>
+                                Continue Shopping
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

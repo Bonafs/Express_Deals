@@ -1,0 +1,413 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout - Express Deals{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-container {
+        background: #f8f9fa;
+        min-height: calc(100vh - 200px);
+        padding: 2rem 0;
+    }
+    
+    .order-summary {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        position: sticky;
+        top: 2rem;
+    }
+    
+    .shipping-form {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 2rem;
+    }
+    
+    .form-floating {
+        margin-bottom: 1rem;
+    }
+    
+    .product-item {
+        border-bottom: 1px solid #eee;
+        padding: 1rem 0;
+    }
+    
+    .product-item:last-child {
+        border-bottom: none;
+    }
+    
+    .product-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    
+    .total-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .btn-checkout {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        border: none;
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-checkout:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+    }
+    
+    .step-indicator {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+    
+    .step.active .step-number {
+        background: #007bff;
+        color: white;
+    }
+    
+    .step.completed .step-number {
+        background: #28a745;
+        color: white;
+    }
+    
+    .step.inactive .step-number {
+        background: #e9ecef;
+        color: #6c757d;
+    }
+    
+    .step-line {
+        position: absolute;
+        top: 20px;
+        left: 60%;
+        right: -40%;
+        height: 2px;
+        background: #e9ecef;
+        z-index: -1;
+    }
+    
+    .step.completed .step-line {
+        background: #28a745;
+    }
+    
+    .step:last-child .step-line {
+        display: none;
+    }
+    
+    .required-field {
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <div class="container">
+        <!-- Progress Steps -->
+        <div class="step-indicator">
+            <div class="step completed">
+                <div class="step-number">1</div>
+                <div class="step-line"></div>
+                <div>Cart</div>
+            </div>
+            <div class="step active">
+                <div class="step-number">2</div>
+                <div class="step-line"></div>
+                <div>Shipping</div>
+            </div>
+            <div class="step inactive">
+                <div class="step-number">3</div>
+                <div class="step-line"></div>
+                <div>Payment</div>
+            </div>
+            <div class="step inactive">
+                <div class="step-number">4</div>
+                <div>Complete</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Shipping Information Form -->
+            <div class="col-lg-8">
+                <div class="shipping-form">
+                    <h3 class="mb-4">
+                        <i class="fas fa-shipping-fast me-2 text-primary"></i>
+                        Shipping Information
+                    </h3>
+                    
+                    <form method="post" id="checkoutForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="shipping_name" name="shipping_name" 
+                                           placeholder="Full Name" required>
+                                    <label for="shipping_name">Full Name <span class="required-field">*</span></label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control" id="shipping_email" name="shipping_email" 
+                                           placeholder="Email Address" required>
+                                    <label for="shipping_email">Email Address <span class="required-field">*</span></label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="tel" class="form-control" id="shipping_phone" name="shipping_phone" 
+                                           placeholder="Phone Number">
+                                    <label for="shipping_phone">Phone Number</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" id="shipping_country" name="shipping_country" required>
+                                        <option value="United States">United States</option>
+                                        <option value="Canada">Canada</option>
+                                        <option value="United Kingdom">United Kingdom</option>
+                                        <option value="Germany">Germany</option>
+                                        <option value="France">France</option>
+                                        <option value="Australia">Australia</option>
+                                    </select>
+                                    <label for="shipping_country">Country <span class="required-field">*</span></label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="shipping_address_line1" name="shipping_address_line1" 
+                                   placeholder="Address Line 1" required>
+                            <label for="shipping_address_line1">Address Line 1 <span class="required-field">*</span></label>
+                        </div>
+                        
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="shipping_address_line2" name="shipping_address_line2" 
+                                   placeholder="Address Line 2 (Optional)">
+                            <label for="shipping_address_line2">Address Line 2 (Optional)</label>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="shipping_city" name="shipping_city" 
+                                           placeholder="City" required>
+                                    <label for="shipping_city">City <span class="required-field">*</span></label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="shipping_state" name="shipping_state" 
+                                           placeholder="State" required>
+                                    <label for="shipping_state">State <span class="required-field">*</span></label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="shipping_postal_code" name="shipping_postal_code" 
+                                           placeholder="ZIP Code" required>
+                                    <label for="shipping_postal_code">ZIP Code <span class="required-field">*</span></label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a href="{% url 'orders:cart' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Cart
+                            </a>
+                            <button type="submit" class="btn btn-checkout">
+                                <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="order-summary">
+                    <h4 class="mb-3">
+                        <i class="fas fa-receipt me-2 text-primary"></i>
+                        Order Summary
+                    </h4>
+                    
+                    <!-- Cart Items -->
+                    {% for item in cart_items %}
+                    <div class="product-item">
+                        <div class="d-flex align-items-center">
+                            <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'images/no-image.png' %}{% endif %}" 
+                                 alt="{{ item.product.name }}" class="product-image me-3">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ item.product.name }}</h6>
+                                <small class="text-muted">Qty: {{ item.quantity }}</small>
+                            </div>
+                            <div class="text-end">
+                                <strong>${{ item.subtotal|floatformat:2 }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Totals -->
+                    <div class="total-section">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>${{ cart.subtotal|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax:</span>
+                            <span>${{ cart.tax_amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                            <span class="text-success">FREE</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <strong>Total:</strong>
+                            <strong class="text-primary">${{ cart.total|floatformat:2 }}</strong>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Badge -->
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-lock me-1"></i>
+                            Your payment information is secure and encrypted
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Form validation
+    $('#checkoutForm').on('submit', function(e) {
+        let isValid = true;
+        let firstInvalidField = null;
+        
+        // Check required fields
+        $('input[required], select[required]').each(function() {
+            if (!$(this).val().trim()) {
+                isValid = false;
+                $(this).addClass('is-invalid');
+                if (!firstInvalidField) {
+                    firstInvalidField = $(this);
+                }
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        // Email validation
+        const email = $('#shipping_email').val();
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email && !emailPattern.test(email)) {
+            isValid = false;
+            $('#shipping_email').addClass('is-invalid');
+            if (!firstInvalidField) {
+                firstInvalidField = $('#shipping_email');
+            }
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+            }
+            
+            // Show error message
+            if ($('.alert-danger').length === 0) {
+                const alertHtml = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Please fill in all required fields correctly.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                $('.shipping-form').prepend(alertHtml);
+            }
+        }
+    });
+    
+    // Remove invalid class on input
+    $('input, select').on('input change', function() {
+        $(this).removeClass('is-invalid');
+        $('.alert-danger').fadeOut();
+    });
+    
+    // Auto-format phone number
+    $('#shipping_phone').on('input', function() {
+        let value = $(this).val().replace(/\D/g, '');
+        if (value.length >= 6) {
+            value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        } else if (value.length >= 3) {
+            value = value.replace(/(\d{3})(\d{3})/, '($1) $2');
+        }
+        $(this).val(value);
+    });
+    
+    // Auto-format postal code
+    $('#shipping_postal_code').on('input', function() {
+        let value = $(this).val().toUpperCase();
+        // US ZIP code format
+        if (/^\d{5}$/.test(value)) {
+            $(this).val(value);
+        }
+        // Canadian postal code format
+        else if (/^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(value.replace(/\s/g, ''))) {
+            value = value.replace(/\s/g, '');
+            $(this).val(value.substr(0,3) + ' ' + value.substr(3,3));
+        }
+    });
+    
+    // Pre-fill with user info if available
+    {% if user.first_name or user.last_name %}
+        $('#shipping_name').val('{{ user.first_name }} {{ user.last_name }}');
+    {% endif %}
+    {% if user.email %}
+        $('#shipping_email').val('{{ user.email }}');
+    {% endif %}
+});
+</script>
+{% endblock %}
