@@ -1,9 +1,10 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Q, Avg, Count
 from django.core.paginator import Paginator
 from .models import Product, Category, ProductReview
+from .forms import ProductSearchForm
 
 class ProductListView(ListView):
     model = Product

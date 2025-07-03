@@ -9,32 +9,45 @@ class Cart(models.Model):
     """
     Shopping cart model that stores items before checkout
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    session_key = models.CharField(max_length=40, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
+    class Meta:
+        ordering = ['-updated_at']
+
     def __str__(self):
-        return f"Cart for {self.user.username}"
+        return f"Cart {self.id} - {self.user.username if self.user else 'Anonymous'}"
     
     @property
     def total_items(self):
-        """Get total number of items in cart"""
+        """Get total number of items in cart."""
         return sum(item.quantity for item in self.items.all())
     
     @property
     def subtotal(self):
-        """Calculate cart subtotal"""
+        """Calculate subtotal before tax."""
         return sum(item.get_total_price() for item in self.items.all())
     
     @property
+    def tax_rate(self):
+        """Tax rate (8.5%)."""
+        return Decimal('0.085')
+    
+    @property
     def tax_amount(self):
-        """Calculate tax (8% for simplicity)"""
-        return self.subtotal * Decimal('0.08')
+        """Calculate tax amount."""
+        return (self.subtotal * self.tax_rate).quantize(Decimal('0.01'))
     
     @property
     def total(self):
-        """Calculate total including tax"""
+        """Calculate total including tax."""
         return self.subtotal + self.tax_amount
+    
+    def clear(self):
+        """Remove all items from cart."""
+        self.items.all().delete()
 
 
 class CartItem(models.Model):
@@ -47,17 +60,25 @@ class CartItem(models.Model):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(100)]
     )
-    added_at = models.DateTimeField(auto_now_add=True)
-    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
         unique_together = ('cart', 'product')
-    
+        ordering = ['-updated_at']
+
     def __str__(self):
-        return f"{self.quantity}x {self.product.name}"
+        return f"{self.quantity} x {self.product.name}"
     
     def get_total_price(self):
-        """Get total price for this cart item"""
+        """Calculate total price for this cart item."""
         return self.product.price * self.quantity
+    
+    def save(self, *args, **kwargs):
+        """Ensure quantity doesn't exceed stock."""
+        if self.quantity > self.product.stock_quantity:
+            self.quantity = self.product.stock_quantity
+        super().save(*args, **kwargs)
 
 
 class Order(models.Model):

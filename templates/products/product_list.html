@@ -240,50 +240,170 @@
 {% endblock %}
 
 {% block scripts %}
+{% csrf_token %}
 <script>
-// Add to Cart functionality
+// Add to Cart functionality with improved AJAX
 document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', function() {
         const productId = this.dataset.productId;
+        const originalText = this.textContent;
+        
+        // Show loading state
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('product_id', productId);
+        formData.append('quantity', 1);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
         
         // Send AJAX request to add product to cart
-        fetch('/orders/add-to-cart/' + productId + '/', {
+        fetch('{% url "orders:add_to_cart" %}', {
             method: 'POST',
             headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
             },
-            body: JSON.stringify({quantity: 1})
+            body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
-                // Update button text temporarily
-                const originalText = this.textContent;
-                this.textContent = 'Added!';
+                // Show success state
+                this.innerHTML = '<i class="fas fa-check"></i> Added!';
                 this.classList.remove('btn-primary');
                 this.classList.add('btn-success');
-                
-                setTimeout(() => {
-                    this.textContent = originalText;
-                    this.classList.remove('btn-success');
-                    this.classList.add('btn-primary');
-                }, 1000);
                 
                 // Update cart count in navbar if exists
                 const cartCount = document.querySelector('.cart-count');
                 if (cartCount) {
-                    cartCount.textContent = data.cart_count;
+                    cartCount.textContent = data.cart_total_items || '0';
                 }
+                
+                // Show toast notification
+                showToast(data.message || 'Product added to cart', 'success');
+                
+                // Reset button after delay
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-primary');
+                    this.disabled = false;
+                }, 2000);
             } else {
-                alert('Error adding product to cart');
+                throw new Error(data.message || 'Error adding product to cart');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error adding product to cart');
+            showToast(error.message || 'Error adding product to cart', 'error');
+            
+            // Reset button
+            this.innerHTML = originalText;
+            this.disabled = false;
         });
     });
+});
+
+// Toast notification function
+function showToast(message, type) {
+    // Remove existing toast
+    const existingToast = document.querySelector('.product-toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed product-toast`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 3000);
+}
+
+// Enhanced filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Price range filter with instant feedback
+    const minPriceInput = document.querySelector('input[name="min_price"]');
+    const maxPriceInput = document.querySelector('input[name="max_price"]');
+    
+    if (minPriceInput && maxPriceInput) {
+        // Preserve existing values from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('min_price')) {
+            minPriceInput.value = urlParams.get('min_price');
+        }
+        if (urlParams.get('max_price')) {
+            maxPriceInput.value = urlParams.get('max_price');
+        }
+        
+        // Add debounced filter update
+        let filterTimeout;
+        function updateFilters() {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                const form = minPriceInput.closest('form');
+                if (form) {
+                    // Add current search and category to the form
+                    const currentSearch = urlParams.get('search');
+                    const currentCategory = urlParams.get('category');
+                    const currentSort = urlParams.get('sort');
+                    
+                    if (currentSearch) {
+                        let searchInput = form.querySelector('input[name="search"]');
+                        if (!searchInput) {
+                            searchInput = document.createElement('input');
+                            searchInput.type = 'hidden';
+                            searchInput.name = 'search';
+                            form.appendChild(searchInput);
+                        }
+                        searchInput.value = currentSearch;
+                    }
+                    
+                    if (currentCategory) {
+                        let categoryInput = form.querySelector('input[name="category"]');
+                        if (!categoryInput) {
+                            categoryInput = document.createElement('input');
+                            categoryInput.type = 'hidden';
+                            categoryInput.name = 'category';
+                            form.appendChild(categoryInput);
+                        }
+                        categoryInput.value = currentCategory;
+                    }
+                    
+                    if (currentSort) {
+                        let sortInput = form.querySelector('input[name="sort"]');
+                        if (!sortInput) {
+                            sortInput = document.createElement('input');
+                            sortInput.type = 'hidden';
+                            sortInput.name = 'sort';
+                            form.appendChild(sortInput);
+                        }
+                        sortInput.value = currentSort;
+                    }
+                }
+            }, 500);
+        }
+        
+        minPriceInput.addEventListener('input', updateFilters);
+        maxPriceInput.addEventListener('input', updateFilters);
+    }
 });
 </script>
 {% endblock %}

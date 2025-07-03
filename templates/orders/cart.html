@@ -30,6 +30,7 @@
 {% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="container my-5">
     <div class="row">
         <div class="col-12">
@@ -54,8 +55,8 @@
                                 <div class="row align-items-center">
                                     <!-- Product Image -->
                                     <div class="col-md-2">
-                                        {% if item.product.primary_image %}
-                                            <img src="{{ item.product.primary_image.url }}" 
+                                        {% if item.product.image %}
+                                            <img src="{{ item.product.image.url }}" 
                                                  alt="{{ item.product.name }}" 
                                                  class="product-image">
                                         {% else %}
@@ -68,13 +69,13 @@
                                     <!-- Product Details -->
                                     <div class="col-md-4">
                                         <h5 class="mb-1">
-                                            <a href="{% url 'products:product_detail' item.product.slug %}" 
+                                            <a href="{% url 'products:product_detail' item.product.pk %}" 
                                                class="text-decoration-none">
                                                 {{ item.product.name }}
                                             </a>
                                         </h5>
                                         <p class="text-muted mb-1">{{ item.product.category.name }}</p>
-                                        <small class="text-muted">SKU: {{ item.product.sku }}</small>
+                                        <small class="text-muted">ID: {{ item.product.id }}</small>
                                     </div>
 
                                     <!-- Quantity -->
@@ -200,8 +201,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update quantity handlers
     document.querySelectorAll('.quantity-input').forEach(input => {
+        // Store original value for rollback
+        input.setAttribute('data-original-value', input.value);
+        
         input.addEventListener('change', function() {
             updateCartItem(this.dataset.itemId, this.value);
+        });
+        
+        input.addEventListener('focus', function() {
+            this.setAttribute('data-original-value', this.value);
         });
     });
     
@@ -239,6 +247,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function updateCartItem(itemId, quantity) {
+        // Validate quantity before sending
+        if (quantity < 1 || quantity > 100) {
+            showToast('Quantity must be between 1 and 100', 'error');
+            return;
+        }
+        
         loadingModal.show();
         
         fetch('{% url "orders:update_cart" %}', {
@@ -250,21 +264,41 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: 'cart_item_id=' + itemId + '&quantity=' + quantity
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             loadingModal.hide();
             if (data.success) {
                 // Update item total
                 const itemRow = document.querySelector(`[data-item-id="${itemId}"]`);
-                itemRow.querySelector('.item-total').textContent = '$' + data.item_total;
+                if (itemRow) {
+                    const itemTotalElement = itemRow.querySelector('.item-total');
+                    if (itemTotalElement) {
+                        itemTotalElement.textContent = '$' + data.item_total;
+                    }
+                }
                 
                 // Update cart totals
-                document.querySelector('.cart-subtotal').textContent = '$' + data.cart_subtotal;
-                document.querySelector('.cart-total').textContent = '$' + data.cart_total;
+                const subtotalElement = document.querySelector('.cart-subtotal');
+                const taxElement = document.querySelector('.cart-tax');
+                const totalElement = document.querySelector('.cart-total');
+                
+                if (subtotalElement) subtotalElement.textContent = '$' + data.cart_subtotal;
+                if (taxElement && data.cart_tax) taxElement.textContent = '$' + data.cart_tax;
+                if (totalElement) totalElement.textContent = '$' + data.cart_total;
                 
                 showToast(data.message, 'success');
             } else {
-                showToast(data.message, 'error');
+                showToast(data.message || 'Error updating cart', 'error');
+                // Revert quantity change
+                const input = document.getElementById('quantity_' + itemId);
+                if (input) {
+                    input.value = input.getAttribute('data-original-value') || 1;
+                }
             }
         })
         .catch(error => {
@@ -285,26 +319,41 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: 'cart_item_id=' + itemId
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             loadingModal.hide();
             if (data.success) {
                 // Remove item from DOM
                 const itemRow = document.querySelector(`[data-item-id="${itemId}"]`);
-                itemRow.remove();
-                
-                // Update cart totals
-                document.querySelector('.cart-subtotal').textContent = '$' + data.cart_subtotal;
-                document.querySelector('.cart-total').textContent = '$' + data.cart_total;
-                
-                // Check if cart is empty
-                if (data.cart_total_items === 0) {
-                    location.reload();
+                if (itemRow) {
+                    itemRow.style.opacity = '0.5';
+                    setTimeout(() => {
+                        itemRow.remove();
+                        
+                        // Update cart totals
+                        const subtotalElement = document.querySelector('.cart-subtotal');
+                        const taxElement = document.querySelector('.cart-tax');
+                        const totalElement = document.querySelector('.cart-total');
+                        
+                        if (subtotalElement) subtotalElement.textContent = '$' + data.cart_subtotal;
+                        if (taxElement && data.cart_tax) taxElement.textContent = '$' + data.cart_tax;
+                        if (totalElement) totalElement.textContent = '$' + data.cart_total;
+                        
+                        // Check if cart is empty
+                        if (data.cart_total_items === 0) {
+                            setTimeout(() => location.reload(), 1000);
+                        }
+                    }, 300);
                 }
                 
                 showToast(data.message, 'success');
             } else {
-                showToast(data.message, 'error');
+                showToast(data.message || 'Error removing item', 'error');
             }
         })
         .catch(error => {
