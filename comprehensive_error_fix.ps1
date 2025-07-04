@@ -1,7 +1,16 @@
 
 # PowerShell script to fix all Express Deals system errors
 
-Write-Host "🔧 EXPRESS DEALS - COMPREHENSIVE ERROR FIX SCRIPT" -ForegroundColor Green
+Write-Host "🔧 EXPRESS DEALS - COMPREHENSIVE ERROR FIX SCRIPT" -ForegroundCo# Step 8: Remove .env file if it exists
+Write-Host ""
+Write-Host "🗑️ Step 8: Removing .env file..." -ForegroundColor Yellow
+
+if (Test-Path ".env") {
+    Remove-Item ".env" -Force
+    Write-Host "✅ .env file removed" -ForegroundColor Green
+} else {
+    Write-Host "✅ No .env file found" -ForegroundColor Green
+}
 Write-Host "=================================================" -ForegroundColor Green
 Write-Host ""
 
@@ -59,32 +68,61 @@ Write-Host "Python location: $(where.exe python)" -ForegroundColor Cyan
 # Step 5: Upgrade pip and install requirements
 Write-Host ""
 Write-Host "📦 Step 5: Installing/updating all requirements..." -ForegroundColor Yellow
+
+# First upgrade pip
 try {
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-    Write-Host "✅ All requirements installed" -ForegroundColor Green
+    Write-Host "Upgrading pip..." -ForegroundColor Cyan
+    $pipUpgrade = python -m pip install --upgrade pip 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "✅ Pip upgraded successfully" -ForegroundColor Green
+    } else {
+        Write-Host "⚠️ Pip upgrade had issues but continuing..." -ForegroundColor Yellow
+    }
 } catch {
-    Write-Host "❌ Failed to install some requirements" -ForegroundColor Red
+    Write-Host "⚠️ Pip upgrade failed but continuing..." -ForegroundColor Yellow
+}
+
+# Try to install from requirements.txt
+try {
+    Write-Host "Installing requirements from requirements.txt..." -ForegroundColor Cyan
+    $reqInstall = pip install -r requirements.txt 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "✅ All requirements installed from file" -ForegroundColor Green
+    } else {
+        Write-Host "⚠️ Some requirements failed, trying individual packages..." -ForegroundColor Yellow
+        throw "Requirements file installation failed"
+    }
+} catch {
+    Write-Host "❌ Failed to install from requirements.txt" -ForegroundColor Red
     Write-Host "Trying to install core packages individually..." -ForegroundColor Cyan
     
     $corePackages = @(
         "django",
-        "djangorestframework", 
-        "dj-database-url",
+        "djangorestframework",
+        "dj-database-url", 
         "celery",
         "channels",
+        "channels-redis",
         "scrapy",
         "beautifulsoup4",
         "requests",
         "redis",
         "pillow",
-        "stripe"
+        "stripe",
+        "whitenoise",
+        "django-celery-beat",
+        "django-celery-results"
     )
     
     foreach ($package in $corePackages) {
         try {
-            pip install $package
-            Write-Host "✅ Installed $package" -ForegroundColor Green
+            Write-Host "Installing $package..." -ForegroundColor Cyan
+            $packageInstall = pip install $package 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "✅ Installed $package" -ForegroundColor Green
+            } else {
+                Write-Host "❌ Failed to install $package" -ForegroundColor Red
+            }
         } catch {
             Write-Host "❌ Failed to install $package" -ForegroundColor Red
         }
@@ -100,12 +138,18 @@ $testImports = @{
     "rest_framework" = "import rest_framework; print('DRF:', rest_framework.VERSION)"
     "dj_database_url" = "import dj_database_url; print('dj-database-url: OK')"
     "celery" = "import celery; print('Celery:', celery.__version__)"
+    "channels" = "import channels; print('Channels: OK')"
+    "redis" = "import redis; print('Redis: OK')"
 }
 
 foreach ($import in $testImports.GetEnumerator()) {
     try {
-        $result = python -c $import.Value 2>$null
-        Write-Host "✅ $($import.Name): $result" -ForegroundColor Green
+        $result = python -c $import.Value 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "✅ $($import.Name): $result" -ForegroundColor Green
+        } else {
+            Write-Host "❌ $($import.Name): Import failed - $result" -ForegroundColor Red
+        }
     } catch {
         Write-Host "❌ $($import.Name): Import failed" -ForegroundColor Red
     }
