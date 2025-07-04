@@ -1,5 +1,28 @@
 # 🚀 EXPRESS DEALS - ALL SETUP OPTIONS SUMMARY
 
+## 🚨 **HAVING ERRORS? FIX THEM FIRST!**
+
+If you're experiencing import errors, package not found, or Django issues:
+
+### **🔧 Quick Error Fix (Recommended):**
+```powershell
+.\comprehensive_error_fix.ps1
+```
+
+### **🔧 Simple Batch Fix:**
+```cmd
+quick_error_fix.bat
+```
+
+### **🔧 Detailed System Check:**
+```python
+python system_error_checker.py
+```
+
+**📋 See `SYSTEM_ERROR_REPORT.md` for detailed error analysis and fixes.**
+
+---
+
 ## 📋 **CHOOSE YOUR SETUP METHOD**
 
 I've created multiple ways for you to set up your Express Deals environment. Pick the one that works best for you:
@@ -78,7 +101,7 @@ cd "c:\Users\BONAFS\OneDrive\Documents\Express_Deals\Express_Deals"
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # 3. Activate virtual environment
-.\env\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 
 # 4. Upgrade pip
 python -m pip install --upgrade pip
@@ -146,7 +169,7 @@ print('🚀 Express Deals is ready!')
 
 You'll know everything is working when:
 
-1. ✅ Virtual environment shows `(env)` in prompt
+1. ✅ Virtual environment shows `(.venv)` in prompt
 2. ✅ All packages import without errors
 3. ✅ `python manage.py check` shows no issues
 4. ✅ `python manage.py runserver` starts successfully
@@ -159,8 +182,8 @@ You'll know everything is working when:
 ### **Most Common Issues:**
 
 1. **Virtual environment not activated**
-   - Look for `(env)` in your prompt
-   - Run: `.\env\Scripts\Activate.ps1`
+   - Look for `(.venv)` in your prompt
+   - Run: `.\.venv\Scripts\Activate.ps1`
 
 2. **Execution policy error**
    - Run: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
@@ -177,8 +200,12 @@ If you need help:
 
 1. **Note which method you tried**
 2. **Copy any error messages**
-3. **Check if `(env)` is showing in your prompt**
+3. **Check if `(.venv)` is showing in your prompt**
 4. **Try the troubleshooting steps above**
+5. **Run error fix scripts:**
+   - `comprehensive_error_fix.ps1` (recommended)
+   - `quick_error_fix.bat` (simple)
+   - `system_error_checker.py` (detailed)
 
 ---
 

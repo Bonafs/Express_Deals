@@ -21,7 +21,6 @@ def evaluate_file_structure():
     critical_files = [
         'manage.py',
         'requirements.txt',
-        '.env',
         '.gitignore',
         'README.md',
         'DEPLOYMENT.md',
@@ -222,7 +221,6 @@ def evaluate_production_readiness():
     
     checklist = [
         ("Settings Configuration", Path('express_deals/production_settings.py').exists()),
-        ("Environment Variables", Path('.env').exists()),
         ("Static Files Setup", "whitenoise" in open('requirements.txt').read()),
         ("Database Support", "psycopg2-binary" in open('requirements.txt').read()),
         ("Security Middleware", True),  # WhiteNoise is configured

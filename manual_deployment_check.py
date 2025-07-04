@@ -17,7 +17,6 @@ def display_deployment_readiness():
     critical_files = [
         ("✅", "manage.py", "Django management script"),
         ("✅", "requirements.txt", "Python dependencies"),
-        ("✅", ".env", "Environment configuration"),
         ("✅", ".gitignore", "Git ignore rules"),
         ("✅", "README.md", "Project documentation"),
         ("✅", "DEPLOYMENT.md", "Deployment guide"),

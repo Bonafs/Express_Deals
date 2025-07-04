@@ -142,7 +142,7 @@ def display_file_structure():
             "README.md - Comprehensive project documentation",
             "DEPLOYMENT.md - Deployment guide",
             "requirements.txt - Python dependencies",
-            ".env - Environment configuration"
+            "express_deals/settings.py - Hardcoded configuration"
         ]
     }
     

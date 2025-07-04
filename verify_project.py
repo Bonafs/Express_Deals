@@ -41,7 +41,6 @@ def main():
     print("\n📁 Core Django Files:")
     all_good &= check_file_exists("manage.py", "Django management script")
     all_good &= check_file_exists("requirements.txt", "Python dependencies")
-    all_good &= check_file_exists(".env", "Environment variables")
     all_good &= check_file_exists(".gitignore", "Git ignore file")
     all_good &= check_file_exists("README.md", "Project documentation")
     all_good &= check_file_exists("DEPLOYMENT.md", "Deployment guide")

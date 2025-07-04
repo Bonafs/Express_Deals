@@ -26,7 +26,6 @@ def check_file_structure():
         'logs/',
         'manage.py',
         'requirements.txt',
-        '.env',
         '.gitignore',
         'README.md',
     ]

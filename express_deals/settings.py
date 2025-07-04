@@ -1,31 +1,22 @@
 """
 Django settings for express_deals project.
 
-Optimized for e-commerce platform with environment variables support.
+Optimized for e-commerce platform with hardcoded development settings.
 """
 
 import os
 from pathlib import Path
-from dotenv import load_dotenv
-
-try:
-    import dj_database_url
-except ImportError:
-    dj_database_url = None
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-gm92zq*_*osw8xp6y5_zfy=@6!f)b9*-pfms&vmb0yiool99xn')
+SECRET_KEY = 'django-insecure-gm92zq*_*osw8xp6y5_zfy=@6!f)b9*-pfms&vmb0yiool99xn'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 
 # Application definition
@@ -89,20 +80,13 @@ WSGI_APPLICATION = 'express_deals.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Use PostgreSQL in production, SQLite in development
-if dj_database_url and os.getenv('DATABASE_URL'):
-    # Production database (PostgreSQL)
-    DATABASES = {
-        'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
+# Development database (SQLite) - hardcoded configuration
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    # Development database (SQLite)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 
 # Password validation
@@ -150,18 +134,18 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Stripe Configuration
-STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', '')
-STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
-STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+# Stripe Configuration (Development - use test keys)
+STRIPE_PUBLIC_KEY = 'pk_test_development_key'
+STRIPE_SECRET_KEY = 'sk_test_development_key'
+STRIPE_WEBHOOK_SECRET = 'whsec_development_key'
 
-# Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+# Email Configuration (Development - console backend)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
 
 # Security Settings for Production
 if not DEBUG:
@@ -179,10 +163,10 @@ if not DEBUG:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Stripe Configuration
-STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', 'pk_test_...')
-STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', 'sk_test_...')
-STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', 'whsec_...')
+# Stripe Configuration (Development - use test keys)
+STRIPE_PUBLISHABLE_KEY = 'pk_test_development_key'
+STRIPE_SECRET_KEY = 'sk_test_development_key'
+STRIPE_WEBHOOK_SECRET = 'whsec_development_key'
 
 # Ensure logs directory exists
 LOGS_DIR = BASE_DIR / 'logs'
@@ -233,9 +217,9 @@ LOGGING = {
     },
 }
 
-# Celery Configuration
-CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+# Celery Configuration (Redis local development)
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -248,7 +232,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [os.getenv('REDIS_URL', 'redis://localhost:6379/1')],
+            "hosts": ['redis://localhost:6379/1'],
         },
     },
 }
@@ -265,33 +249,20 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
-# Twilio Configuration
-TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
-TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
-TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+# Third-party Service Configuration (Development - empty/disabled)
+TWILIO_ACCOUNT_SID = ''
+TWILIO_AUTH_TOKEN = ''
+TWILIO_PHONE_NUMBER = ''
 
-# SendGrid Configuration
-SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+# SendGrid Configuration (Development - disabled)
+SENDGRID_API_KEY = ''
 
-# Sentry Configuration (Error Monitoring)
-SENTRY_DSN = os.getenv('SENTRY_DSN')
-if SENTRY_DSN:
-    import sentry_sdk
-    from sentry_sdk.integrations.django import DjangoIntegration
-    from sentry_sdk.integrations.celery import CeleryIntegration
-    
-    sentry_sdk.init(
-        dsn=SENTRY_DSN,
-        integrations=[
-            DjangoIntegration(auto_enabling=True),
-            CeleryIntegration(auto_enabling=True),
-        ],
-        traces_sample_rate=0.1,
-        send_default_pii=True
-    )
+# Sentry Configuration (Development - disabled)
+SENTRY_DSN = ''
+# Sentry is disabled in development - no initialization needed
 
-# Site Configuration
-SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
+# Site Configuration (Development)
+SITE_URL = 'http://localhost:8000'
 SITE_NAME = 'Express Deals'
 
 # Web Scraping Configuration
@@ -305,8 +276,8 @@ SCRAPING_RATE_LIMIT = 1  # Seconds between requests
 SCRAPING_MAX_RETRIES = 3
 SCRAPING_TIMEOUT = 30  # Seconds
 
-# Chrome/Selenium Configuration
-CHROME_DRIVER_PATH = os.getenv('CHROME_DRIVER_PATH')
+# Chrome/Selenium Configuration (Development)
+CHROME_DRIVER_PATH = None  # Use system PATH
 SELENIUM_HEADLESS = True
 
 # Price Alert Configuration
@@ -314,24 +285,24 @@ MAX_ALERTS_PER_USER = 50
 ALERT_CHECK_FREQUENCY = 30  # Minutes
 PRICE_CHANGE_THRESHOLD = 0.01  # Minimum price change to trigger alert
 
-# Notification Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+# Notification Configuration (Development - console backend)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@expressdeals.com')
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+DEFAULT_FROM_EMAIL = 'noreply@expressdeals.com'
 
 # File Upload Configuration
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 
-# Cache Configuration
+# Cache Configuration (Development - Redis local)
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/2'),
+        'LOCATION': 'redis://localhost:6379/2',
     }
 }
 
