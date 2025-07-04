@@ -10,17 +10,17 @@ Set-Location "c:\Users\BONAFS\OneDrive\Documents\Express_Deals\Express_Deals"
 Write-Host "📍 Current directory: $(Get-Location)" -ForegroundColor Cyan
 
 # Check if virtual environment exists
-if (Test-Path "env\Scripts\Activate.ps1") {
-    Write-Host "✅ Virtual environment found in 'env' directory" -ForegroundColor Green
+if (Test-Path ".venv\Scripts\Activate.ps1") {
+    Write-Host "✅ Virtual environment found in '.venv' directory" -ForegroundColor Green
 } else {
     Write-Host "❌ Virtual environment not found! Creating new one..." -ForegroundColor Red
-    python -m venv env
+    python -m venv .venv
     Write-Host "✅ New virtual environment created" -ForegroundColor Green
 }
 
 # Activate virtual environment
 Write-Host "🔄 Activating virtual environment..." -ForegroundColor Yellow
-& "env\Scripts\Activate.ps1"
+& ".venv\Scripts\Activate.ps1"
 
 # Check Python version
 Write-Host "🐍 Python version:" -ForegroundColor Blue
@@ -90,7 +90,7 @@ Write-Host "🎉 Environment verification complete!" -ForegroundColor Green
 Write-Host ""
 Write-Host "💡 To activate this environment in the future, run:" -ForegroundColor Yellow
 Write-Host "   Set-Location 'c:\Users\BONAFS\OneDrive\Documents\Express_Deals\Express_Deals'" -ForegroundColor White
-Write-Host "   .\env\Scripts\Activate.ps1" -ForegroundColor White
+Write-Host "   .\.venv\Scripts\Activate.ps1" -ForegroundColor White
 Write-Host ""
 Write-Host "🚀 Your Express Deals environment is ready!" -ForegroundColor Green
 

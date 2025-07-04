@@ -34,10 +34,10 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ### 🚀 **STEP 5: Activate Virtual Environment**
 
 ```powershell
-.\env\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 ```
 
-**Expected Output:** Your prompt should change to show `(env)` at the beginning.
+**Expected Output:** Your prompt should change to show `(.venv)` at the beginning.
 
 ### 🚀 **STEP 6: Verify Python Location**
 
@@ -49,7 +49,7 @@ where python
 **Expected Output:**
 ```
 Python 3.x.x
-C:\Users\BONAFS\OneDrive\Documents\Express_Deals\Express_Deals\env\Scripts\python.exe
+C:\Users\BONAFS\OneDrive\Documents\Express_Deals\Express_Deals\.venv\Scripts\python.exe
 ```
 
 ### 🚀 **STEP 7: Upgrade Pip**
@@ -103,7 +103,7 @@ python verify_environment.py
 🚀 Express Deals - Environment Verification
 ==================================================
 🐍 Python Version: 3.x.x
-📍 Python Executable: C:\Users\BONAFS\...\env\Scripts\python.exe
+📍 Python Executable: C:\Users\BONAFS\...\.venv\Scripts\python.exe
 
 🔍 Checking Required Packages:
 ✅ django: X.X.X
@@ -164,8 +164,8 @@ setup_environment.bat
 
 You'll know everything is working when you see:
 
-1. ✅ Virtual environment activated (shows `(env)` in prompt)
-2. ✅ Python location points to your project's `env\Scripts\python.exe`
+1. ✅ Virtual environment activated (shows `(.venv)` in prompt)
+2. ✅ Python location points to your project's `.venv\Scripts\python.exe`
 3. ✅ All package imports work without errors
 4. ✅ Django system check passes
 5. ✅ REST Framework imports successfully

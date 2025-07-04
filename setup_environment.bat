@@ -1,5 +1,16 @@
 @echo off
-REM Express Deals Environment Setup and Verification Script
+R# Check if virtual environment exists
+if exist ".venv\Scripts\activate.bat" (
+    echo ✅ Virtual environment found in '.venv' directory
+) else (
+    echo ❌ Virtual environment not found! Creating new one...
+    python -m venv .venv
+    echo ✅ New virtual environment created
+)
+
+REM Activate virtual environment
+echo 🔄 Activating virtual environment...
+call .venv\Scripts\activate.bateals Environment Setup and Verification Script
 REM This script ensures the correct Python environment is activated and packages are installed
 
 echo 🚀 Express Deals - Environment Setup and Verification
@@ -66,7 +77,7 @@ echo 🎉 Environment verification complete!
 echo.
 echo 💡 To activate this environment in the future, run:
 echo    cd "c:\Users\BONAFS\OneDrive\Documents\Express_Deals\Express_Deals"
-echo    env\Scripts\activate.bat
+echo    .venv\Scripts\activate.bat
 echo.
 echo 🚀 Your Express Deals environment is ready!
 

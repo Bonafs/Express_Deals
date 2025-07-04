@@ -10,18 +10,18 @@ echo 📍 Current Directory: %CD%
 echo.
 
 echo 🔍 Step 1: Checking if virtual environment exists...
-if exist "env\Scripts\python.exe" (
+if exist ".venv\Scripts\python.exe" (
     echo ✅ Virtual environment found
 ) else (
     echo ❌ Virtual environment not found - please create one first
-    echo Run: python -m venv env
+    echo Run: python -m venv .venv
     pause
     exit /b 1
 )
 
 echo.
 echo 🔍 Step 2: Activating virtual environment...
-call env\Scripts\activate.bat
+call .venv\Scripts\activate.bat
 
 echo.
 echo 🔍 Step 3: Checking Python version...

@@ -7,7 +7,7 @@ cd /d "c:\Users\BONAFS\OneDrive\Documents\Express_Deals\Express_Deals"
 echo 📍 Project Directory: %CD%
 
 echo 🔄 Activating virtual environment...
-call env\Scripts\activate.bat
+call .venv\Scripts\activate.bat
 
 echo 🐍 Python Information:
 python --version

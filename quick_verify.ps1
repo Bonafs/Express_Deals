@@ -11,18 +11,18 @@ Write-Host "📍 Current Directory: $(Get-Location)" -ForegroundColor Cyan
 Write-Host ""
 
 Write-Host "🔍 Step 1: Checking if virtual environment exists..." -ForegroundColor Yellow
-if (Test-Path "env\Scripts\python.exe") {
+if (Test-Path ".venv\Scripts\python.exe") {
     Write-Host "✅ Virtual environment found" -ForegroundColor Green
 } else {
     Write-Host "❌ Virtual environment not found - please create one first" -ForegroundColor Red
-    Write-Host "Run: python -m venv env" -ForegroundColor White
+    Write-Host "Run: python -m venv .venv" -ForegroundColor White
     Read-Host "Press Enter to exit"
     exit 1
 }
 
 Write-Host ""
 Write-Host "🔍 Step 2: Activating virtual environment..." -ForegroundColor Yellow
-& "env\Scripts\Activate.ps1"
+& ".venv\Scripts\Activate.ps1"
 
 Write-Host ""
 Write-Host "🔍 Step 3: Checking Python version..." -ForegroundColor Yellow
