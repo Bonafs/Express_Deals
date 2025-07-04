@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'channels',
-    'notifications_hq',
+    # 'notifications',  # Temporarily disabled due to Django 5.2 compatibility
     'django_celery_beat',
     'django_celery_results',
     
@@ -274,11 +274,27 @@ WHATSAPP_TEMPLATES = {
     }
 }
 
-# WhatsApp Notification Settings (Development configuration)
-WHATSAPP_ENABLED = False  # Set to True when WhatsApp is configured
+# Email Configuration (Development - Console backend)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'  # Replace with actual email
+EMAIL_HOST_PASSWORD = 'your-app-password'  # Replace with actual app password
+DEFAULT_FROM_EMAIL = 'Express Deals <noreply@expressdeals.com>'
+
+# SMS Configuration (Twilio) - Development
+TWILIO_ACCOUNT_SID = 'your-twilio-account-sid'  # Replace with actual SID
+TWILIO_AUTH_TOKEN = 'your-twilio-auth-token'   # Replace with actual token
+TWILIO_PHONE_NUMBER = '+1234567890'  # Replace with actual Twilio number
+
+# WhatsApp Configuration (Development)
+WHATSAPP_ENABLED = True  # Enable WhatsApp notifications
+WHATSAPP_ACCESS_TOKEN = 'your-whatsapp-access-token'  # Replace
+WHATSAPP_PHONE_NUMBER_ID = 'your-phone-number-id'     # Replace
+WHATSAPP_WEBHOOK_VERIFY_TOKEN = 'your-webhook-verify-token'  # Replace
 WHATSAPP_RATE_LIMIT = 30  # Seconds between WhatsApp messages
 WHATSAPP_MAX_RETRIES = 3  # Maximum retry attempts for failed messages
-TWILIO_PHONE_NUMBER = ''
 
 # SendGrid Configuration (Development - disabled)
 SENDGRID_API_KEY = ''
