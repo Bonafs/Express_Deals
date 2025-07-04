@@ -1,7 +1,8 @@
 
 # PowerShell script to fix all Express Deals system errors
 
-Write-Host "🔧 EXPRESS DEALS - COMPREHENSIVE ERROR FIX SCRIPT" -ForegroundCo# Step 8: Remove .env file if it exists
+Write-Host "🔧 EXPRESS DEALS - COMPREHENSIVE ERROR FIX SCRIPT" -ForegroundColor Green
+Write-Host # Step 8: Remove .env file if it exists
 Write-Host ""
 Write-Host "🗑️ Step 8: Removing .env file..." -ForegroundColor Yellow
 
@@ -10,8 +11,7 @@ if (Test-Path ".env") {
     Write-Host "✅ .env file removed" -ForegroundColor Green
 } else {
     Write-Host "✅ No .env file found" -ForegroundColor Green
-}
-Write-Host "=================================================" -ForegroundColor Green
+}========================================" -ForegroundColor Green
 Write-Host ""
 
 # Set location to project directory

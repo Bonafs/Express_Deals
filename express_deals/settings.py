@@ -163,11 +163,6 @@ if not DEBUG:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Stripe Configuration (Development - use test keys)
-STRIPE_PUBLISHABLE_KEY = 'pk_test_development_key'
-STRIPE_SECRET_KEY = 'sk_test_development_key'
-STRIPE_WEBHOOK_SECRET = 'whsec_development_key'
-
 # Ensure logs directory exists
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)
@@ -284,15 +279,6 @@ SELENIUM_HEADLESS = True
 MAX_ALERTS_PER_USER = 50
 ALERT_CHECK_FREQUENCY = 30  # Minutes
 PRICE_CHANGE_THRESHOLD = 0.01  # Minimum price change to trigger alert
-
-# Notification Configuration (Development - console backend)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-DEFAULT_FROM_EMAIL = 'noreply@expressdeals.com'
 
 # File Upload Configuration
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
