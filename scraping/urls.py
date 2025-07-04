@@ -5,6 +5,7 @@ URL configuration for alert management and scraping features
 
 from django.urls import path
 from . import views
+from .whatsapp_views import whatsapp_webhook
 
 app_name = 'alerts'
 
@@ -29,4 +30,7 @@ urlpatterns = [
     path('api/count/', views.api_alert_count, name='api_count'),
     path('api/deals/', views.api_recent_deals, name='api_deals'),
     path('api/quick-alert/', views.api_create_quick_alert, name='api_quick_alert'),
+    
+    # WhatsApp Integration
+    path('whatsapp/webhook/', whatsapp_webhook, name='whatsapp_webhook'),
 ]

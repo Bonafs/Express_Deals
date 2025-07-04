@@ -247,6 +247,37 @@ REST_FRAMEWORK = {
 # Third-party Service Configuration (Development - empty/disabled)
 TWILIO_ACCOUNT_SID = ''
 TWILIO_AUTH_TOKEN = ''
+
+# WhatsApp Configuration (Development - hardcoded for development)
+WHATSAPP_API_URL = 'https://api.whatsapp.com/send'
+WHATSAPP_BUSINESS_API_URL = 'https://graph.facebook.com/v17.0'
+WHATSAPP_ACCESS_TOKEN = ''  # Configure with your Facebook WhatsApp Business API token
+WHATSAPP_PHONE_NUMBER_ID = ''  # Configure with your WhatsApp Business phone number ID
+WHATSAPP_VERIFY_TOKEN = 'express_deals_whatsapp_webhook_dev'  # Verification token for development
+
+# WhatsApp Template Configuration (Hardcoded for development)
+WHATSAPP_TEMPLATES = {
+    'price_alert': {
+        'name': 'price_alert_template',
+        'language': 'en',
+        'category': 'MARKETING'
+    },
+    'deal_notification': {
+        'name': 'deal_notification_template', 
+        'language': 'en',
+        'category': 'MARKETING'
+    },
+    'order_confirmation': {
+        'name': 'order_confirmation_template',
+        'language': 'en', 
+        'category': 'TRANSACTIONAL'
+    }
+}
+
+# WhatsApp Notification Settings (Development configuration)
+WHATSAPP_ENABLED = False  # Set to True when WhatsApp is configured
+WHATSAPP_RATE_LIMIT = 30  # Seconds between WhatsApp messages
+WHATSAPP_MAX_RETRIES = 3  # Maximum retry attempts for failed messages
 TWILIO_PHONE_NUMBER = ''
 
 # SendGrid Configuration (Development - disabled)

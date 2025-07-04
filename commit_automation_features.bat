@@ -14,12 +14,13 @@ git commit -m "feat: Add advanced automation dependencies
 - Updated requirements.txt with scraping packages (scrapy, beautifulsoup4, selenium, playwright)
 - Added background task processing (celery, redis, django-celery-beat)
 - Added real-time features (channels, channels-redis, websockets)
-- Added notification services (twilio, django-notifications-hq)
+- Added notification services (twilio, django-notifications-hq, sendgrid)
+- Added WhatsApp integration (pywhatkit, python-whatsapp-api)
 - Added monitoring and analytics (sentry-sdk)
 - Added API framework (djangorestframework)
 
 This commit establishes the foundation for automated price monitoring,
-web scraping, real-time notifications, and background task processing."
+web scraping, real-time notifications, and multi-channel communications."
 
 echo === Commit 2: Core Django Configuration ===
 git add express_deals/settings.py express_deals/asgi.py express_deals/urls.py
@@ -28,12 +29,13 @@ git commit -m "feat: Configure Django for advanced automation features
 - Updated settings.py with Celery configuration
 - Added Channels for WebSocket support
 - Configured external services (Twilio, SendGrid, Sentry)
+- Added WhatsApp Business API configuration
 - Added caching and session configuration
 - Updated ASGI configuration for WebSocket support
 - Enhanced URL routing with alerts endpoints
 
 This commit configures Django to support real-time features,
-background processing, and external service integrations."
+background processing, and multi-channel notifications including WhatsApp."
 
 echo === Commit 3: Celery Background Processing ===
 git add express_deals/celery.py
@@ -102,7 +104,22 @@ git commit -m "feat: Implement unified notification system
 This commit provides a comprehensive notification system
 that supports multiple channels with delivery guarantees."
 
-echo === Commit 8: Django Admin Interface ===
+echo === Commit 8: WhatsApp Integration ===
+git add scraping/whatsapp_views.py scraping/management/ accounts/models.py accounts/admin.py
+git commit -m "feat: Add WhatsApp Business API integration
+
+- WhatsApp notification service with Facebook Business API
+- WhatsApp webhook handler for incoming messages
+- User profile model with WhatsApp preferences
+- WhatsApp template management system
+- Interactive WhatsApp bot with commands (HELP, DEALS, STOP)
+- Admin interface for WhatsApp number management
+- Test management command for WhatsApp functionality
+
+This commit adds comprehensive WhatsApp integration for
+real-time notifications and customer interaction."
+
+echo === Commit 9: Django Admin Interface ===
 git add scraping/admin.py
 git commit -m "feat: Add comprehensive admin interface for scraping
 
@@ -116,7 +133,7 @@ git commit -m "feat: Add comprehensive admin interface for scraping
 This commit provides powerful admin tools for managing
 the scraping and alert systems."
 
-echo === Commit 9: User-facing Views and Forms ===
+echo === Commit 10: User-facing Views and Forms ===
 git add scraping/views.py scraping/forms.py scraping/urls.py
 git commit -m "feat: Add user-facing alert management system
 
@@ -126,11 +143,12 @@ git commit -m "feat: Add user-facing alert management system
 - Alert history and analytics
 - Deal discovery interface
 - API endpoints for AJAX integration
+- WhatsApp webhook URL routing
 
 This commit provides a complete user interface for
 managing price alerts and discovering deals."
 
-echo === Commit 10: Real-time WebSocket Features ===
+echo === Commit 11: Real-time WebSocket Features ===
 git add realtime/consumers.py realtime/routing.py realtime/apps.py realtime/__init__.py
 git commit -m "feat: Add real-time WebSocket functionality
 
@@ -239,14 +257,15 @@ This commit provides all necessary documentation
 for production deployment and maintenance."
 
 echo === All commits completed successfully! ===
-echo Total commits created: 17
+echo Total commits created: 18
 echo.
 echo Summary of changes:
 echo - Advanced web scraping and price monitoring
 echo - Real-time notifications and WebSocket support
 echo - Background task processing with Celery
 echo - Comprehensive user interface for alert management
-echo - Multi-channel notification system
+echo - Multi-channel notification system (Email, SMS, WhatsApp)
+echo - WhatsApp Business API integration with interactive bot
 echo - Production-ready configuration and documentation
 echo.
 echo The Express Deals platform is now fully automated and production-ready!
