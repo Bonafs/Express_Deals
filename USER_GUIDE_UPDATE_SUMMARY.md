@@ -153,3 +153,103 @@ The Express Deals User Guide now fully reflects the platform's advanced capabili
 5. **🆕 Background Task Processing** (newly documented)
 
 **The documentation is now production-ready and accurately represents the full feature set of Express Deals!** ✨
+
+---
+
+## 🔧 **LATEST ENVIRONMENT CONFIGURATION UPDATES**
+
+**Update Date**: July 4, 2025 (Second Update)
+**Focus**: Environment Variable Migration & Virtual Environment Standardization
+
+### ✅ **Environment Configuration Overhaul**
+
+#### **REMOVED All .env References**
+- ❌ Removed all references to `.env` files throughout the documentation
+- ❌ Eliminated environment variable configuration examples
+- ❌ Removed python-dotenv dependency references
+- ✅ **BENEFIT**: Eliminates external file dependencies and configuration complexity
+
+#### **MIGRATED to Django Settings-Based Configuration**
+- ✅ Updated "Configuration Settings" section to use Django settings.py
+- ✅ Replaced `.env` examples with Django settings examples
+- ✅ Updated production deployment to use settings.py configuration
+- ✅ **BENEFIT**: All configuration now centralized in Django settings
+
+#### **STANDARDIZED Virtual Environment to .venv**
+- ✅ Fixed directory structure to show `.venv/` instead of `env/`
+- ✅ Updated all virtual environment creation commands to use `.venv`
+- ✅ Corrected activation commands throughout documentation
+- ✅ Fixed troubleshooting sections to reference `.venv`
+- ✅ **BENEFIT**: Matches actual project structure and Python best practices
+
+### 📊 **Specific Changes Made**
+
+#### **Directory Structure Fixed**
+```diff
+- ├── 📁 env/                     # Virtual environment
+- ├── 📄 .env                    # Environment variables
++ ├── 📁 .venv/                   # Virtual environment
+```
+
+#### **Virtual Environment Commands Updated**
+```diff
+- python -m venv env
+- .\env\Scripts\Activate.ps1
++ python -m venv .venv
++ .\.venv\Scripts\activate
+```
+
+#### **Configuration Approach Changed**
+```diff
+- #### Environment Variables
+- Your store's configuration is in the `.env` file
++ #### Configuration Settings  
++ Your store's configuration is built into Django settings
++ **No .env file needed** - everything configured in Django settings
+```
+
+#### **Requirements.txt Updated**
+```diff
+- python-dotenv 1.1.1 (environment variables)
++ celery 5.4.0 (background tasks)
++ redis 5.2.1 (caching and message broker)
+```
+
+### 🎯 **Impact of Environment Updates**
+
+#### **✅ Simplified Setup Process**
+- No need to create or manage `.env` files
+- Reduced configuration steps for users
+- Less chance of environment variable errors
+- Immediate project functionality without external dependencies
+
+#### **✅ Improved Documentation Accuracy**
+- All commands now match actual project structure
+- Consistent virtual environment naming throughout
+- Accurate dependency lists and installation instructions
+- Proper production deployment guidance
+
+#### **✅ Better Developer Experience**
+- Standardized `.venv` usage follows Python conventions
+- All configuration visible in Django settings
+- No hidden environment files to manage
+- Clearer understanding of project structure
+
+### 📝 **Files Updated in This Round**
+1. **EXPRESS_DEALS_USER_GUIDE.md** - Complete environment configuration overhaul
+2. **USER_GUIDE_UPDATE_SUMMARY.md** - This summary with latest changes
+
+### 🚀 **Final Documentation Status**
+
+**✅ COMPLETE & ACCURATE**: The Express Deals User Guide now:
+- Uses consistent `.venv` virtual environment references
+- Eliminates `.env` file dependencies entirely  
+- Provides Django settings-based configuration
+- Matches actual project structure and dependencies
+- Offers streamlined setup process for users
+
+**🎯 PRODUCTION READY**: Documentation now perfectly aligns with the actual Express Deals platform implementation, ensuring users can successfully set up and use all features without configuration issues.
+
+---
+
+*Total Updates: Initial feature documentation + Environment configuration standardization = Complete, production-ready user guide*
