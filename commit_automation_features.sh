@@ -25,16 +25,18 @@ create_commit() {
 
 # 1. Foundation & Dependencies
 echo "=== Commit 1: Foundation & Dependencies ==="
-create_commit "feat: Add advanced automation dependencies
+create_commit "feat: Add clean, optimized automation dependencies
 
-- Updated requirements.txt with scraping packages (scrapy, beautifulsoup4, selenium, playwright)
+- Cleaned and organized requirements.txt with no duplicates
+- Added web scraping packages (scrapy, beautifulsoup4, selenium, playwright)
 - Added background task processing (celery, redis, django-celery-beat)
 - Added real-time features (channels, channels-redis, websockets)
 - Added notification services (twilio, django-notifications-hq)
 - Added monitoring and analytics (sentry-sdk)
 - Added API framework (djangorestframework)
+- Added development and testing packages (pytest, django-debug-toolbar)
 
-This commit establishes the foundation for automated price monitoring,
+This commit establishes a clean foundation for automated price monitoring,
 web scraping, real-time notifications, and background task processing." "requirements.txt"
 
 # 2. Core Django Configuration

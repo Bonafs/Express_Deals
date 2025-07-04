@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'channels',
-    'notifications',
+    'notifications_hq',
     'django_celery_beat',
     'django_celery_results',
     
