@@ -18,7 +18,7 @@ cd "c:\Users\BONAFS\OneDrive\Documents\Express_Deals\Express_Deals"
 ### 🚀 **STEP 3: Check if Virtual Environment Exists**
 
 ```powershell
-ls env
+ls .venv
 ```
 
 **Expected Output:** You should see folders like `Scripts`, `Lib`, `Include`, etc.
@@ -181,7 +181,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ### **Issue: "ModuleNotFoundError: No module named 'rest_framework'"**
 **Solution:**
-1. Ensure virtual environment is activated (see `(env)` in prompt)
+1. Ensure virtual environment is activated (see `(.venv)` in prompt)
 2. Run: `pip install djangorestframework`
 3. Verify: `pip show djangorestframework`
 
@@ -193,9 +193,9 @@ python -m pip install --upgrade pip
 
 ### **Issue: Virtual environment won't activate**
 **Solution:**
-1. Delete `env` folder: `Remove-Item -Recurse -Force env`
-2. Create new: `python -m venv env`
-3. Activate: `.\env\Scripts\Activate.ps1`
+1. Delete `.venv` folder: `Remove-Item -Recurse -Force .venv`
+2. Create new: `python -m venv .venv`
+3. Activate: `.\.venv\Scripts\Activate.ps1`
 4. Install: `pip install -r requirements.txt`
 
 ## 🎉 **FINAL VERIFICATION COMMAND**

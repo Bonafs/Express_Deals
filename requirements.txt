@@ -14,6 +14,7 @@ stripe==12.3.0
 
 # Configuration
 dj-database-url==2.3.0
+gunicorn==21.2.0
 
 # Web Scraping & Data Collection
 scrapy==2.11.0
