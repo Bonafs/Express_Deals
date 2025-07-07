@@ -13,7 +13,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'express_deals.heroku_settings')
 django.setup()
 
 from django.contrib.auth.models import User
-from accounts.models import Profile
+from accounts.models import UserProfile
 
 def create_sample_users():
     """Create sample users with profiles"""
@@ -99,13 +99,13 @@ def create_sample_users():
                 user.save()
                 print(f"✅ Created user: {user.username} ({user.email})")
                 
-                # Try to create profile if Profile model exists
+                # Try to create profile if UserProfile model exists
                 try:
                     profile_data = user_data['profile_data']
-                    profile, profile_created = Profile.objects.get_or_create(
+                    profile, profile_created = UserProfile.objects.get_or_create(
                         user=user,
                         defaults={
-                            'phone': profile_data.get('phone', ''),
+                            'phone_number': profile_data.get('phone', ''),
                             'date_of_birth': profile_data.get('date_of_birth'),
                             'address': profile_data.get('address', ''),
                         }
