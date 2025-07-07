@@ -479,7 +479,7 @@ function createPriceAlert() {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
     submitBtn.disabled = true;
     
-    fetch('{% url "alerts:create_api" %}', {
+    fetch('{% url "alerts:api_quick_alert" %}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
