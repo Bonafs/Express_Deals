@@ -235,7 +235,7 @@
                                             <span class="me-2">{{ i }} star</span>
                                             <div class="progress flex-grow-1 me-2" style="height: 8px;">
                                                 <div class="progress-bar bg-warning" 
-                                                     style="width: {% if rating_distribution.forloop.counter %}{{ rating_distribution.forloop.counter|div:review_count|mul:100 }}{% else %}0{% endif %}%">
+                                                     style="width: {% if rating_distribution.forloop.counter and review_count %}{% widthratio rating_distribution.forloop.counter review_count 100 %}{% else %}0{% endif %}%">
                                                 </div>
                                             </div>
                                             <span class="text-muted">{{ rating_distribution.forloop.counter|default:0 }}</span>

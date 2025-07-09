@@ -16,6 +16,9 @@ stripe==12.3.0
 dj-database-url==2.3.0
 gunicorn==21.2.0
 
+# Redis for upgraded Heroku plan
+django-redis==5.4.0
+
 # Web Scraping & Data Collection
 scrapy>=2.11.0
 beautifulsoup4>=4.12.2
