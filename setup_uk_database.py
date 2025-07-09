@@ -113,9 +113,6 @@ def create_sample_products():
             'price': Decimal('999.00'),
             'original_price': Decimal('1199.00'),
             'description': 'Latest iPhone with Pro camera system and titanium design',
-            'retailer': 'Amazon UK',
-            'url': 'https://amazon.co.uk/iphone-15-pro',
-            'image_url': 'https://via.placeholder.com/300x300?text=iPhone+15+Pro',
             'discount_percentage': 17
         },
         {
@@ -124,9 +121,6 @@ def create_sample_products():
             'price': Decimal('699.99'),
             'original_price': Decimal('899.99'),
             'description': 'Quantum Dot technology with Alexa built-in',
-            'retailer': 'Currys',
-            'url': 'https://currys.co.uk/samsung-tv',
-            'image_url': 'https://via.placeholder.com/300x300?text=Samsung+TV',
             'discount_percentage': 22
         },
         {
@@ -135,9 +129,6 @@ def create_sample_products():
             'price': Decimal('849.00'),
             'original_price': Decimal('1149.00'),
             'description': '13-inch laptop with M2 chip and all-day battery',
-            'retailer': 'John Lewis',
-            'url': 'https://johnlewis.com/macbook-air',
-            'image_url': 'https://via.placeholder.com/300x300?text=MacBook+Air',
             'discount_percentage': 26
         },
         
@@ -148,20 +139,14 @@ def create_sample_products():
             'price': Decimal('449.99'),
             'original_price': Decimal('599.99'),
             'description': 'Laser dust detection and powerful suction',
-            'retailer': 'Argos',
-            'url': 'https://argos.co.uk/dyson-v15',
-            'image_url': 'https://via.placeholder.com/300x300?text=Dyson+V15',
             'discount_percentage': 25
         },
         {
-            'name': 'IKEA HEMNES Bed Frame',
+            'name': 'HEMNES Bed Frame Double',
             'category': 'home-garden',
             'price': Decimal('149.00'),
             'original_price': Decimal('199.00'),
             'description': 'Solid wood double bed frame with headboard',
-            'retailer': 'IKEA UK',
-            'url': 'https://ikea.com/gb/hemnes-bed',
-            'image_url': 'https://via.placeholder.com/300x300?text=HEMNES+Bed',
             'discount_percentage': 25
         },
         
@@ -172,60 +157,85 @@ def create_sample_products():
             'price': Decimal('79.99'),
             'original_price': Decimal('109.99'),
             'description': 'Classic Nike trainers in multiple colors',
-            'retailer': 'JD Sports',
-            'url': 'https://jdsports.co.uk/nike-air-max',
-            'image_url': 'https://via.placeholder.com/300x300?text=Nike+Air+Max',
             'discount_percentage': 27
         },
         {
-            'name': 'Zara Wool Blend Coat',
+            'name': 'Wool Blend Winter Coat',
             'category': 'fashion',
             'price': Decimal('59.99'),
             'original_price': Decimal('89.99'),
             'description': 'Elegant winter coat in navy blue',
-            'retailer': 'Zara UK',
-            'url': 'https://zara.com/uk/wool-coat',
-            'image_url': 'https://via.placeholder.com/300x300?text=Zara+Coat',
             'discount_percentage': 33
         },
         
         # Health & Beauty
         {
-            'name': 'The Ordinary Skincare Set',
+            'name': 'Complete Skincare Set',
             'category': 'health-beauty',
             'price': Decimal('24.99'),
             'original_price': Decimal('34.99'),
             'description': 'Complete skincare routine with serums and moisturizer',
-            'retailer': 'Boots',
-            'url': 'https://boots.com/ordinary-set',
-            'image_url': 'https://via.placeholder.com/300x300?text=Skincare+Set',
             'discount_percentage': 29
         },
         
         # Sports
         {
-            'name': 'Adidas Football Boots',
+            'name': 'Professional Football Boots',
             'category': 'sports',
             'price': Decimal('89.99'),
             'original_price': Decimal('129.99'),
             'description': 'Professional football boots with studs',
-            'retailer': 'Sports Direct',
-            'url': 'https://sportsdirect.com/adidas-boots',
-            'image_url': 'https://via.placeholder.com/300x300?text=Football+Boots',
             'discount_percentage': 31
         },
         
         # Kitchen
         {
-            'name': 'KitchenAid Stand Mixer',
+            'name': 'Stand Mixer Professional',
             'category': 'kitchen',
             'price': Decimal('299.99'),
             'original_price': Decimal('399.99'),
             'description': 'Professional stand mixer in classic red',
-            'retailer': 'John Lewis',
-            'url': 'https://johnlewis.com/kitchenaid',
-            'image_url': 'https://via.placeholder.com/300x300?text=KitchenAid',
             'discount_percentage': 25
+        },
+        
+        # Toys
+        {
+            'name': 'Educational Building Blocks Set',
+            'category': 'toys',
+            'price': Decimal('39.99'),
+            'original_price': Decimal('49.99'),
+            'description': 'Creative building blocks for children aged 3+',
+            'discount_percentage': 20
+        },
+        
+        # Books
+        {
+            'name': 'UK Bestseller Book Collection',
+            'category': 'books',
+            'price': Decimal('19.99'),
+            'original_price': Decimal('29.99'),
+            'description': 'Collection of top UK bestselling novels',
+            'discount_percentage': 33
+        },
+        
+        # Automotive
+        {
+            'name': 'Car Care Kit Complete',
+            'category': 'automotive',
+            'price': Decimal('49.99'),
+            'original_price': Decimal('69.99'),
+            'description': 'Complete car cleaning and maintenance kit',
+            'discount_percentage': 29
+        },
+        
+        # Pets
+        {
+            'name': 'Premium Dog Food 15kg',
+            'category': 'pets',
+            'price': Decimal('34.99'),
+            'original_price': Decimal('44.99'),
+            'description': 'High-quality dry dog food for adult dogs',
+            'discount_percentage': 22
         }
     ]
     
@@ -243,12 +253,11 @@ def create_sample_products():
                 'price': product_data['price'],
                 'original_price': product_data['original_price'],
                 'description': product_data['description'],
-                'retailer': product_data['retailer'],
-                'url': product_data['url'],
-                'image_url': product_data['image_url'],
-                'discount_percentage': product_data['discount_percentage'],
-                'is_available': True,
-                'last_updated': timezone.now()
+                'slug': product_data['name'].lower().replace(' ', '-').replace('&', 'and'),
+                'stock_quantity': 50,
+                'stock_status': 'in_stock',
+                'is_active': True,
+                'is_featured': product_data.get('discount_percentage', 0) > 25
             }
         )
         
