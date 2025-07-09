@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load price_filters %}
 
 {% block title %}Price Alert Dashboard - Express Deals{% endblock %}
 
@@ -122,8 +123,8 @@
         <div class="col-md-3 mb-3">
             <div class="card stats-card h-100">
                 <div class="card-body text-center">
-                    <i class="fas fa-dollar-sign fa-2x mb-3"></i>
-                    <h4 class="mb-0">${{ stats.savings_this_month|floatformat:2 }}</h4>
+                    <i class="fas fa-pound-sign fa-2x mb-3"></i>
+                    <h4 class="mb-0">£{{ stats.savings_this_month|floatformat:2 }}</h4>
                     <small>Savings This Month</small>
                 </div>
             </div>
@@ -153,7 +154,18 @@
             </div>
         </div>
         <div class="col-md-4 text-end">
-            <div class="dropdown">
+            <!-- Category Filter -->
+            <div class="d-inline-block me-2">
+                <select class="form-select form-select-sm" id="categoryFilter" onchange="filterByCategory()">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.name }}" {% if category_filter == category.name %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="dropdown d-inline-block">
                 <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                     <i class="fas fa-cog me-2"></i>Settings
                 </button>
@@ -221,7 +233,7 @@
                                             </span>
                                             {% if alert.target_price %}
                                                 <span class="me-2">
-                                                    <i class="fas fa-dollar-sign"></i> ${{ alert.target_price }}
+                                                    <i class="fas fa-bullseye"></i> Target: £{{ alert.target_price }}
                                                 </span>
                                             {% endif %}
                                             {% if alert.percentage_threshold %}
@@ -230,6 +242,48 @@
                                                 </span>
                                             {% endif %}
                                         </div>
+                                        
+                                        <!-- Enhanced Price Tracking Display -->
+                                        {% if alert.product %}
+                                        <div class="price-tracking-info bg-light p-2 rounded mb-2">
+                                            <div class="row text-center">
+                                                {% if alert.onset_price %}
+                                                <div class="col-4">
+                                                    <small class="text-muted d-block">Onset Price</small>
+                                                    <strong class="text-primary">£{{ alert.onset_price }}</strong>
+                                                </div>
+                                                {% endif %}
+                                                {% if alert.target_price %}
+                                                <div class="col-4">
+                                                    <small class="text-muted d-block">Target Price</small>
+                                                    <strong class="text-success">£{{ alert.target_price }}</strong>
+                                                </div>
+                                                {% endif %}
+                                                <div class="col-4">
+                                                    <small class="text-muted d-block">Current Price</small>
+                                                    <strong class="{% if alert.current_price and alert.target_price %}{% if alert.current_price <= alert.target_price %}text-success{% else %}text-warning{% endif %}{% else %}text-dark{% endif %}">
+                                                        £{{ alert.current_price|default:alert.product.price }}
+                                                    </strong>
+                                                    {% if alert.current_price and alert.onset_price %}
+                                                        {% with savings=alert.onset_price|sub:alert.current_price %}
+                                                            {% if savings > 0 %}
+                                                                <br><small class="text-success">(-£{{ savings|floatformat:2 }})</small>
+                                                            {% elif savings < 0 %}
+                                                                <br><small class="text-danger">(+£{{ savings|floatformat:2|slice:"1:" }})</small>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            {% if alert.last_price_update %}
+                                                <div class="text-center mt-1">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-clock"></i> Updated {{ alert.last_price_update|timesince }} ago
+                                                    </small>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
                                         <div class="text-muted small">
                                             Created: {{ alert.created_at|date:"M d, Y" }}
                                             {% if alert.last_triggered %}
@@ -484,6 +538,26 @@ $(document).ready(function() {
         $.get('/alerts/api/count/').done(function(data) {
             // Update statistics cards if needed
         });
+    }
+    
+    // Category filter function
+    function filterByCategory() {
+        const category = document.getElementById('categoryFilter').value;
+        const currentUrl = new URL(window.location);
+        
+        if (category) {
+            currentUrl.searchParams.set('category', category);
+        } else {
+            currentUrl.searchParams.delete('category');
+        }
+        
+        // Preserve status filter if it exists
+        const statusFilter = '{{ status_filter }}';
+        if (statusFilter) {
+            currentUrl.searchParams.set('status', statusFilter);
+        }
+        
+        window.location.href = currentUrl.toString();
     }
     
     // Ping WebSocket to keep connection alive

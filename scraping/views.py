@@ -24,12 +24,23 @@ def alert_dashboard(request):
     User dashboard for managing price alerts
     """
     # Get user's alerts
-    alerts = PriceAlert.objects.filter(user=request.user).order_by('-created_at')
+    alerts = PriceAlert.objects.filter(user=request.user).select_related('product__category').order_by('-created_at')
     
     # Filter by status if requested
     status_filter = request.GET.get('status')
     if status_filter in ['active', 'triggered', 'paused', 'expired']:
         alerts = alerts.filter(status=status_filter)
+    
+    # Filter by category if requested
+    category_filter = request.GET.get('category')
+    if category_filter:
+        alerts = alerts.filter(product__category__name=category_filter)
+    
+    # Get categories for filter
+    from products.models import Category
+    categories = Category.objects.filter(
+        products__pricealert__user=request.user
+    ).distinct().order_by('name')
     
     # Pagination
     paginator = Paginator(alerts, 10)
@@ -57,6 +68,8 @@ def alert_dashboard(request):
         'recent_notifications': recent_notifications,
         'stats': stats,
         'status_filter': status_filter,
+        'category_filter': category_filter,
+        'categories': categories,
     }
     
     return render(request, 'alerts/dashboard.html', context)

@@ -174,6 +174,13 @@ class PriceAlert(models.Model):
     expires_at = models.DateTimeField(null=True, blank=True)
     last_triggered = models.DateTimeField(null=True, blank=True)
     
+    # Enhanced price tracking fields
+    onset_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, 
+                                     help_text="Price when alert was created")
+    current_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,
+                                       help_text="Latest tracked price")
+    last_price_update = models.DateTimeField(null=True, blank=True)
+    
     def __str__(self):
         if self.product:
             return f"Alert: {self.product.name} - {self.get_alert_type_display()}"
