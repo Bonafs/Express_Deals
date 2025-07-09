@@ -45,15 +45,15 @@ def test_currency_support():
     
     # Test currency settings
     from django.conf import settings
-    from express_deals.currency_utils import get_default_currency, format_price_gbp
+    from express_deals.currency_utils import format_gbp_price, currency_converter
     
-    print(f"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Default Currency: {get_default_currency()}")
+    print(f"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Default Currency: {currency_converter.default_currency}")
     print(f"🌍 Time Zone: {settings.TIME_ZONE}")
     print(f"🗣️ Language: {settings.LANGUAGE_CODE}")
     
     # Test price formatting
     test_price = 29.99
-    formatted = format_price_gbp(test_price)
+    formatted = format_gbp_price(test_price)
     print(f"💰 Price Format Test: {test_price} -> {formatted}")
     
     return True
