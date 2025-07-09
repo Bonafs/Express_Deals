@@ -315,7 +315,7 @@ def main():
         
         total_categories = Category.objects.count()
         total_products = Product.objects.count()
-        available_products = Product.objects.filter(is_available=True).count()
+        available_products = Product.objects.filter(is_active=True).count()
         
         print(f"📂 Total Categories: {total_categories}")
         print(f"📦 Total Products: {total_products}")
