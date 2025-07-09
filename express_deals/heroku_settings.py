@@ -48,7 +48,52 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# UK-SPECIFIC CONFIGURATION
+# Currency and Localization Settings
+USE_L10N = True
+USE_TZ = True
+TIME_ZONE = 'Europe/London'
+LANGUAGE_CODE = 'en-gb'
+
+# Currency Configuration
+DEFAULT_CURRENCY = 'GBP'
+CURRENCY_CHOICES = [
+    ('GBP', '£ British Pound'),
+    ('USD', '$ US Dollar'),
+    ('EUR', '€ Euro'),
+]
+
+# UK-specific formatting
+USE_THOUSAND_SEPARATOR = True
+THOUSAND_SEPARATOR = ','
+DECIMAL_SEPARATOR = '.'
+
+# Payment Configuration (Stripe UK)
+STRIPE_CURRENCY = 'gbp'  # Default to British Pounds
+STRIPE_COUNTRY = 'GB'
+
+# Express Deals UK Configuration
+SITE_NAME = 'Express Deals UK'
+SITE_URL = os.environ.get('SITE_URL', 'https://express-deals-16b6c1fa4311.herokuapp.com')
+DEFAULT_FROM_EMAIL = 'noreply@expressdeals.co.uk'
+COMPANY_ADDRESS = """
+Express Deals UK Ltd
+123 High Street
+London, SW1A 1AA
+United Kingdom
+"""
+
+# UK VAT Configuration
+VAT_RATE = 0.20  # 20% UK VAT
+INCLUDE_VAT_IN_PRICES = True
+
+# UK-specific scraping settings
+UK_PRICE_PATTERNS = [
+    r'£\s*(\d+(?:\.\d{2})?)',  # £99.99
+    r'(\d+(?:\.\d{2})?)\s*£',  # 99.99£
+    r'GBP\s*(\d+(?:\.\d{2})?)',  # GBP 99.99
+]
 
 # Redis/Celery Configuration
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
