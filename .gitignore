@@ -160,6 +160,17 @@ yarn-error.log*
 *.pem
 secrets.json
 
+# Express Deals - Security Critical Files
+# NEVER commit these files - they contain sensitive credentials
+credentials.py
+local_settings.py
+.env.local
+.env.production
+*_credentials.py
+*_secrets.py
+backup_credentials.json
+backup_scripts/
+
 # Logs directory
 logs/
 *.log
