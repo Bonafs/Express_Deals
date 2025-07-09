@@ -10,7 +10,7 @@ import django
 
 # Setup Django environment
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 
-                      'express_deals.heroku_settings')
+                      'express_deals.settings')
 django.setup()
 
 from django.contrib.auth.models import User

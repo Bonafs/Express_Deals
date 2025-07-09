@@ -1,0 +1,388 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - Express Deals{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cart-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 1rem;
+    }
+    
+    .cart-item {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .cart-item-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 2rem;
+    }
+    
+    .cart-item-details {
+        flex: 1;
+    }
+    
+    .cart-item-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .cart-item-price {
+        font-size: 1.1rem;
+        color: #28a745;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .cart-item-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .quantity-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    
+    .quantity-btn:hover {
+        background: #0056b3;
+    }
+    
+    .quantity-input {
+        width: 60px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 0.25rem;
+    }
+    
+    .remove-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .remove-btn:hover {
+        background: #c82333;
+    }
+    
+    .cart-summary {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 2rem;
+        position: sticky;
+        top: 2rem;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: between;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .summary-row:last-child {
+        border-bottom: none;
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+    
+    .checkout-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        width: 100%;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 1rem;
+        cursor: pointer;
+    }
+    
+    .checkout-btn:hover {
+        background: #218838;
+    }
+    
+    .checkout-btn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+    }
+    
+    .empty-cart {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .empty-cart-icon {
+        font-size: 4rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+    
+    .continue-shopping {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 1rem;
+    }
+    
+    .continue-shopping:hover {
+        background: #0056b3;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    
+    .alert-success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    
+    .alert-info {
+        background: #cce7ff;
+        border: 1px solid #99d6ff;
+        color: #004085;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="cart-container">
+        <h1 class="mb-4">
+            <i class="fas fa-shopping-cart"></i> Your Shopping Cart
+        </h1>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% if cart_items %}
+            <div class="row">
+                <div class="col-lg-8">
+                    {% for item in cart_items %}
+                        <div class="cart-item" data-item-id="{{ item.id }}">
+                            <div class="cart-item-image">
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                                {% else %}
+                                    <i class="fas fa-image"></i>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="cart-item-details">
+                                <div class="cart-item-title">{{ item.product.name }}</div>
+                                <div class="cart-item-price">£{{ item.product.price }}</div>
+                                <div class="text-muted">
+                                    {% if item.product.original_price and item.product.original_price > item.product.price %}
+                                        <span style="text-decoration: line-through;">£{{ item.product.original_price }}</span>
+                                        <span class="text-success ms-2">
+                                            Save £{{ item.product.original_price|floatformat:2|add:"-"|add:item.product.price|floatformat:2 }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="cart-item-controls">
+                                <div class="quantity-controls">
+                                    <button class="quantity-btn" onclick="updateQuantity({{ item.id }}, {{ item.quantity|add:'-1' }})">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" class="quantity-input" value="{{ item.quantity }}" 
+                                           min="1" max="100" 
+                                           onchange="updateQuantity({{ item.id }}, this.value)">
+                                    <button class="quantity-btn" onclick="updateQuantity({{ item.id }}, {{ item.quantity|add:'1' }})">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="text-end">
+                                    <div class="fw-bold">£{{ item.get_total_price }}</div>
+                                    <button class="remove-btn mt-2" onclick="removeFromCart({{ item.id }})">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="cart-summary">
+                        <h4 class="mb-3">Order Summary</h4>
+                        
+                        <div class="summary-row">
+                            <span>Subtotal ({{ cart.total_items }} item{{ cart.total_items|pluralize }}):</span>
+                            <span>£{{ cart.subtotal }}</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>VAT (20%):</span>
+                            <span>£{{ cart.tax_amount }}</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>Shipping:</span>
+                            <span>
+                                {% if cart.subtotal >= 50 %}
+                                    <span class="text-success">FREE</span>
+                                {% else %}
+                                    £4.99
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <strong>Total:</strong>
+                            <strong>£{{ cart.total }}</strong>
+                        </div>
+                        
+                        {% if cart.subtotal < 50 %}
+                            <div class="alert alert-info mt-3">
+                                <small>
+                                    <i class="fas fa-info-circle"></i>
+                                    Add £{{ 50|floatformat:2|add:"-"|add:cart.subtotal|floatformat:2 }} more for FREE shipping!
+                                </small>
+                            </div>
+                        {% endif %}
+                        
+                        <a href="{% url 'orders:checkout' %}" class="checkout-btn">
+                            <i class="fas fa-lock"></i> Proceed to Checkout
+                        </a>
+                        
+                        <div class="text-center mt-3">
+                            <a href="{% url 'products:home' %}" class="text-muted">
+                                <i class="fas fa-arrow-left"></i> Continue Shopping
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-cart">
+                <div class="empty-cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h3>Your cart is empty</h3>
+                <p class="text-muted">Start adding some amazing deals to your cart!</p>
+                <a href="{% url 'products:home' %}" class="continue-shopping">
+                    <i class="fas fa-shopping-bag"></i> Start Shopping
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function updateQuantity(itemId, quantity) {
+    if (quantity < 1) {
+        removeFromCart(itemId);
+        return;
+    }
+    
+    fetch('{% url "orders:update_cart" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `item_id=${itemId}&quantity=${quantity}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error updating cart: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating cart');
+    });
+}
+
+function removeFromCart(itemId) {
+    if (confirm('Are you sure you want to remove this item from your cart?')) {
+        fetch('{% url "orders:remove_from_cart" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `item_id=${itemId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error removing item: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error removing item');
+        });
+    }
+}
+</script>
+{% endblock %}

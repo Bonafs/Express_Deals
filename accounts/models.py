@@ -30,13 +30,13 @@ class UserProfile(models.Model):
     date_of_birth = models.DateField(blank=True, null=True)
     address = models.TextField(blank=True)
     city = models.CharField(max_length=100, blank=True)
-    state = models.CharField(max_length=100, blank=True)
-    zip_code = models.CharField(max_length=10, blank=True)
-    country = models.CharField(max_length=100, default='United States')
+    county = models.CharField(max_length=100, blank=True, help_text="County (e.g., Surrey, Yorkshire)")
+    postcode = models.CharField(max_length=10, blank=True, help_text="UK Postcode (e.g., SW1A 1AA)")
+    country = models.CharField(max_length=100, default='United Kingdom')
     
     # Preferences
-    preferred_currency = models.CharField(max_length=3, default='USD')
-    timezone = models.CharField(max_length=50, default='UTC')
+    preferred_currency = models.CharField(max_length=3, default='GBP')
+    timezone = models.CharField(max_length=50, default='Europe/London')
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)

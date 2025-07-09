@@ -9,11 +9,12 @@ import sys
 import django
 
 # Setup Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'express_deals.heroku_settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'express_deals.settings')
 django.setup()
 
 from products.models import Product, Category
 from decimal import Decimal
+from django.utils.text import slugify
 
 def create_sample_data():
     """Create sample categories and products"""
@@ -30,7 +31,7 @@ def create_sample_data():
     for cat_data in categories:
         category, created = Category.objects.get_or_create(
             name=cat_data['name'],
-            defaults={'description': cat_data['description']}
+            defaults={'description': cat_data['description'], 'slug': slugify(cat_data['name'])}
         )
         created_categories.append(category)
         if created:
@@ -88,6 +89,9 @@ def create_sample_data():
     ]
     
     for product_data in sample_products:
+        # Add slug to product data
+        product_data['slug'] = slugify(product_data['name'])
+        
         product, created = Product.objects.get_or_create(
             sku=product_data['sku'],
             defaults=product_data

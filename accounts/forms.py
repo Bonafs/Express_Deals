@@ -123,11 +123,14 @@ class UserProfileUpdateForm(forms.ModelForm):
     
     class Meta:
         model = UserProfile
-        fields = ['phone', 'date_of_birth', 'address']
+        fields = [
+            'phone_number', 'date_of_birth', 'address',
+            'city', 'county', 'postcode'
+        ]
         widgets = {
-            'phone': forms.TextInput(attrs={
+            'phone_number': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Phone number'
+                'placeholder': 'UK phone number (e.g., +44 20 7946 0958)'
             }),
             'date_of_birth': forms.DateInput(attrs={
                 'class': 'form-control',
@@ -136,7 +139,19 @@ class UserProfileUpdateForm(forms.ModelForm):
             'address': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
-                'placeholder': 'Enter your address'
+                'placeholder': 'Enter your UK address'
+            }),
+            'city': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'City (e.g., London, Manchester)'
+            }),
+            'county': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'County (e.g., Surrey, Yorkshire)'
+            }),
+            'postcode': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'UK Postcode (e.g., SW1A 1AA)'
             })
         }
 
