@@ -97,13 +97,13 @@
 
                                     <!-- Price -->
                                     <div class="col-md-2 text-center">
-                                        <div class="fw-bold">${{ item.product.price }}</div>
+                                        <div class="fw-bold">£{{ item.product.price }}</div>
                                         <small class="text-muted">each</small>
                                     </div>
 
                                     <!-- Total -->
                                     <div class="col-md-1 text-center">
-                                        <div class="fw-bold item-total">${{ item.get_total_price }}</div>
+                                        <div class="fw-bold item-total">£{{ item.get_total_price }}</div>
                                     </div>
 
                                     <!-- Remove Button -->
@@ -128,12 +128,12 @@
                     
                     <div class="d-flex justify-content-between mb-2">
                         <span>Subtotal:</span>
-                        <span class="cart-subtotal">${{ cart.subtotal }}</span>
+                        <span class="cart-subtotal">£{{ cart.subtotal }}</span>
                     </div>
                     
                     <div class="d-flex justify-content-between mb-2">
                         <span>Tax:</span>
-                        <span class="cart-tax">${{ cart.tax_amount }}</span>
+                        <span class="cart-tax">£{{ cart.tax_amount }}</span>
                     </div>
                     
                     <div class="d-flex justify-content-between mb-2">
@@ -145,7 +145,7 @@
                     
                     <div class="d-flex justify-content-between mb-3">
                         <strong>Total:</strong>
-                        <strong class="cart-total">${{ cart.total }}</strong>
+                        <strong class="cart-total">£{{ cart.total }}</strong>
                     </div>
                     
                     <div class="d-grid gap-2">

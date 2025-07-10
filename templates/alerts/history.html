@@ -121,7 +121,7 @@
         <div class="savings-highlight text-center">
             <h4>
                 <i class="fas fa-piggy-bank"></i>
-                Total Savings: ${{ total_savings|floatformat:2 }}
+                Total Savings: £{{ total_savings|floatformat:2 }}
             </h4>
             <p class="mb-0">You've saved money on {{ triggered_alerts_count }} price alerts!</p>
         </div>
@@ -219,7 +219,7 @@
                             </h5>
                             <p class="card-text">
                                 <strong>Alert Type:</strong> {{ notification.alert.get_alert_type_display }}<br>
-                                <strong>Target Price:</strong> ${{ notification.alert.target_price }}<br>
+                                <strong>Target Price:</strong> £{{ notification.alert.target_price }}<br>
                                 <strong>Triggered:</strong> {{ notification.created_at|date:"M j, Y g:i A" }}
                             </p>
                             <p class="text-muted">{{ notification.message }}</p>
@@ -230,12 +230,12 @@
                             {% if notification.old_price and notification.new_price %}
                             <div class="price-change">
                                 <div class="text-muted">Old Price:</div>
-                                <div class="price-up">${{ notification.old_price }}</div>
+                                <div class="price-up">£{{ notification.old_price }}</div>
                                 <div class="text-muted">New Price:</div>
-                                <div class="price-down">${{ notification.new_price }}</div>
+                                <div class="price-down">£{{ notification.new_price }}</div>
                                 {% if notification.discount_amount %}
                                 <div class="badge bg-success mt-2">
-                                    Saved ${{ notification.discount_amount|floatformat:2 }}
+                                    Saved £{{ notification.discount_amount|floatformat:2 }}
                                 </div>
                                 {% endif %}
                             </div>

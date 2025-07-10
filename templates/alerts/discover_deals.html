@@ -178,7 +178,7 @@
                 <div>Avg Discount</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number">${{ total_savings|floatformat:0 }}</div>
+                <div class="stat-number">£{{ total_savings|floatformat:0 }}</div>
                 <div>Total Savings</div>
             </div>
             <div class="stat-item">
@@ -201,7 +201,7 @@
                         <div>
                             <h6 class="mb-1">{{ deal.name|truncatechars:30 }}</h6>
                             <div class="d-flex align-items-center">
-                                <span class="me-2"><strong>${{ deal.current_price }}</strong></span>
+                                <span class="me-2"><strong>£{{ deal.current_price }}</strong></span>
                                 <span class="badge bg-danger">{{ deal.discount_percentage }}% OFF</span>
                             </div>
                         </div>
@@ -407,9 +407,9 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         {% if deal.original_price != deal.current_price %}
-                                        <div class="original-price">${{ deal.original_price }}</div>
+                                        <div class="original-price">£{{ deal.original_price }}</div>
                                         {% endif %}
-                                        <div class="current-price">${{ deal.current_price }}</div>
+                                        <div class="current-price">£{{ deal.current_price }}</div>
                                         {% if deal.discount_percentage > 0 %}
                                         <span class="discount-percentage">{{ deal.discount_percentage }}% OFF</span>
                                         {% endif %}

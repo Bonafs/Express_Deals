@@ -81,7 +81,7 @@
                                     {{ product.name|truncatechars:30 }}
                                 </a>
                             </h6>
-                            <small class="text-success">${{ product.price }}</small>
+                            <small class="text-success">£{{ product.price }}</small>
                         </div>
                     </div>
                     {% endfor %}
@@ -151,12 +151,12 @@
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div>
                                         {% if product.is_on_sale %}
-                                        <span class="h5 text-success">${{ product.price }}</span>
+                                        <span class="h5 text-success">£{{ product.price }}</span>
                                         <small class="text-muted text-decoration-line-through">
-                                            ${{ product.original_price }}
+                                            £{{ product.original_price }}
                                         </small>
                                         {% else %}
-                                        <span class="h5 text-success">${{ product.price }}</span>
+                                        <span class="h5 text-success">£{{ product.price }}</span>
                                         {% endif %}
                                     </div>
                                     

@@ -30,7 +30,7 @@
                                         Order Information
                                     </h6>
                                     <p class="mb-1"><strong>Order Number:</strong> {{ order.order_number }}</p>
-                                    <p class="mb-1"><strong>Total Paid:</strong> ${{ order.total }}</p>
+                                    <p class="mb-1"><strong>Total Paid:</strong> £{{ order.total }}</p>
                                     <p class="mb-1"><strong>Payment Status:</strong> 
                                         <span class="badge bg-success">Paid</span>
                                     </p>
@@ -71,10 +71,10 @@
                                             <br><small class="text-muted">Quantity: {{ item.quantity }}</small>
                                         </div>
                                         <div class="col-md-3 text-center">
-                                            ${{ item.price }} each
+                                            £{{ item.price }} each
                                         </div>
                                         <div class="col-md-3 text-end">
-                                            <strong>${{ item.get_total_price }}</strong>
+                                            <strong>£{{ item.get_total_price }}</strong>
                                         </div>
                                     </div>
                                 {% endfor %}

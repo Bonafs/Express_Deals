@@ -75,7 +75,7 @@
                             <strong>Order #{{ order.order_number }}</strong>
                         </div>
                         <div class="col-6 text-end">
-                            <strong>${{ order.total }}</strong>
+                            <strong>£{{ order.total }}</strong>
                         </div>
                     </div>
                     <hr>
@@ -85,18 +85,18 @@
                             {{ item.quantity }}x {{ item.product.name }}
                         </div>
                         <div class="col-4 text-end">
-                            ${{ item.get_total_price }}
+                            £{{ item.get_total_price }}
                         </div>
                     </div>
                     {% endfor %}
                     <hr>
                     <div class="row">
                         <div class="col-6">Subtotal:</div>
-                        <div class="col-6 text-end">${{ order.subtotal }}</div>
+                        <div class="col-6 text-end">£{{ order.subtotal }}</div>
                     </div>
                     <div class="row">
                         <div class="col-6">Tax:</div>
-                        <div class="col-6 text-end">${{ order.tax_amount }}</div>
+                        <div class="col-6 text-end">£{{ order.tax_amount }}</div>
                     </div>
                     <div class="row">
                         <div class="col-6">Shipping:</div>
@@ -105,7 +105,7 @@
                     <hr>
                     <div class="row h5">
                         <div class="col-6"><strong>Total:</strong></div>
-                        <div class="col-6 text-end"><strong>${{ order.total }}</strong></div>
+                        <div class="col-6 text-end"><strong>£{{ order.total }}</strong></div>
                     </div>
                 </div>
                 
@@ -157,7 +157,7 @@
                                 <button id="submit-payment" class="btn btn-primary btn-lg">
                                     <span id="button-text">
                                         <i class="fas fa-lock me-2"></i>
-                                        Pay ${{ order.total }}
+                                        Pay £{{ order.total }}
                                     </span>
                                     <div id="spinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status">
                                         <span class="visually-hidden">Loading...</span>
