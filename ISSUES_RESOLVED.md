@@ -55,8 +55,8 @@
 
 1. **Test Your Platform:**
    ```
-   Visit: https://express-deals.herokuapp.com
-   Admin: https://express-deals.herokuapp.com/admin/
+   Visit: https://express-deals-16b6c1fa4311.herokuapp.com
+   Admin: https://express-deals-16b6c1fa4311.herokuapp.com/admin/
    ```
 
 2. **Local Development:**

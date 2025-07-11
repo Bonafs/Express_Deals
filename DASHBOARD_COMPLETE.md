@@ -52,9 +52,9 @@ Your Express Deals platform now has a comprehensive dashboard that displays exac
 - **Alert History:** http://localhost:8000/alerts/history/
 
 #### **Live Production (Heroku):**
-- **Dashboard:** https://express-deals.herokuapp.com/alerts/
-- **Create Alert:** https://express-deals.herokuapp.com/alerts/create/
-- **Alert History:** https://express-deals.herokuapp.com/alerts/history/
+- **Dashboard:** https://express-deals-16b6c1fa4311.herokuapp.com/alerts/
+- **Create Alert:** https://express-deals-16b6c1fa4311.herokuapp.com/alerts/create/
+- **Alert History:** https://express-deals-16b6c1fa4311.herokuapp.com/alerts/history/
 
 ### 👥 **User Access:**
 - **Available to:** All registered users

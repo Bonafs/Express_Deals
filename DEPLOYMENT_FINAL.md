@@ -28,8 +28,8 @@
 - **Status:** ✅ Ready for development
 
 #### **Production (Heroku):**
-- **URL:** https://express-deals.herokuapp.com
-- **Admin:** https://express-deals.herokuapp.com/admin/
+- **URL:** https://express-deals-16b6c1fa4311.herokuapp.com
+- **Admin:** https://express-deals-16b6c1fa4311.herokuapp.com/admin/
 - **Status:** ✅ Live and functional
 - **Memory Issues:** ✅ Resolved (Basic dyno + Redis)
 - **Redis Errors:** ✅ Fixed
@@ -65,6 +65,6 @@
 
 **🎉 Your Express Deals UK e-commerce platform is fully deployed and ready for business!**
 
-**Production URL:** https://express-deals.herokuapp.com  
-**Admin Panel:** https://express-deals.herokuapp.com/admin/  
+**Production URL:** https://express-deals-16b6c1fa4311.herokuapp.com  
+**Admin Panel:** https://express-deals-16b6c1fa4311.herokuapp.com/admin/  
 **Local Development:** http://localhost:8000

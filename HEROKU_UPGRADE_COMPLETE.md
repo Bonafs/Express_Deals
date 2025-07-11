@@ -45,7 +45,7 @@ Access: Regular customer (for testing)
 ### 🌐 WEBSITE ACCESS:
 ```
 Local: http://localhost:8000/
-Heroku: https://express-deals.herokuapp.com/
+Heroku: https://express-deals-16b6c1fa4311.herokuapp.com/
 Features: Browse products, register, shopping cart
 ```
 
@@ -65,8 +65,8 @@ http://localhost:8000/admin/
 
 ### Production (Heroku):
 - Already deployed and running!
-- Visit: https://express-deals.herokuapp.com/
-- Admin: https://express-deals.herokuapp.com/admin/
+- Visit: https://express-deals-16b6c1fa4311.herokuapp.com/
+- Admin: https://express-deals-16b6c1fa4311.herokuapp.com/admin/
 
 ## 📊 PLATFORM FEATURES READY:
 

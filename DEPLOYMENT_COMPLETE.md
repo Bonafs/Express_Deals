@@ -44,8 +44,8 @@
 ### 🌐 Live Platform Access:
 
 **Production (Heroku):**
-- URL: https://express-deals.herokuapp.com/
-- Admin: https://express-deals.herokuapp.com/admin/
+- URL: https://express-deals-16b6c1fa4311.herokuapp.com/
+- Admin: https://express-deals-16b6c1fa4311.herokuapp.com/admin/
 - Status: ✅ DEPLOYED & UPDATED
 
 **Local Development:**

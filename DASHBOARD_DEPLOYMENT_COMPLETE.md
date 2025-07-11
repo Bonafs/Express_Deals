@@ -47,9 +47,9 @@
 ### 🌐 **Live Platform URLs:**
 
 #### **Production (Heroku):**
-- **Dashboard:** https://express-deals.herokuapp.com/alerts/
-- **Create Alert:** https://express-deals.herokuapp.com/alerts/create/
-- **Admin Panel:** https://express-deals.herokuapp.com/admin/
+- **Dashboard:** https://express-deals-16b6c1fa4311.herokuapp.com/alerts/
+- **Create Alert:** https://express-deals-16b6c1fa4311.herokuapp.com/alerts/create/
+- **Admin Panel:** https://express-deals-16b6c1fa4311.herokuapp.com/admin/
 
 #### **Local Development:**
 - **Dashboard:** http://localhost:8000/alerts/
@@ -86,7 +86,7 @@
 **Your Enhanced Dashboard is now LIVE on both local and production environments!**
 
 **🔗 Access immediately:**
-- **Production:** https://express-deals.herokuapp.com/alerts/
+- **Production:** https://express-deals-16b6c1fa4311.herokuapp.com/alerts/
 - **Local:** http://localhost:8000/alerts/
 
 **📱 Login and test:** customer1 / TestUser2024!
