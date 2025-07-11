@@ -8,7 +8,7 @@ from .forms import ProductSearchForm
 
 class ProductListView(ListView):
     model = Product
-    template_name = 'products/product_list.html'
+    template_name = 'products/product_list_simple_working.html'  # Temporary simple template
     context_object_name = 'products'
     paginate_by = 12
     
