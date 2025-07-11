@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     
     # Third-party apps
     'rest_framework',
-    'channels',
+    # 'channels',  # Temporarily disabled - causing import errors
     # 'notifications',  # Temporarily disabled due to Django 5.2 compatibility
     'django_celery_beat',
     'django_celery_results',
@@ -243,16 +243,16 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 # Only start Celery if Redis is available
 CELERY_TASK_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', 'False').lower() == 'true'
 
-# Channels Configuration
-ASGI_APPLICATION = 'express_deals.asgi.application'
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379/1')],
-        },
-    },
-}
+# Channels Configuration - Temporarily disabled
+# ASGI_APPLICATION = 'express_deals.asgi.application'
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379/1')],
+#         },
+#     },
+# }
 
 # Django REST Framework
 REST_FRAMEWORK = {
