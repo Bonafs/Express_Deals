@@ -15,8 +15,8 @@
 
     <div class="row">
         <!-- Sidebar Filters -->
-        <div class="col-lg-3 col-md-4">
-            <div class="card mb-4">
+        <div class="col-lg-3 col-md-4 sidebar-cards">
+            <div class="card mb-4 h-auto">
                 <div class="card-header">
                     <h5>Search & Filter</h5>
                 </div>
@@ -76,7 +76,7 @@
 
             <!-- Featured Products Sidebar -->
             {% if featured_products %}
-            <div class="card">
+            <div class="card h-auto">
                 <div class="card-header">
                     <h5>Featured Products</h5>
                 </div>
@@ -85,7 +85,12 @@
                     <div class="d-flex mb-3">
                         {% if product.image %}
                         <img src="{{ product.image.url }}" alt="{{ product.name }}" 
-                             class="me-3" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                             class="me-3" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="me-3 d-flex align-items-center justify-content-center bg-light" 
+                             style="width: 50px; height: 50px; border-radius: 4px; display: none;">
+                            <i class="fas fa-image text-muted"></i>
+                        </div>
                         {% else %}
                         <div class="me-3 d-flex align-items-center justify-content-center bg-light" 
                              style="width: 50px; height: 50px; border-radius: 4px;">
@@ -166,7 +171,7 @@
                                  style="height: 280px; border-radius: 0.375rem 0.375rem 0 0; background: linear-gradient(45deg, #f8f9fa, #e9ecef); {% if product.image %}display: none;{% endif %}">
                                 <div class="text-center text-muted">
                                     <i class="fas fa-image fa-3x mb-2 opacity-75"></i>
-                                    <div class="fw-light">Live Image Loading...</div>
+                                    <div class="fw-light">Image Available</div>
                                 </div>
                             </div>
                             
@@ -330,10 +335,31 @@
 
 {% block extra_css %}
 <style>
-/* Product Card Enhancements */
+/* Card Alignment Fixes */
+.sidebar-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.sidebar-cards .card {
+    margin-bottom: 0;
+    height: auto;
+}
+
+/* Ensure consistent card heights in main grid */
 .product-card {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     border: 1px solid #e9ecef;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .product-card:hover {
