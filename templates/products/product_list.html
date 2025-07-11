@@ -150,22 +150,23 @@
             <div class="row">
                 {% for product in products %}
                 <div class="col-lg-4 col-md-6 col-sm-6 mb-4">                    <div class="card product-card h-100 shadow-sm">
-                        <!-- Product Image with Improved Error Handling and Fixed Badge Positioning -->
+                        <!-- Product Image with Optimized Loading and Error Handling -->
                         <div class="position-relative" style="overflow: hidden; border-radius: 0.375rem 0.375rem 0 0;">
                             {% if product.image %}
                             <img src="{{ product.image.url }}" 
                                  class="card-img-top" 
                                  alt="{{ product.name }}" 
+                                 loading="lazy"
                                  style="height: 280px; object-fit: cover; transition: transform 0.3s; width: 100%;"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'; console.log('Image failed to load:', this.src);">
                             {% endif %}
                             
-                            <!-- Fallback placeholder - always present -->
-                            <div class="card-img-top d-flex align-items-center justify-content-center bg-light" 
-                                 style="height: 280px; border-radius: 0.375rem 0.375rem 0 0; {% if product.image %}display: none;{% endif %}">
+                            <!-- Enhanced Fallback with Better Styling -->
+                            <div class="card-img-top d-flex align-items-center justify-content-center bg-gradient" 
+                                 style="height: 280px; border-radius: 0.375rem 0.375rem 0 0; background: linear-gradient(45deg, #f8f9fa, #e9ecef); {% if product.image %}display: none;{% endif %}">
                                 <div class="text-center text-muted">
-                                    <i class="fas fa-image fa-3x mb-2"></i>
-                                    <div>No Image Available</div>
+                                    <i class="fas fa-image fa-3x mb-2 opacity-75"></i>
+                                    <div class="fw-light">Live Image Loading...</div>
                                 </div>
                             </div>
                             
