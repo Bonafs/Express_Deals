@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Express Deals - Debug Mode{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row bg-primary text-white py-5 mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-4">Express Deals - Debug Mode</h1>
+            <p class="lead">Testing homepage functionality</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Debug Information</h2>
+                <ul>
+                    <li>Products count: {{ products|length }}</li>
+                    <li>Categories count: {{ categories|length }}</li>
+                    <li>Featured products count: {{ featured_products|length }}</li>
+                </ul>
+
+                {% if products %}
+                    <h3>Products Found</h3>
+                    <div class="row">
+                        {% for product in products %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ product.name }}</h5>
+                                    <p class="card-text">£{{ product.price }}</p>
+                                    <p class="card-text">Category: {{ product.category.name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <h4>No Products Found</h4>
+                        <p>The database appears to be empty. This might be why the homepage is showing a 500 error.</p>
+                        <p>You may need to:</p>
+                        <ul>
+                            <li>Run migrations</li>
+                            <li>Load sample data</li>
+                            <li>Add products through the admin interface</li>
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
