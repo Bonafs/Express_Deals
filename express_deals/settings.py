@@ -6,6 +6,7 @@ Optimized for e-commerce platform with hardcoded development settings.
 
 import os
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,9 +15,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-gm92zq*_*osw8xp6y5_zfy=@6!f)b9*-pfms&vmb0yiool99xn'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '*.herokuapp.com',
+    'express-deals-16b6c1fa4311.herokuapp.com'
+]
 
 
 # Application definition
@@ -88,9 +94,11 @@ DATABASES = {
     }
 }
 
-# Memory optimization for Heroku
-# Database connection pooling for production
+# Production database (PostgreSQL) - Heroku configuration
 if 'DATABASE_URL' in os.environ:
+    DATABASES['default'] = dj_database_url.parse(
+        os.environ.get('DATABASE_URL')
+    )
     DATABASES['default']['CONN_MAX_AGE'] = 60
     DATABASES['default']['OPTIONS'] = {
         'MAX_CONNS': 20
