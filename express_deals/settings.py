@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'payments.apps.PaymentsConfig',
     'scraping.apps.ScrapingConfig',
-    'realtime.apps.RealtimeConfig',
+    # 'realtime.apps.RealtimeConfig',  # Temporarily disabled - depends on channels
 ]
 
 MIDDLEWARE = [
