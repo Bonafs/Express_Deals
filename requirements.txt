@@ -9,6 +9,10 @@ psycopg2-binary==2.9.10
 whitenoise==6.8.2
 Pillow==11.1.0
 
+# Media Storage
+django-cloudinary-storage
+cloudinary
+
 # Payment Processing
 stripe==12.3.0
 
