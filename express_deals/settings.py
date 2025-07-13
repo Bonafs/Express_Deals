@@ -47,8 +47,12 @@ INSTALLED_APPS = [
     'orders.apps.OrdersConfig',
     'accounts.apps.AccountsConfig',
     'payments.apps.PaymentsConfig',
+
+
     'scraping.apps.ScrapingConfig',
     # 'realtime.apps.RealtimeConfig',  # Temporarily disabled - depends on channels
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -147,8 +151,15 @@ STATICFILES_DIRS = [
 ]
 
 # Media files (User uploads)
+
+# Cloudinary media storage
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'replace_with_your_cloud_name',
+    'API_KEY': 'replace_with_your_api_key',
+    'API_SECRET': 'replace_with_your_api_secret',
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 # Stripe Configuration (Development - use test keys)
 STRIPE_PUBLIC_KEY = 'pk_test_development_key'
