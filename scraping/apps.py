@@ -19,3 +19,9 @@ class ScrapingConfig(AppConfig):
             from . import signals
         except ImportError:
             pass
+        # Auto-create periodic scraping task
+        try:
+            from .periodic import ready_hook
+            ready_hook()
+        except Exception:
+            pass
