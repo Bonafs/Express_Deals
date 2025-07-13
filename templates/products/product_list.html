@@ -90,11 +90,13 @@
                         <div class="me-3 d-flex align-items-center justify-content-center bg-light" 
                              style="width: 50px; height: 50px; border-radius: 4px; display: none;">
                             <i class="fas fa-image text-muted"></i>
+                            <div class="fw-light">Image Available</div>
                         </div>
                         {% else %}
                         <div class="me-3 d-flex align-items-center justify-content-center bg-light" 
                              style="width: 50px; height: 50px; border-radius: 4px;">
                             <i class="fas fa-image text-muted"></i>
+                            <div class="fw-light">Image Available</div>
                         </div>
                         {% endif %}
                         <div>
@@ -164,16 +166,22 @@
                                  loading="lazy"
                                  style="height: 280px; object-fit: cover; transition: transform 0.3s; width: 100%;"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'; console.log('Image failed to load:', this.src);">
-                            {% endif %}
-                            
-                            <!-- Enhanced Fallback with Better Styling -->
                             <div class="card-img-top d-flex align-items-center justify-content-center bg-gradient" 
-                                 style="height: 280px; border-radius: 0.375rem 0.375rem 0 0; background: linear-gradient(45deg, #f8f9fa, #e9ecef); {% if product.image %}display: none;{% endif %}">
+                                 style="height: 280px; border-radius: 0.375rem 0.375rem 0 0; background: linear-gradient(45deg, #f8f9fa, #e9ecef); display: none;">
                                 <div class="text-center text-muted">
                                     <i class="fas fa-image fa-3x mb-2 opacity-75"></i>
                                     <div class="fw-light">Image Available</div>
                                 </div>
                             </div>
+                            {% else %}
+                            <div class="card-img-top d-flex align-items-center justify-content-center bg-gradient" 
+                                 style="height: 280px; border-radius: 0.375rem 0.375rem 0 0; background: linear-gradient(45deg, #f8f9fa, #e9ecef);">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-image fa-3x mb-2 opacity-75"></i>
+                                    <div class="fw-light">Image Available</div>
+                                </div>
+                            </div>
+                            {% endif %}
                             
                             <!-- Fixed Badge Layout - Non-overlapping positions -->
                             <div class="position-absolute top-0 start-0 p-2">

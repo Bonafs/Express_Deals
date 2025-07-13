@@ -33,7 +33,7 @@ class Product(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     original_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    image = models.ImageField(upload_to='products/', default='products/default.jpg')
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
     stock_quantity = models.PositiveIntegerField(default=0)
     stock_status = models.CharField(max_length=20, choices=STOCK_STATUS_CHOICES, default='in_stock')
     is_active = models.BooleanField(default=True)
