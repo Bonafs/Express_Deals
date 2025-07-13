@@ -61,9 +61,10 @@ numpy>=1.26.0
 python-dateutil==2.8.2
 
 # Price Monitoring & Comparison
+# Price Monitoring & Comparison
 price-parser==0.3.4
-fuzzywuzzy==0.18.0
-python-levenshtein==0.23.0
+# fuzzywuzzy==0.18.0
+# python-levenshtein==0.23.0
 
 # Development & Testing
 django-debug-toolbar==4.2.0

@@ -321,6 +321,9 @@ class ProductScraper:
     def import_to_catalog(self, scraped_product):
         """Import scraped product to main product catalog"""
         try:
+            import tempfile
+            import requests
+            from django.core.files import File
             # Check if product already exists
             existing = Product.objects.filter(
                 name__icontains=scraped_product.title[:30]
@@ -337,8 +340,21 @@ class ProductScraper:
                     return True
                 return False
             
-            # Create new product
-            product = Product.objects.create(
+            # Download image from scraped image_url
+            image_file = None
+            if scraped_product.image_url:
+                try:
+                    response = requests.get(scraped_product.image_url, timeout=10)
+                    if response.status_code == 200:
+                        temp = tempfile.NamedTemporaryFile(delete=True, suffix='.jpg')
+                        temp.write(response.content)
+                        temp.flush()
+                        image_file = File(temp, name=f"scraped_{scraped_product.external_id}.jpg")
+                except Exception as img_exc:
+                    logger.warning(f"Could not download image for scraped product: {img_exc}")
+            
+            # Create new product with image if available
+            product = Product(
                 name=scraped_product.title[:200],
                 description=scraped_product.description or f"Imported from {scraped_product.job.target.name}",
                 price=scraped_product.price,
@@ -346,13 +362,15 @@ class ProductScraper:
                 is_active=True,
                 stock_quantity=100,  # Default stock
             )
+            if image_file:
+                product.image.save(image_file.name, image_file, save=False)
+            product.save()
             
             scraped_product.imported_product = product
             scraped_product.is_processed = True
             scraped_product.save()
             
             return True
-        
         except Exception as e:
             logger.error(f"Error importing product: {e}")
             return False
