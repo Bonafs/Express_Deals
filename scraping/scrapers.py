@@ -281,12 +281,12 @@ class ProductScraper:
     def __init__(self):
         self.scrapers = {}
         self.products_data = [
-            # Electronics Category
+            # Electronics Category - UK Retailers
             {
                 'name': 'Sony PlayStation 5',
-                'description': 'Next-generation gaming console with ultra-high speed SSD and ray tracing.',
-                'price': 449.99,
-                'original_price': 499.99,
+                'description': 'Next-generation gaming console with ultra-high speed SSD and ray tracing. Available at GAME UK.',
+                'price': 479.99,
+                'original_price': 529.99,
                 'category': 'Electronics',
                 'stock_quantity': 10,
                 'is_active': True,
@@ -295,9 +295,9 @@ class ProductScraper:
             },
             {
                 'name': 'Dyson V15 Detect',
-                'description': 'Advanced cordless vacuum with laser dust detection technology.',
-                'price': 649.99,
-                'original_price': 749.99,
+                'description': 'Advanced cordless vacuum with laser dust detection technology. Direct from Dyson UK.',
+                'price': 599.99,
+                'original_price': 699.99,
                 'category': 'Electronics',
                 'stock_quantity': 15,
                 'is_active': True,
@@ -306,9 +306,9 @@ class ProductScraper:
             },
             {
                 'name': 'Samsung Galaxy S24 Ultra',
-                'description': 'Premium smartphone with advanced camera system and S Pen.',
-                'price': 1199.99,
-                'original_price': 1299.99,
+                'description': 'Premium smartphone with advanced camera system and S Pen. Available at Currys PC World.',
+                'price': 1149.00,
+                'original_price': 1249.00,
                 'category': 'Electronics',
                 'stock_quantity': 25,
                 'is_active': True,
@@ -317,9 +317,9 @@ class ProductScraper:
             },
             {
                 'name': 'iPhone 15 Pro Max',
-                'description': 'Latest iPhone with titanium design and advanced pro camera system.',
-                'price': 1099.99,
-                'original_price': 1199.99,
+                'description': 'Latest iPhone with titanium design and advanced pro camera system. Available at Apple Store UK.',
+                'price': 1199.00,
+                'original_price': 1299.00,
                 'category': 'Electronics',
                 'stock_quantity': 20,
                 'is_active': True,
@@ -327,10 +327,10 @@ class ProductScraper:
                 'image_url': 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=500'
             },
             {
-                'name': 'Wireless Bluetooth Headphones',
-                'description': 'High-quality wireless headphones with noise cancellation and 30-hour battery life.',
-                'price': 149.99,
-                'original_price': 199.99,
+                'name': 'Sony WH-1000XM5 Headphones',
+                'description': 'Industry-leading noise cancelling wireless headphones. Available at John Lewis & Partners.',
+                'price': 329.00,
+                'original_price': 379.00,
                 'category': 'Electronics',
                 'stock_quantity': 25,
                 'is_active': True,
@@ -338,10 +338,10 @@ class ProductScraper:
                 'image_url': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'
             },
             {
-                'name': 'LED Desk Lamp',
-                'description': 'Adjustable LED desk lamp with touch controls and USB charging port.',
-                'price': 59.99,
-                'original_price': 79.99,
+                'name': 'Philips Hue Smart LED Desk Lamp',
+                'description': 'Smart LED desk lamp with app control and millions of colours. Available at Argos.',
+                'price': 89.99,
+                'original_price': 119.99,
                 'category': 'Electronics',
                 'stock_quantity': 15,
                 'is_active': True,
@@ -349,12 +349,12 @@ class ProductScraper:
                 'image_url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'
             },
             
-            # Clothing Category
+            # Clothing Category - UK Fashion Retailers
             {
-                'name': 'Barbour Classic Jacket',
-                'description': 'Traditional British waxed cotton jacket, perfect for outdoor activities.',
-                'price': 395.00,
-                'original_price': 450.00,
+                'name': 'Barbour Classic Bedale Jacket',
+                'description': 'Traditional British waxed cotton jacket, made in England. Direct from Barbour UK.',
+                'price': 285.00,
+                'original_price': 325.00,
                 'category': 'Clothing',
                 'stock_quantity': 12,
                 'is_active': True,
@@ -362,10 +362,10 @@ class ProductScraper:
                 'image_url': 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5d?w=500'
             },
             {
-                'name': 'Nike Air Max UK Edition',
-                'description': 'Limited edition Nike Air Max sneakers with Union Jack design elements.',
-                'price': 140.00,
-                'original_price': 180.00,
+                'name': 'Adidas Originals Stan Smith',
+                'description': 'Classic white leather trainers, iconic British style. Available at Size? UK.',
+                'price': 75.00,
+                'original_price': 85.00,
                 'category': 'Clothing',
                 'stock_quantity': 30,
                 'is_active': True,
@@ -373,10 +373,10 @@ class ProductScraper:
                 'image_url': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500'
             },
             {
-                'name': 'British Designer Wool Coat',
-                'description': 'Luxury wool coat from renowned British fashion house, tailored fit.',
-                'price': 320.00,
-                'original_price': 400.00,
+                'name': 'Marks & Spencer Wool Overcoat',
+                'description': 'Premium British wool overcoat, tailored fit. Exclusive to M&S.',
+                'price': 199.00,
+                'original_price': 249.00,
                 'category': 'Clothing',
                 'stock_quantity': 8,
                 'is_active': True,
@@ -384,10 +384,10 @@ class ProductScraper:
                 'image_url': 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=500'
             },
             {
-                'name': 'Organic Cotton T-Shirt',
-                'description': 'Comfortable 100% organic cotton t-shirt available in multiple colors.',
-                'price': 19.99,
-                'original_price': 29.99,
+                'name': 'Uniqlo Organic Cotton T-Shirt',
+                'description': 'Comfortable 100% organic cotton t-shirt, sustainable fashion. Available at Uniqlo UK.',
+                'price': 12.90,
+                'original_price': 16.90,
                 'category': 'Clothing',
                 'stock_quantity': 50,
                 'is_active': True,
@@ -395,12 +395,12 @@ class ProductScraper:
                 'image_url': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'
             },
             
-            # Home & Garden Category
+            # Home & Garden Category - UK Home Retailers
             {
-                'name': 'Royal Doulton Tea Set',
-                'description': 'Elegant bone china tea set featuring classic British patterns.',
-                'price': 125.00,
-                'original_price': 165.00,
+                'name': 'Emma Bridgewater Polka Dot Tea Set',
+                'description': 'Handcrafted English pottery tea set with classic polka dot design. Made in Stoke-on-Trent.',
+                'price': 145.00,
+                'original_price': 175.00,
                 'category': 'Home & Garden',
                 'stock_quantity': 15,
                 'is_active': True,
@@ -408,10 +408,10 @@ class ProductScraper:
                 'image_url': 'https://images.unsplash.com/photo-1594398901394-4e34939a4fd0?w=500'
             },
             {
-                'name': 'Stainless Steel Water Bottle',
-                'description': 'Insulated stainless steel water bottle that keeps drinks cold for 24 hours.',
-                'price': 24.99,
-                'original_price': 39.99,
+                'name': 'Chilly\'s Series 2 Water Bottle',
+                'description': 'British-designed insulated water bottle, keeps drinks cold for 24 hours. Available at Next.',
+                'price': 22.00,
+                'original_price': 28.00,
                 'category': 'Home & Garden',
                 'stock_quantity': 30,
                 'is_active': True,
@@ -419,12 +419,12 @@ class ProductScraper:
                 'image_url': 'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=500'
             },
             
-            # Sports & Fitness Category
+            # Sports & Fitness Category - UK Sports Retailers
             {
-                'name': 'Fitness Resistance Bands Set',
-                'description': 'Complete set of resistance bands for home workouts with multiple resistance levels.',
-                'price': 34.99,
-                'original_price': 49.99,
+                'name': 'Resistance Band Set by Gymshark',
+                'description': 'Complete resistance bands set from British fitness brand Gymshark. Available at JD Sports.',
+                'price': 29.95,
+                'original_price': 39.95,
                 'category': 'Sports & Fitness',
                 'stock_quantity': 20,
                 'is_active': True,
