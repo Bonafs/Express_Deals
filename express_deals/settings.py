@@ -391,3 +391,57 @@ else:
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 SESSION_COOKIE_AGE = 86400  # 24 hours
+
+# Notification Services Configuration (Environment Variables)
+# These should be set in production environment or .env file
+
+# Twilio SMS Configuration
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER')
+
+# WhatsApp Configuration (Meta Business API)
+WHATSAPP_API_URL = 'https://api.whatsapp.com/send'
+WHATSAPP_BUSINESS_API_URL = 'https://graph.facebook.com/v18.0'
+WHATSAPP_ACCESS_TOKEN = os.environ.get('WHATSAPP_ACCESS_TOKEN')
+WHATSAPP_PHONE_NUMBER_ID = os.environ.get('WHATSAPP_PHONE_NUMBER_ID')
+WHATSAPP_VERIFY_TOKEN = os.environ.get('WHATSAPP_VERIFY_TOKEN')
+
+# WhatsApp Template Configuration
+WHATSAPP_TEMPLATES = {
+    'price_alert': {
+        'name': 'price_alert_template',
+        'language': 'en',
+        'category': 'MARKETING'
+    },
+    'deal_notification': {
+        'name': 'deal_notification_template',
+        'language': 'en',
+        'category': 'MARKETING'
+    },
+    'order_confirmation': {
+        'name': 'order_confirmation_template',
+        'language': 'en',
+        'category': 'TRANSACTIONAL'
+    }
+}
+
+# Email Configuration Override (for production)
+if not DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.mail.yahoo.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+    DEFAULT_FROM_EMAIL = os.environ.get(
+        'DEFAULT_FROM_EMAIL', 
+        'Express Deals <noreply@expressdeals.com>'
+    )
+
+# User Agent Configuration for Web Scraping
+USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
+]
