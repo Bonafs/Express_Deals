@@ -8,8 +8,8 @@ SECRET_KEY = 'your-secret-key-here'
 
 # Superuser Credentials
 SUPERUSER_USERNAME = 'admin'
-SUPERUSER_EMAIL = 'admin@yoursite.com'
-SUPERUSER_PASSWORD = 'your-secure-password-here'
+SUPERUSER_EMAIL = '527626@waes.ac.uk'
+SUPERUSER_PASSWORD = 'Mobolaji'
 
 # Database Credentials (if using local database)
 DATABASE_NAME = 'express_deals_db'
