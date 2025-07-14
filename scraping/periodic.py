@@ -15,5 +15,10 @@ def setup_scraping_periodic_task():
 
 def ready_hook():
     # Only run in main process
-    if apps.is_installed('django_celery_beat'):
-        setup_scraping_periodic_task()
+    from django.db.models.signals import post_migrate
+    from django.dispatch import receiver
+
+    @receiver(post_migrate)
+    def create_periodic_task(sender, **kwargs):
+        if apps.is_installed('django_celery_beat'):
+            setup_scraping_periodic_task()
