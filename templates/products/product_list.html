@@ -71,6 +71,52 @@
                         {% endif %}
                         <button type="submit" class="btn btn-sm btn-primary mt-2 w-100">Apply</button>
                     </form>
+                    
+                    <!-- URL Tracking Section -->
+                    {% if url_tracking_enabled %}
+                    <hr>
+                    <h6><i class="fas fa-link text-primary"></i> Track External Products</h6>
+                    <p class="text-muted small">Add products from other websites to track their prices</p>
+                    
+                    <div class="url-tracking-section">
+                        <div class="mb-3">
+                            <input type="url" id="urlTrackingInput" class="form-control" 
+                                   placeholder="Enter product URL (Amazon, Currys, etc.)"
+                                   autocomplete="off">
+                            <div class="form-text">
+                                Supported: {{ supported_retailers|join:", " }}
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="checkUrlBtn" class="btn btn-outline-primary btn-sm w-100 mb-2">
+                            <i class="fas fa-search"></i> Check Availability
+                        </button>
+                        
+                        {% if not user.is_authenticated %}
+                        <p class="text-center mt-2">
+                            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-sign-in-alt"></i> Login to Track
+                            </a>
+                        </p>
+                        {% endif %}
+                        
+                        <!-- Results area -->
+                        <div id="urlTrackingResults" class="mt-3" style="display: none;">
+                            <!-- Dynamic content will be inserted here -->
+                        </div>
+                        
+                        <!-- User alerts info -->
+                        {% if user.is_authenticated and user_alert_count > 0 %}
+                        <div class="alert alert-info mt-3">
+                            <small>
+                                <i class="fas fa-bell"></i> 
+                                You have {{ user_alert_count }} active price alert{{ user_alert_count|pluralize }}
+                                <a href="{% url 'alerts:dashboard' %}" class="alert-link">View Dashboard</a>
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -582,6 +628,306 @@ function showToast(message, type) {
         }
     }, 3000);
 }
+
+// URL Tracking functionality
+{% if url_tracking_enabled %}
+document.addEventListener('DOMContentLoaded', function() {
+    const urlInput = document.getElementById('urlTrackingInput');
+    const checkBtn = document.getElementById('checkUrlBtn');
+    const resultsDiv = document.getElementById('urlTrackingResults');
+    
+    if (!urlInput || !checkBtn || !resultsDiv) return;
+    
+    let currentCheckTimeout = null;
+    
+    // Check URL tracking effectiveness
+    function checkUrlTracking() {
+        const url = urlInput.value.trim();
+        
+        if (!url) {
+            showUrlTrackingError('Please enter a product URL');
+            return;
+        }
+        
+        // Validate URL format
+        try {
+            new URL(url);
+        } catch (e) {
+            showUrlTrackingError('Please enter a valid URL');
+            return;
+        }
+        
+        checkBtn.disabled = true;
+        checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+        resultsDiv.style.display = 'none';
+        
+        fetch('{% url "products:check_url_tracking" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ url: url })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showTrackingResults(data.effectiveness, data.can_create_alert, url);
+            } else if (data.redirect_login) {
+                showLoginPrompt();
+            } else {
+                showUrlTrackingError(data.error || 'Failed to check URL');
+            }
+        })
+        .catch(error => {
+            console.error('URL tracking check error:', error);
+            showUrlTrackingError('Network error occurred');
+        })
+        .finally(() => {
+            checkBtn.disabled = false;
+            checkBtn.innerHTML = '<i class="fas fa-search"></i> Check Availability';
+        });
+    }
+    
+    // Show tracking results
+    function showTrackingResults(effectiveness, canCreateAlert, url) {
+        const scoreClass = effectiveness.score >= 80 ? 'success' : 
+                          effectiveness.score >= 60 ? 'warning' : 'danger';
+        
+        let factorsHtml = effectiveness.factors.map(factor => 
+            `<li class="small">${factor}</li>`
+        ).join('');
+        
+        let recommendationsHtml = effectiveness.recommendations.map(rec => 
+            `<li class="small">${rec}</li>`
+        ).join('');
+        
+        let alertButtonHtml = '';
+        if (canCreateAlert && {% if user.is_authenticated %}true{% else %}false{% endif %}) {
+            alertButtonHtml = `
+                <button type="button" class="btn btn-primary btn-sm w-100 mt-2" onclick="showCreateAlertModal('${url}')">
+                    <i class="fas fa-bell"></i> Create Price Alert
+                </button>
+            `;
+        } else if (!{% if user.is_authenticated %}true{% else %}false{% endif %}) {
+            alertButtonHtml = `
+                <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary btn-sm w-100 mt-2">
+                    <i class="fas fa-sign-in-alt"></i> Login to Create Alert
+                </a>
+            `;
+        }
+        
+        resultsDiv.innerHTML = `
+            <div class="alert alert-${scoreClass} p-2">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong class="small">Tracking Score: ${effectiveness.score}/100</strong>
+                    <span class="badge bg-${scoreClass}">${effectiveness.can_track ? 'Trackable' : 'Not Trackable'}</span>
+                </div>
+                
+                <div class="small">
+                    <strong>Assessment:</strong>
+                    <ul class="mb-1 ps-3">${factorsHtml}</ul>
+                    
+                    <strong>Recommendations:</strong>
+                    <ul class="mb-0 ps-3">${recommendationsHtml}</ul>
+                </div>
+                
+                ${alertButtonHtml}
+            </div>
+        `;
+        resultsDiv.style.display = 'block';
+    }
+    
+    // Show error message
+    function showUrlTrackingError(message) {
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger p-2">
+                <small><i class="fas fa-exclamation-circle"></i> ${message}</small>
+            </div>
+        `;
+        resultsDiv.style.display = 'block';
+    }
+    
+    // Show login prompt
+    function showLoginPrompt() {
+        resultsDiv.innerHTML = `
+            <div class="alert alert-info p-2">
+                <small>
+                    <i class="fas fa-sign-in-alt"></i> 
+                    <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="alert-link">
+                        Login or register
+                    </a> to track external products
+                </small>
+            </div>
+        `;
+        resultsDiv.style.display = 'block';
+    }
+    
+    // Event listeners
+    checkBtn.addEventListener('click', checkUrlTracking);
+    
+    // Auto-check on paste or Enter
+    urlInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            checkUrlTracking();
+        }
+    });
+    
+    urlInput.addEventListener('paste', function() {
+        // Clear any existing timeout
+        if (currentCheckTimeout) {
+            clearTimeout(currentCheckTimeout);
+        }
+        
+        // Auto-check after paste with slight delay
+        currentCheckTimeout = setTimeout(() => {
+            if (urlInput.value.trim().length > 10) {
+                checkUrlTracking();
+            }
+        }, 500);
+    });
+});
+
+// Global function for creating alerts (called from tracking results)
+window.showCreateAlertModal = function(url) {
+    // Create a simple modal for alert creation
+    const modalHtml = `
+        <div class="modal fade" id="createAlertModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-bell text-primary"></i> Create Price Alert
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="createAlertForm">
+                            <input type="hidden" id="alertUrl" value="${url}">
+                            
+                            <div class="mb-3">
+                                <label class="form-label">URL</label>
+                                <input type="text" class="form-control" value="${url}" readonly>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Alert Type</label>
+                                <select class="form-select" id="alertType">
+                                    <option value="below">Notify when price drops below target</option>
+                                    <option value="percentage">Notify when discount reaches threshold</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3" id="targetPriceGroup">
+                                <label class="form-label">Target Price (£)</label>
+                                <input type="number" class="form-control" id="targetPrice" step="0.01" min="0">
+                            </div>
+                            
+                            <div class="mb-3" id="percentageGroup" style="display: none;">
+                                <label class="form-label">Discount Threshold (%)</label>
+                                <input type="number" class="form-control" id="percentageThreshold" min="1" max="90">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="emailEnabled" checked>
+                                    <label class="form-check-label" for="emailEnabled">Email notifications</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="createUrlAlert()">
+                            <i class="fas fa-bell"></i> Create Alert
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('createAlertModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('createAlertModal'));
+    modal.show();
+    
+    // Alert type change handler
+    document.getElementById('alertType').addEventListener('change', function() {
+        const targetPriceGroup = document.getElementById('targetPriceGroup');
+        const percentageGroup = document.getElementById('percentageGroup');
+        
+        if (this.value === 'below') {
+            targetPriceGroup.style.display = 'block';
+            percentageGroup.style.display = 'none';
+        } else {
+            targetPriceGroup.style.display = 'none';
+            percentageGroup.style.display = 'block';
+        }
+    });
+};
+
+// Global function for creating the alert
+window.createUrlAlert = function() {
+    const alertData = {
+        url: document.getElementById('alertUrl').value,
+        alert_type: document.getElementById('alertType').value,
+        target_price: document.getElementById('targetPrice').value || null,
+        percentage_threshold: document.getElementById('percentageThreshold').value || null,
+        email_enabled: document.getElementById('emailEnabled').checked
+    };
+    
+    const createBtn = document.querySelector('#createAlertModal .btn-primary');
+    createBtn.disabled = true;
+    createBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+    
+    fetch('{% url "products:create_url_alert" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(alertData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('createAlertModal'));
+            modal.hide();
+            
+            // Show success message
+            showToast(data.message, 'success');
+            
+            // Optionally redirect to dashboard
+            if (data.redirect_dashboard) {
+                setTimeout(() => {
+                    window.location.href = data.redirect_dashboard;
+                }, 2000);
+            }
+        } else {
+            showToast(data.error || 'Failed to create alert', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Alert creation error:', error);
+        showToast('Network error occurred', 'error');
+    })
+    .finally(() => {
+        createBtn.disabled = false;
+        createBtn.innerHTML = '<i class="fas fa-bell"></i> Create Alert';
+    });
+};
+{% endif %}
 
 // Price Alert Functionality (Basic version - will show login if not authenticated)
 document.querySelectorAll('.alert-btn').forEach(button => {

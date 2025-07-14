@@ -223,22 +223,216 @@ class ScrapedProductAdmin(admin.ModelAdmin):
 @admin.register(PriceAlert)
 class PriceAlertAdmin(admin.ModelAdmin):
     """
-    Admin interface for managing price alerts
+    Admin interface for managing price alerts with URL tracking
     """
     list_display = [
-        'id', 'user', 'product_or_keywords', 'alert_type',
-        'target_price', 'status', 'created_at', 'last_triggered'
+        'id', 'user', 'product_or_keywords_or_url', 'alert_type',
+        'target_price', 'status', 'tracking_effectiveness', 'created_at', 'last_triggered'
     ]
-    list_filter = ['alert_type', 'status', 'created_at']
-    search_fields = ['user__username', 'user__email', 'search_keywords', 'product__name']
-    readonly_fields = ['created_at', 'last_triggered']
+    list_filter = ['alert_type', 'status', 'created_at', 'email_enabled', 'sms_enabled']
+    search_fields = [
+        'user__username', 'user__email', 'search_keywords', 
+        'product__name', 'product_url'
+    ]
+    readonly_fields = [
+        'created_at', 'last_triggered', 'onset_price', 
+        'current_price', 'last_price_update', 'url_tracking_info'
+    ]
     
-    def product_or_keywords(self, obj):
-        """Show product name or keywords"""
+    fieldsets = (
+        ('User & Target', {
+            'fields': ('user', 'product', 'search_keywords', 'product_url')
+        }),
+        ('Alert Configuration', {
+            'fields': ('alert_type', 'target_price', 'percentage_threshold', 'status', 'expires_at')
+        }),
+        ('Notification Settings', {
+            'fields': ('email_enabled', 'sms_enabled', 'push_enabled')
+        }),
+        ('Price Tracking', {
+            'fields': ('onset_price', 'current_price', 'last_price_update'),
+            'classes': ('collapse',)
+        }),
+        ('URL Tracking Info', {
+            'fields': ('url_tracking_info',),
+            'classes': ('collapse',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'last_triggered'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    actions = ['test_url_tracking', 'refresh_price_data', 'trigger_test_alert']
+    
+    def product_or_keywords_or_url(self, obj):
+        """Show product name, keywords, or URL"""
         if obj.product:
-            return obj.product.name
-        return f"Keywords: {obj.search_keywords}"
-    product_or_keywords.short_description = 'Target'
+            return f"Product: {obj.product.name}"
+        elif obj.search_keywords:
+            return f"Keywords: {obj.search_keywords}"
+        elif obj.product_url:
+            return f"URL: {obj.product_url[:50]}..."
+        return "No target specified"
+    product_or_keywords_or_url.short_description = 'Target'
+    
+    def tracking_effectiveness(self, obj):
+        """Show tracking effectiveness for URL-based alerts"""
+        if not obj.product_url:
+            return '-'
+        
+        try:
+            from .url_tracking_service import url_tracking_service
+            score, error = url_tracking_service.get_tracking_effectiveness_score(obj.product_url)
+            
+            if error:
+                return format_html('<span style="color: red;">Error</span>')
+            
+            if score >= 80:
+                color = 'green'
+                icon = '✅'
+            elif score >= 60:
+                color = 'orange'
+                icon = '⚠️'
+            else:
+                color = 'red'
+                icon = '❌'
+            
+            return format_html(
+                '<span style="color: {};">{} {}%</span>',
+                color, icon, score
+            )
+        except Exception:
+            return format_html('<span style="color: red;">Error</span>')
+    tracking_effectiveness.short_description = 'URL Tracking'
+    
+    def url_tracking_info(self, obj):
+        """Display comprehensive URL tracking information"""
+        if not obj.product_url:
+            return format_html('<em>No URL specified</em>')
+        
+        try:
+            from .url_tracking_service import url_tracking_service
+            tracking_info = url_tracking_service.get_url_tracking_info(obj.product_url)
+            
+            if 'error' in tracking_info:
+                return format_html(
+                    '<div style="color: red;">❌ Error: {}</div>',
+                    tracking_info['error']
+                )
+            
+            effectiveness = tracking_info['effectiveness']
+            availability = tracking_info['availability']
+            validation = tracking_info['validation']
+            
+            # Build HTML display
+            html_parts = []
+            
+            # Validation section
+            if validation['is_valid']:
+                html_parts.append(f"✅ <strong>Retailer:</strong> {validation['retailer']}")
+            else:
+                html_parts.append(f"❌ <strong>Validation:</strong> {validation['message']}")
+            
+            # Effectiveness section
+            score = effectiveness['score']
+            score_color = 'green' if score >= 80 else 'orange' if score >= 60 else 'red'
+            html_parts.append(f"📊 <strong>Tracking Score:</strong> <span style='color: {score_color}'>{score}/100</span>")
+            
+            # Availability section
+            if availability['available']:
+                response_time = availability.get('response_time', 0)
+                html_parts.append(f"🌐 <strong>Available:</strong> ✅ ({response_time:.1f}s response)")
+                
+                if availability.get('title'):
+                    html_parts.append(f"📝 <strong>Product:</strong> {availability['title'][:50]}...")
+                
+                if availability.get('price'):
+                    html_parts.append(f"💰 <strong>Current Price:</strong> {availability['price']}")
+            else:
+                html_parts.append(f"🌐 <strong>Availability:</strong> ❌ {availability.get('error', 'Unknown error')}")
+            
+            # Factors section
+            if effectiveness['factors']:
+                factors_html = '<br>'.join([f"• {factor}" for factor in effectiveness['factors'][:3]])
+                html_parts.append(f"<details><summary><strong>Factors</strong></summary>{factors_html}</details>")
+            
+            # URL link
+            html_parts.append(f'<a href="{obj.product_url}" target="_blank" class="button">🔗 Open URL</a>')
+            
+            return format_html('<div style="line-height: 1.4;">{}</div>', '<br>'.join(html_parts))
+            
+        except Exception as e:
+            return format_html(
+                '<div style="color: red;">❌ Error loading tracking info: {}</div>',
+                str(e)
+            )
+    
+    url_tracking_info.short_description = 'URL Tracking Information'
+    
+    def test_url_tracking(self, request, queryset):
+        """Admin action to test URL tracking for selected alerts"""
+        from .url_tracking_service import url_tracking_service
+        
+        tested_count = 0
+        error_count = 0
+        
+        for alert in queryset.filter(product_url__isnull=False).exclude(product_url=''):
+            try:
+                availability = url_tracking_service.check_product_availability(alert.product_url)
+                if availability['available'] and availability['price']:
+                    alert.current_price = availability['price']
+                    alert.last_price_update = timezone.now()
+                    alert.save()
+                    tested_count += 1
+                else:
+                    error_count += 1
+            except Exception:
+                error_count += 1
+        
+        if tested_count > 0:
+            self.message_user(
+                request,
+                f"Successfully tested {tested_count} URL alert(s). {error_count} error(s).",
+                messages.SUCCESS
+            )
+        else:
+            self.message_user(
+                request,
+                f"No URL alerts could be tested. {error_count} error(s).",
+                messages.WARNING
+            )
+    test_url_tracking.short_description = "Test URL tracking for selected alerts"
+    
+    def refresh_price_data(self, request, queryset):
+        """Admin action to refresh price data for URL alerts"""
+        updated_count = 0
+        
+        for alert in queryset.filter(product_url__isnull=False).exclude(product_url=''):
+            try:
+                from .url_tracking_service import url_tracking_service
+                availability = url_tracking_service.check_product_availability(alert.product_url)
+                
+                if availability['available'] and availability['price']:
+                    old_price = alert.current_price
+                    alert.current_price = availability['price']
+                    alert.last_price_update = timezone.now()
+                    
+                    # Set onset price if not set
+                    if not alert.onset_price:
+                        alert.onset_price = availability['price']
+                    
+                    alert.save()
+                    updated_count += 1
+            except Exception:
+                pass
+        
+        self.message_user(
+            request,
+            f"Refreshed price data for {updated_count} alert(s).",
+            messages.SUCCESS if updated_count > 0 else messages.WARNING
+        )
+    refresh_price_data.short_description = "Refresh price data for selected alerts"
 
 
 @admin.register(AlertNotification)

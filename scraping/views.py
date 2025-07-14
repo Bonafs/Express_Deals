@@ -12,16 +12,18 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
+from urllib.parse import urlparse
 
 from .models import PriceAlert, AlertNotification, ScrapedProduct
 from .forms import PriceAlertForm
 from products.models import Product
+from .url_tracking_service import url_tracking_service
 
 
 @login_required
 def alert_dashboard(request):
     """
-    User dashboard for managing price alerts
+    Enhanced user dashboard for managing price alerts with URL tracking
     """
     # Get user's alerts
     alerts = PriceAlert.objects.filter(user=request.user).select_related('product__category').order_by('-created_at')
@@ -52,7 +54,7 @@ def alert_dashboard(request):
         alert__user=request.user
     ).order_by('-sent_at')[:5]
     
-    # Statistics
+    # Enhanced statistics with URL tracking
     stats = {
         'total_alerts': alerts.count(),
         'active_alerts': PriceAlert.objects.filter(user=request.user, status='active').count(),
@@ -63,6 +65,44 @@ def alert_dashboard(request):
         'savings_this_month': calculate_user_savings(request.user),
     }
     
+    # URL tracking specific stats
+    url_alerts = PriceAlert.objects.filter(
+        user=request.user,
+        product_url__isnull=False
+    ).exclude(product_url='')
+    
+    stats.update({
+        'url_alerts_count': url_alerts.count(),
+        'product_alerts_count': PriceAlert.objects.filter(
+            user=request.user, 
+            product__isnull=False
+        ).count(),
+        'keyword_alerts_count': PriceAlert.objects.filter(
+            user=request.user,
+            search_keywords__isnull=False
+        ).exclude(search_keywords='').count(),
+    })
+    
+    # URL tracking effectiveness data for charts
+    url_tracking_data = []
+    if url_alerts.exists():
+        for alert in url_alerts[:10]:  # Limit to avoid performance issues
+            try:
+                score, error = url_tracking_service.get_tracking_effectiveness_score(alert.product_url)
+                if not error:
+                    parsed_url = urlparse(alert.product_url)
+                    domain = parsed_url.netloc.replace('www.', '')
+                    
+                    url_tracking_data.append({
+                        'alert_id': alert.id,
+                        'domain': domain,
+                        'effectiveness': score,
+                        'status': alert.status,
+                        'created_at': alert.created_at.strftime('%Y-%m-%d')
+                    })
+            except Exception:
+                pass
+    
     context = {
         'page_obj': page_obj,
         'recent_notifications': recent_notifications,
@@ -70,6 +110,8 @@ def alert_dashboard(request):
         'status_filter': status_filter,
         'category_filter': category_filter,
         'categories': categories,
+        'url_tracking_data': url_tracking_data,
+        'supported_retailers': list(url_tracking_service.SUPPORTED_RETAILERS.keys()) if 'url_tracking_service' in locals() else [],
     }
     
     return render(request, 'alerts/dashboard.html', context)
