@@ -12,7 +12,7 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'ExpressDeals2025SecureProductionKeyForDjangoApplicationWithEnoughCharactersAndComplexity!@#\$%^&*()1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'ExpressDeals2025SecureProductionKeyForDjangoApplicationWithEnoughCharactersAndComplexity!@#$%^&*()1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
@@ -161,24 +161,19 @@ CLOUDINARY_STORAGE = {
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = '/media/'
 
-# Stripe Configuration (Development - use test keys)
-STRIPE_PUBLIC_KEY = 'pk_test_development_key'
-STRIPE_SECRET_KEY = 'sk_test_development_key'
-STRIPE_WEBHOOK_SECRET = 'whsec_development_key'
+# Stripe Configuration
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', 'pk_test_placeholder_key')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_placeholder_key')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', 'whsec_placeholder_key')
 
 # Email Configuration
 # Development: Console backend for testing
 # Production: SMTP backend with Yahoo Mail
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = ''
-    EMAIL_HOST_PASSWORD = ''
     DEFAULT_FROM_EMAIL = 'Express Deals <noreply@expressdeals.com>'
 else:
-    # Production email configuration
+    # Production email configuration with Yahoo Mail
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = 'smtp.mail.yahoo.com'
     EMAIL_PORT = 587
@@ -294,16 +289,18 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
-# Third-party Service Configuration (Development - empty/disabled)
-TWILIO_ACCOUNT_SID = ''
-TWILIO_AUTH_TOKEN = ''
+# Notification Services Configuration
+# Twilio SMS Configuration
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', '')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', '')
+TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER', '')
 
-# WhatsApp Configuration (Development - hardcoded for development)
+# WhatsApp Configuration (Meta Business API)
 WHATSAPP_API_URL = 'https://api.whatsapp.com/send'
-WHATSAPP_BUSINESS_API_URL = 'https://graph.facebook.com/v17.0'
-WHATSAPP_ACCESS_TOKEN = ''  # Configure with your Facebook WhatsApp Business API token
-WHATSAPP_PHONE_NUMBER_ID = ''  # Configure with your WhatsApp Business phone number ID
-WHATSAPP_VERIFY_TOKEN = 'express_deals_whatsapp_webhook_dev'  # Verification token for development
+WHATSAPP_BUSINESS_API_URL = 'https://graph.facebook.com/v18.0'
+WHATSAPP_ACCESS_TOKEN = os.environ.get('WHATSAPP_ACCESS_TOKEN', '')
+WHATSAPP_PHONE_NUMBER_ID = os.environ.get('WHATSAPP_PHONE_NUMBER_ID', '')
+WHATSAPP_VERIFY_TOKEN = os.environ.get('WHATSAPP_VERIFY_TOKEN', 'express_deals_whatsapp_webhook_dev')
 
 # WhatsApp Template Configuration (Hardcoded for development)
 WHATSAPP_TEMPLATES = {
@@ -324,26 +321,12 @@ WHATSAPP_TEMPLATES = {
     }
 }
 
-# Notification Services Configuration (Environment Variables)
-# These should be set in production environment or .env file
+# Additional Service Configuration
+SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
+SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
 
-# WhatsApp Configuration (Development)
-WHATSAPP_ENABLED = True  # Enable WhatsApp notifications
-WHATSAPP_ACCESS_TOKEN = 'your-whatsapp-access-token'  # Replace
-WHATSAPP_PHONE_NUMBER_ID = 'your-phone-number-id'     # Replace
-WHATSAPP_WEBHOOK_VERIFY_TOKEN = 'your-webhook-verify-token'  # Replace
-WHATSAPP_RATE_LIMIT = 30  # Seconds between WhatsApp messages
-WHATSAPP_MAX_RETRIES = 3  # Maximum retry attempts for failed messages
-
-# SendGrid Configuration (Development - disabled)
-SENDGRID_API_KEY = ''
-
-# Sentry Configuration (Development - disabled)
-SENTRY_DSN = ''
-# Sentry is disabled in development - no initialization needed
-
-# Site Configuration (Development)
-SITE_URL = 'http://localhost:8000'
+# Site Configuration
+SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')
 SITE_NAME = 'Express Deals'
 
 # Web Scraping Configuration
@@ -396,40 +379,6 @@ else:
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 SESSION_COOKIE_AGE = 86400  # 24 hours
-
-# Notification Services Configuration (Environment Variables)
-# These should be set in production environment or .env file
-
-# Twilio SMS Configuration
-TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
-TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
-TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER')
-
-# WhatsApp Configuration (Meta Business API)
-WHATSAPP_API_URL = 'https://api.whatsapp.com/send'
-WHATSAPP_BUSINESS_API_URL = 'https://graph.facebook.com/v18.0'
-WHATSAPP_ACCESS_TOKEN = os.environ.get('WHATSAPP_ACCESS_TOKEN')
-WHATSAPP_PHONE_NUMBER_ID = os.environ.get('WHATSAPP_PHONE_NUMBER_ID')
-WHATSAPP_VERIFY_TOKEN = os.environ.get('WHATSAPP_VERIFY_TOKEN')
-
-# WhatsApp Template Configuration
-WHATSAPP_TEMPLATES = {
-    'price_alert': {
-        'name': 'price_alert_template',
-        'language': 'en',
-        'category': 'MARKETING'
-    },
-    'deal_notification': {
-        'name': 'deal_notification_template',
-        'language': 'en',
-        'category': 'MARKETING'
-    },
-    'order_confirmation': {
-        'name': 'order_confirmation_template',
-        'language': 'en',
-        'category': 'TRANSACTIONAL'
-    }
-}
 
 # User Agent Configuration for Web Scraping
 USER_AGENTS = [
