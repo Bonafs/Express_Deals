@@ -281,6 +281,51 @@ class ProductScraper:
     def __init__(self):
         self.scrapers = {}
         self.products_data = [
+            # Electronics Category
+            {
+                'name': 'Sony PlayStation 5',
+                'description': 'Next-generation gaming console with ultra-high speed SSD and ray tracing.',
+                'price': 449.99,
+                'original_price': 499.99,
+                'category': 'Electronics',
+                'stock_quantity': 10,
+                'is_active': True,
+                'is_featured': True,
+                'image_url': 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500'
+            },
+            {
+                'name': 'Dyson V15 Detect',
+                'description': 'Advanced cordless vacuum with laser dust detection technology.',
+                'price': 649.99,
+                'original_price': 749.99,
+                'category': 'Electronics',
+                'stock_quantity': 15,
+                'is_active': True,
+                'is_featured': True,
+                'image_url': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=500'
+            },
+            {
+                'name': 'Samsung Galaxy S24 Ultra',
+                'description': 'Premium smartphone with advanced camera system and S Pen.',
+                'price': 1199.99,
+                'original_price': 1299.99,
+                'category': 'Electronics',
+                'stock_quantity': 25,
+                'is_active': True,
+                'is_featured': True,
+                'image_url': 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500'
+            },
+            {
+                'name': 'iPhone 15 Pro Max',
+                'description': 'Latest iPhone with titanium design and advanced pro camera system.',
+                'price': 1099.99,
+                'original_price': 1199.99,
+                'category': 'Electronics',
+                'stock_quantity': 20,
+                'is_active': True,
+                'is_featured': True,
+                'image_url': 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=500'
+            },
             {
                 'name': 'Wireless Bluetooth Headphones',
                 'description': 'High-quality wireless headphones with noise cancellation and 30-hour battery life.',
@@ -293,6 +338,52 @@ class ProductScraper:
                 'image_url': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'
             },
             {
+                'name': 'LED Desk Lamp',
+                'description': 'Adjustable LED desk lamp with touch controls and USB charging port.',
+                'price': 59.99,
+                'original_price': 79.99,
+                'category': 'Electronics',
+                'stock_quantity': 15,
+                'is_active': True,
+                'is_featured': False,
+                'image_url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'
+            },
+            
+            # Clothing Category
+            {
+                'name': 'Barbour Classic Jacket',
+                'description': 'Traditional British waxed cotton jacket, perfect for outdoor activities.',
+                'price': 395.00,
+                'original_price': 450.00,
+                'category': 'Clothing',
+                'stock_quantity': 12,
+                'is_active': True,
+                'is_featured': True,
+                'image_url': 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5d?w=500'
+            },
+            {
+                'name': 'Nike Air Max UK Edition',
+                'description': 'Limited edition Nike Air Max sneakers with Union Jack design elements.',
+                'price': 140.00,
+                'original_price': 180.00,
+                'category': 'Clothing',
+                'stock_quantity': 30,
+                'is_active': True,
+                'is_featured': True,
+                'image_url': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500'
+            },
+            {
+                'name': 'British Designer Wool Coat',
+                'description': 'Luxury wool coat from renowned British fashion house, tailored fit.',
+                'price': 320.00,
+                'original_price': 400.00,
+                'category': 'Clothing',
+                'stock_quantity': 8,
+                'is_active': True,
+                'is_featured': True,
+                'image_url': 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=500'
+            },
+            {
                 'name': 'Organic Cotton T-Shirt',
                 'description': 'Comfortable 100% organic cotton t-shirt available in multiple colors.',
                 'price': 19.99,
@@ -302,6 +393,19 @@ class ProductScraper:
                 'is_active': True,
                 'is_featured': False,
                 'image_url': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'
+            },
+            
+            # Home & Garden Category
+            {
+                'name': 'Royal Doulton Tea Set',
+                'description': 'Elegant bone china tea set featuring classic British patterns.',
+                'price': 125.00,
+                'original_price': 165.00,
+                'category': 'Home & Garden',
+                'stock_quantity': 15,
+                'is_active': True,
+                'is_featured': True,
+                'image_url': 'https://images.unsplash.com/photo-1594398901394-4e34939a4fd0?w=500'
             },
             {
                 'name': 'Stainless Steel Water Bottle',
@@ -314,6 +418,8 @@ class ProductScraper:
                 'is_featured': False,
                 'image_url': 'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=500'
             },
+            
+            # Sports & Fitness Category
             {
                 'name': 'Fitness Resistance Bands Set',
                 'description': 'Complete set of resistance bands for home workouts with multiple resistance levels.',
@@ -324,17 +430,6 @@ class ProductScraper:
                 'is_active': True,
                 'is_featured': True,
                 'image_url': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500'
-            },
-            {
-                'name': 'LED Desk Lamp',
-                'description': 'Adjustable LED desk lamp with touch controls and USB charging port.',
-                'price': 59.99,
-                'original_price': 79.99,
-                'category': 'Electronics',
-                'stock_quantity': 15,
-                'is_active': True,
-                'is_featured': False,
-                'image_url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'
             }
         ]
     
@@ -586,14 +681,21 @@ class ProductScraper:
             logger.error(f"Error importing product: {e}")
             return False
 
-    def import_sample_products(self):
+    def import_sample_products(self, clear_existing=False):
         """
-        Import sample products with enhanced image handling and error recovery
+        Import comprehensive sample products with enhanced image handling
         """
         from products.models import Product, Category
         
-        logger.info("Starting sample product import with enhanced image handling")
+        logger.info("Starting comprehensive sample product import")
+        
+        if clear_existing:
+            logger.info("Clearing existing products...")
+            Product.objects.all().delete()
+            logger.info("All existing products deleted")
+        
         imported_count = 0
+        updated_count = 0
         failed_count = 0
         
         for product_data in self.products_data:
@@ -605,12 +707,50 @@ class ProductScraper:
                 if created:
                     logger.info(f"Created new category: {category.name}")
 
-                # Check if product already exists
-                if Product.objects.filter(name=product_data['name']).exists():
-                    logger.info(f"Product already exists: {product_data['name']}")
+                # Check if product already exists (by name)
+                existing_product = Product.objects.filter(
+                    name=product_data['name']
+                ).first()
+                
+                if existing_product:
+                    # Update existing product
+                    existing_product.description = product_data['description']
+                    existing_product.price = product_data['price']
+                    existing_product.original_price = product_data['original_price']
+                    existing_product.category = category
+                    existing_product.stock_quantity = product_data['stock_quantity']
+                    existing_product.is_active = product_data['is_active']
+                    existing_product.is_featured = product_data['is_featured']
+                    
+                    # Fix empty slug issue
+                    if not existing_product.slug:
+                        from django.utils.text import slugify
+                        base_slug = slugify(product_data['name'])
+                        slug = base_slug
+                        counter = 1
+                        while Product.objects.filter(slug=slug).exclude(id=existing_product.id).exists():
+                            slug = f"{base_slug}-{counter}"
+                            counter += 1
+                        existing_product.slug = slug
+                        logger.info(f"Fixed empty slug for: {product_data['name']} -> {slug}")
+                    
+                    # Handle image download if no image exists
+                    if not existing_product.image and product_data.get('image_url'):
+                        logger.info(f"Downloading image for existing product: {product_data['name']}")
+                        image_file = self.download_image(
+                            product_data['image_url'], 
+                            product_data['name']
+                        )
+                        if image_file:
+                            existing_product.image.save(image_file.name, image_file, save=False)
+                            logger.info(f"Added image to existing product: {product_data['name']}")
+                    
+                    existing_product.save()
+                    updated_count += 1
+                    logger.info(f"Updated existing product: {product_data['name']}")
                     continue
 
-                # Create product instance
+                # Create new product instance
                 from django.utils.text import slugify
                 
                 # Generate unique slug
@@ -634,35 +774,33 @@ class ProductScraper:
                 )
 
                 # Handle image download with fallback
-                image_file = None
-                # For now, skip image download to test basic functionality
-                # if product_data.get('image_url'):
-                #     logger.info(f"Downloading image for: {product_data['name']}")
-                #     image_file = self.download_image(
-                #         product_data['image_url'], 
-                #         product_data['name']
-                #     )
-                
-                # if image_file:
-                #     product.image.save(image_file.name, image_file, save=False)
-                #     logger.info(f"Successfully set image for: {product_data['name']}")
-                # else:
-                #     # Use default image as fallback
-                #     product.image = self.get_fallback_image()
-                #     logger.warning(f"Using fallback image for: {product_data['name']}")
+                if product_data.get('image_url'):
+                    logger.info(f"Downloading image for: {product_data['name']}")
+                    image_file = self.download_image(
+                        product_data['image_url'], 
+                        product_data['name']
+                    )
+                    
+                    if image_file:
+                        product.image.save(image_file.name, image_file, save=False)
+                        logger.info(f"Successfully set image for: {product_data['name']}")
+                    else:
+                        # Use default image as fallback
+                        product.image = self.get_fallback_image()
+                        logger.warning(f"Using fallback image for: {product_data['name']}")
 
                 # Save product
                 product.save()
                 imported_count += 1
-                logger.info(f"Successfully imported product: {product_data['name']}")
+                logger.info(f"Successfully imported new product: {product_data['name']}")
                 
                 # Small delay to avoid overwhelming servers
                 time.sleep(1)
                 
             except Exception as e:
                 failed_count += 1
-                logger.error(f"Failed to import product {product_data['name']}: {str(e)}")
+                logger.error(f"Failed to import/update product {product_data['name']}: {str(e)}")
                 continue
 
-        logger.info(f"Product import completed. Imported: {imported_count}, Failed: {failed_count}")
-        return imported_count, failed_count
+        logger.info(f"Product import completed. New: {imported_count}, Updated: {updated_count}, Failed: {failed_count}")
+        return imported_count, updated_count, failed_count
