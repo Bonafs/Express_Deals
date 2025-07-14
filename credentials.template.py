@@ -59,5 +59,17 @@ SAMPLE_USERS = [
             'date_of_birth': '1985-05-22',
             'address': '456 Test Ave, Test City, TC 12346',
         }
+    },
+    {
+        'username': 'bonafs',
+        'email': 'bonafs@yahoo.com',
+        'first_name': 'Bonafs',
+        'last_name': '',
+        'password': 'expressdeals',
+        'profile_data': {
+            'phone': '',
+            'date_of_birth': '',
+            'address': ''
+        }
     }
 ]
