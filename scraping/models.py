@@ -190,6 +190,9 @@ class PriceAlert(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
     search_keywords = models.CharField(max_length=500, blank=True, help_text="Alert for any product matching keywords")
     
+    # External product URL tracking
+    product_url = models.URLField(max_length=500, blank=True, help_text="External product URL to track (Amazon, eBay, etc.)")
+    
     alert_type = models.CharField(max_length=20, choices=ALERT_TYPES)
     target_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     percentage_threshold = models.PositiveIntegerField(null=True, blank=True, help_text="Percentage drop threshold")

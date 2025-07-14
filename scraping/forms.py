@@ -17,7 +17,7 @@ class PriceAlertForm(forms.ModelForm):
     class Meta:
         model = PriceAlert
         fields = [
-            'product', 'search_keywords', 'alert_type', 
+            'product', 'search_keywords', 'product_url', 'alert_type', 
             'target_price', 'percentage_threshold',
             'email_enabled', 'sms_enabled', 'push_enabled',
             'expires_at'
@@ -30,6 +30,11 @@ class PriceAlertForm(forms.ModelForm):
             'search_keywords': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Enter keywords to monitor (e.g., "iPhone 13 Pro")',
+                'maxlength': 500
+            }),
+            'product_url': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter product URL (e.g., Amazon, eBay, Currys link)',
                 'maxlength': 500
             }),
             'alert_type': forms.Select(attrs={
@@ -67,21 +72,25 @@ class PriceAlertForm(forms.ModelForm):
         
         # Customize field labels and help text
         self.fields['product'].label = 'Specific Product (Optional)'
-        self.fields['product'].help_text = 'Choose a specific product to monitor, or leave blank to use keywords'
+        self.fields['product'].help_text = 'Choose a specific product to monitor, or leave blank to use keywords/URL'
         self.fields['product'].required = False
         
         self.fields['search_keywords'].label = 'Search Keywords (Optional)'
         self.fields['search_keywords'].help_text = 'Monitor any product matching these keywords'
         self.fields['search_keywords'].required = False
         
+        self.fields['product_url'].label = 'Product URL (Optional)'
+        self.fields['product_url'].help_text = 'Direct link to external product for tracking (Amazon, eBay, etc.)'
+        self.fields['product_url'].required = False
+        
         self.fields['alert_type'].label = 'Alert Type'
         self.fields['alert_type'].choices = [
             ('below', 'Price drops below target'),
             ('percentage', 'Percentage discount reaches threshold'),
-            ('deal', 'Any good deal (20%+ off or under $50)'),
+            ('deal', 'Any good deal (20%+ off or under £50)'),
         ]
         
-        self.fields['target_price'].label = 'Target Price ($)'
+        self.fields['target_price'].label = 'Target Price (£)'
         self.fields['target_price'].help_text = 'Alert when price drops to this amount or below'
         self.fields['target_price'].required = False
         
@@ -110,15 +119,29 @@ class PriceAlertForm(forms.ModelForm):
         cleaned_data = super().clean()
         product = cleaned_data.get('product')
         search_keywords = cleaned_data.get('search_keywords')
+        product_url = cleaned_data.get('product_url')
         alert_type = cleaned_data.get('alert_type')
         target_price = cleaned_data.get('target_price')
         percentage_threshold = cleaned_data.get('percentage_threshold')
         
-        # Must specify either product or keywords
-        if not product and not search_keywords:
+        # Must specify either product, keywords, or URL
+        if not product and not search_keywords and not product_url:
             raise forms.ValidationError(
-                "You must specify either a specific product or search keywords."
+                "You must specify either a specific product, search keywords, or a product URL."
             )
+        
+        # Validate product URL if provided
+        if product_url:
+            supported_sites = [
+                'amazon.co.uk', 'amazon.com', 'ebay.co.uk', 'ebay.com',
+                'currys.co.uk', 'johnlewis.com', 'argos.co.uk',
+                'asos.com', 'next.co.uk', 'jdsports.co.uk'
+            ]
+            
+            if not any(site in product_url.lower() for site in supported_sites):
+                raise forms.ValidationError(
+                    f"Product URL must be from a supported site: {', '.join(supported_sites)}"
+                )
         
         # Validate based on alert type
         if alert_type == 'below':
