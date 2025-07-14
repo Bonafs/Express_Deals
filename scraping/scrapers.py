@@ -344,15 +344,24 @@ class ProductScraper:
             image_file = None
             if scraped_product.image_url:
                 try:
+                    logger.info(f"Attempting to download image for scraped product: {scraped_product.title} from {scraped_product.image_url}")
                     response = requests.get(scraped_product.image_url, timeout=10)
-                    if response.status_code == 200:
+                    logger.info(f"Image download response code: {response.status_code}")
+                    content_type = response.headers.get('Content-Type', '')
+                    logger.info(f"Image content type: {content_type}")
+                    if response.status_code == 200 and 'image' in content_type:
                         temp = tempfile.NamedTemporaryFile(delete=True, suffix='.jpg')
                         temp.write(response.content)
                         temp.flush()
                         image_file = File(temp, name=f"scraped_{scraped_product.external_id}.jpg")
+                        logger.info(f"Image file prepared for product: {scraped_product.title}")
+                    else:
+                        logger.warning(f"Image URL did not return a valid image: {scraped_product.image_url}")
                 except Exception as img_exc:
                     logger.warning(f"Could not download image for scraped product: {img_exc}")
-            
+            else:
+                logger.info(f"No image URL found for scraped product: {scraped_product.title}")
+
             # Create new product with image if available
             product = Product(
                 name=scraped_product.title[:200],
@@ -363,13 +372,17 @@ class ProductScraper:
                 stock_quantity=100,  # Default stock
             )
             if image_file:
+                logger.info(f"Saving image for product: {product.name}")
                 product.image.save(image_file.name, image_file, save=False)
+            else:
+                logger.info(f"No image file to save for product: {product.name}")
             product.save()
-            
+
             scraped_product.imported_product = product
             scraped_product.is_processed = True
             scraped_product.save()
-            
+
+            logger.info(f"Product imported: {product.name} (ID: {product.id}) | Image: {'Yes' if product.image else 'No'}")
             return True
         except Exception as e:
             logger.error(f"Error importing product: {e}")

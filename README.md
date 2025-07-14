@@ -25,10 +25,10 @@ Express Deals is a Django-based web application for managing products, orders, p
    git clone <repository-url>
    cd Express_Deals
    ```
-2. **Create and activate a virtual environment:**
+2. **Create and activate a virtual environment (Python 3.13):**
    ```sh
-   python -m venv venv
-   .\venv\Scripts\activate
+   python -m venv .venv
+   .\.venv\Scripts\activate
    ```
 3. **Install dependencies:**
    ```sh
@@ -50,8 +50,23 @@ Express Deals is a Django-based web application for managing products, orders, p
    ```
 
 ## Deployment
-- The project includes a `Procfile` for deployment on Heroku.
+- The project includes a `Procfile` and `runtime.txt` (set to python-3.13.2) for deployment on Heroku.
 - Update `production_settings.py` and `heroku_settings.py` as needed for your environment.
+
+## Troubleshooting Product Images
+
+If scraped product images do not appear:
+- Check logs for errors during image download/import.
+- Ensure your Cloudinary credentials are correct and the Cloudinary Django integration is working.
+- Verify the Product.image field is populated in the Django admin for imported/scraped products.
+- Confirm the image URL is valid and accessible from your server.
+- Check that your media storage settings are correct for both development and production.
+- If using Heroku, ensure the `cloudinary` and `django-cloudinary-storage` packages are installed and configured.
+- For debugging, add logging to the image import process in `scraping/scrapers.py` to confirm image download and save steps.
+
+## Python Version
+
+This project is configured for Python 3.13. Ensure your local and deployment environments use Python 3.13 for full compatibility.
 
 ## License
 This project is licensed under the MIT License.
