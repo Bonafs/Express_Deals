@@ -166,13 +166,29 @@ STRIPE_PUBLIC_KEY = 'pk_test_development_key'
 STRIPE_SECRET_KEY = 'sk_test_development_key'
 STRIPE_WEBHOOK_SECRET = 'whsec_development_key'
 
-# Email Configuration (Development - console backend)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+# Email Configuration
+# Development: Console backend for testing
+# Production: SMTP backend with Yahoo Mail
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = ''
+    EMAIL_HOST_PASSWORD = ''
+    DEFAULT_FROM_EMAIL = 'Express Deals <noreply@expressdeals.com>'
+else:
+    # Production email configuration
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.mail.yahoo.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+    DEFAULT_FROM_EMAIL = os.environ.get(
+        'DEFAULT_FROM_EMAIL', 
+        'Express Deals <noreply@expressdeals.com>'
+    )
 
 # Security Settings for Production
 if not DEBUG:
@@ -308,19 +324,8 @@ WHATSAPP_TEMPLATES = {
     }
 }
 
-# Email Configuration (Development - Console backend)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'  # Replace with actual email
-EMAIL_HOST_PASSWORD = 'your-app-password'  # Replace with actual app password
-DEFAULT_FROM_EMAIL = 'Express Deals <noreply@expressdeals.com>'
-
-# SMS Configuration (Twilio) - Development
-TWILIO_ACCOUNT_SID = 'your-twilio-account-sid'  # Replace with actual SID
-TWILIO_AUTH_TOKEN = 'your-twilio-auth-token'   # Replace with actual token
-TWILIO_PHONE_NUMBER = '+1234567890'  # Replace with actual Twilio number
+# Notification Services Configuration (Environment Variables)
+# These should be set in production environment or .env file
 
 # WhatsApp Configuration (Development)
 WHATSAPP_ENABLED = True  # Enable WhatsApp notifications
@@ -425,19 +430,6 @@ WHATSAPP_TEMPLATES = {
         'category': 'TRANSACTIONAL'
     }
 }
-
-# Email Configuration Override (for production)
-if not DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.mail.yahoo.com'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-    DEFAULT_FROM_EMAIL = os.environ.get(
-        'DEFAULT_FROM_EMAIL', 
-        'Express Deals <noreply@expressdeals.com>'
-    )
 
 # User Agent Configuration for Web Scraping
 USER_AGENTS = [
