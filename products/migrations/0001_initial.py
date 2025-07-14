@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField()),
                 ('price', models.DecimalField(decimal_places=2, max_digits=10)),
                 ('original_price', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
-                ('image', models.ImageField(default='products/default.jpg', upload_to='products/')),
+                ('image', models.ImageField(upload_to='products/')),
                 ('stock_quantity', models.PositiveIntegerField(default=0)),
                 ('stock_status', models.CharField(choices=[('in_stock', 'In Stock'), ('out_of_stock', 'Out of Stock'), ('low_stock', 'Low Stock')], default='in_stock', max_length=20)),
                 ('is_active', models.BooleanField(default=True)),

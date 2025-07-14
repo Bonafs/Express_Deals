@@ -49,7 +49,7 @@ class Command(BaseCommand):
         if not force_update:
             queryset = queryset.filter(
                 models.Q(image='') | 
-                models.Q(image='products/default.jpg') |
+                models.Q(image='') |
                 models.Q(image__isnull=True)
             )
 

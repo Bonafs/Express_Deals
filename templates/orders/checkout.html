@@ -270,7 +270,7 @@
                     {% for item in cart_items %}
                     <div class="product-item">
                         <div class="d-flex align-items-center">
-                            <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'images/no-image.png' %}{% endif %}" 
+                            <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" 
                                  alt="{{ item.product.name }}" class="product-image me-3"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                             <div class="product-image bg-light d-flex align-items-center justify-content-center" style="display: none; width: 60px; height: 60px;">
