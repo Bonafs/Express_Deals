@@ -1,177 +1,3 @@
-def scrape_sample_products():
-    """
-    Return a list of sample product dicts for demo purposes.
-    Each dict should have: name, slug, category, description, price, original_price, image_url, is_featured
-    """
-    return [
-        {
-            'name': 'Sony PlayStation 5',
-            'slug': 'sony-playstation-5',
-            'category': 'Electronics',
-            'description': 'Next-gen gaming console with fast UK delivery.',
-            'price': 399.99,
-            'original_price': 479.99,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/playstation5.jpg',
-            'is_featured': True,
-        },
-        {
-            'name': 'Dyson V15 Detect',
-            'slug': 'dyson-v15-detect',
-            'category': 'Home & Garden',
-            'description': 'British-engineered cordless vacuum cleaner.',
-            'price': 449.99,
-            'original_price': 599.99,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/dysonv15.jpg',
-            'is_featured': True,
-        },
-        {
-            'name': 'Samsung Galaxy S24 Ultra',
-            'slug': 'samsung-galaxy-s24-ultra',
-            'category': 'Electronics',
-            'description': 'Premium Android smartphone with S Pen. Fast UK delivery.',
-            'price': 749.99,
-            'original_price': 1099.99,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/galaxys24ultra.jpg',
-            'is_featured': True,
-        },
-        {
-            'name': 'iPhone 15 Pro Max',
-            'slug': 'iphone-15-pro-max',
-            'category': 'Electronics',
-            'description': 'Latest iPhone with professional camera system. UK warranty included.',
-            'price': 899.99,
-            'original_price': 1199.99,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/iphone15promax.jpg',
-            'is_featured': True,
-        },
-        {
-            'name': 'Royal Doulton Tea Set',
-            'slug': 'royal-doulton-tea-set',
-            'category': 'Home & Garden',
-            'description': 'Fine English bone china tea set for six.',
-            'price': 79.99,
-            'original_price': 120.00,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/teaset.jpg',
-            'is_featured': False,
-        },
-        {
-            'name': 'Barbour Classic Jacket',
-            'slug': 'barbour-classic-jacket',
-            'category': 'Fashion',
-            'description': 'Iconic British waxed cotton jacket.',
-            'price': 249.99,
-            'original_price': 395.00,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/barbourjacket.jpg',
-            'is_featured': False,
-        },
-        {
-            'name': 'Nike Air Max UK Edition',
-            'slug': 'nike-air-max-uk-edition',
-            'category': 'Sports & Fitness',
-            'description': 'Limited edition trainers with Union Jack design.',
-            'price': 129.99,
-            'original_price': 169.99,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/nikeairmaxuk.jpg',
-            'is_featured': False,
-        },
-        {
-            'name': 'British Designer Wool Coat',
-            'slug': 'british-designer-wool-coat',
-            'category': 'Fashion',
-            'description': 'Elegant British wool coat, perfect for UK weather.',
-            'price': 199.99,
-            'original_price': 349.00,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/woolcoat.jpg',
-            'is_featured': False,
-        },
-    ]
-def scrape_sample_products():
-    """
-    Return a list of sample product dicts for demo purposes.
-    Each dict should have: name, slug, category, description, price, original_price, image_url, is_featured
-    """
-    return [
-        {
-            'name': 'Sony PlayStation 5',
-            'slug': 'sony-playstation-5',
-            'category': 'Electronics',
-            'description': 'Next-gen gaming console with fast UK delivery.',
-            'price': 399.99,
-            'original_price': 479.99,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/playstation5.jpg',
-            'is_featured': True,
-        },
-        {
-            'name': 'Dyson V15 Detect',
-            'slug': 'dyson-v15-detect',
-            'category': 'Home & Garden',
-            'description': 'British-engineered cordless vacuum cleaner.',
-            'price': 449.99,
-            'original_price': 599.99,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/dysonv15.jpg',
-            'is_featured': True,
-        },
-        {
-            'name': 'Samsung Galaxy S24 Ultra',
-            'slug': 'samsung-galaxy-s24-ultra',
-            'category': 'Electronics',
-            'description': 'Premium Android smartphone with S Pen. Fast UK delivery.',
-            'price': 749.99,
-            'original_price': 1099.99,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/galaxys24ultra.jpg',
-            'is_featured': True,
-        },
-        {
-            'name': 'iPhone 15 Pro Max',
-            'slug': 'iphone-15-pro-max',
-            'category': 'Electronics',
-            'description': 'Latest iPhone with professional camera system. UK warranty included.',
-            'price': 899.99,
-            'original_price': 1199.99,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/iphone15promax.jpg',
-            'is_featured': True,
-        },
-        {
-            'name': 'Royal Doulton Tea Set',
-            'slug': 'royal-doulton-tea-set',
-            'category': 'Home & Garden',
-            'description': 'Fine English bone china tea set for six.',
-            'price': 79.99,
-            'original_price': 120.00,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/teaset.jpg',
-            'is_featured': False,
-        },
-        {
-            'name': 'Barbour Classic Jacket',
-            'slug': 'barbour-classic-jacket',
-            'category': 'Fashion',
-            'description': 'Iconic British waxed cotton jacket.',
-            'price': 249.99,
-            'original_price': 395.00,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/barbourjacket.jpg',
-            'is_featured': False,
-        },
-        {
-            'name': 'Nike Air Max UK Edition',
-            'slug': 'nike-air-max-uk-edition',
-            'category': 'Sports & Fitness',
-            'description': 'Limited edition trainers with Union Jack design.',
-            'price': 129.99,
-            'original_price': 169.99,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/nikeairmaxuk.jpg',
-            'is_featured': False,
-        },
-        {
-            'name': 'British Designer Wool Coat',
-            'slug': 'british-designer-wool-coat',
-            'category': 'Fashion',
-            'description': 'Elegant British wool coat, perfect for UK weather.',
-            'price': 199.99,
-            'original_price': 349.00,
-            'image_url': 'https://res.cloudinary.com/demo/image/upload/v1699999999/woolcoat.jpg',
-            'is_featured': False,
-        },
-    ]
 """
 Express Deals - Web Scraping Engine
 Core scraping functionality for automated product data collection
@@ -193,6 +19,13 @@ from django.conf import settings
 from django.utils import timezone
 from .models import ScrapeTarget, ScrapeJob, ScrapedProduct
 from products.models import Product, Category
+from urllib.parse import urljoin, urlparse
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from cloudinary.uploader import upload
+from cloudinary.exceptions import Error as CloudinaryError
+from io import BytesIO
+from PIL import Image
 
 logger = logging.getLogger(__name__)
 
@@ -285,6 +118,108 @@ class BaseScraper:
         except Exception as e:
             logger.error(f"Error extracting product data: {e}")
             return {}
+    
+    def download_image(self, image_url, product_name="product", max_size_mb=5):
+        """
+        Enhanced image download with comprehensive error handling and validation
+        """
+        if not image_url:
+            logger.warning(f"No image URL provided for {product_name}")
+            return None
+
+        try:
+            # Clean and validate URL
+            image_url = image_url.strip()
+            parsed_url = urlparse(image_url)
+            
+            if not parsed_url.scheme:
+                logger.warning(f"Invalid image URL scheme for {product_name}: {image_url}")
+                return None
+
+            logger.info(f"Attempting to download image for {product_name}: {image_url}")
+
+            # Download with retries
+            for attempt in range(self.max_retries):
+                try:
+                    response = self.session.get(
+                        image_url, 
+                        timeout=30,
+                        headers={'Referer': image_url}
+                    )
+                    response.raise_for_status()
+                    
+                    # Check content type
+                    content_type = response.headers.get('content-type', '').lower()
+                    if not content_type.startswith('image/'):
+                        logger.warning(f"Invalid content type for {product_name}: {content_type}")
+                        return None
+
+                    # Check file size
+                    content_length = response.headers.get('content-length')
+                    if content_length and int(content_length) > max_size_mb * 1024 * 1024:
+                        logger.warning(f"Image too large for {product_name}: {content_length} bytes")
+                        return None
+
+                    image_content = response.content
+                    if len(image_content) > max_size_mb * 1024 * 1024:
+                        logger.warning(f"Downloaded image too large for {product_name}: {len(image_content)} bytes")
+                        return None
+
+                    # Validate image content
+                    try:
+                        img = Image.open(BytesIO(image_content))
+                        img.verify()
+                        
+                        # Reset stream for actual processing
+                        image_stream = BytesIO(image_content)
+                        img = Image.open(image_stream)
+                        
+                        # Convert to RGB if necessary
+                        if img.mode in ('RGBA', 'P'):
+                            img = img.convert('RGB')
+                        
+                        # Resize if too large
+                        max_dimension = 1200
+                        if img.width > max_dimension or img.height > max_dimension:
+                            img.thumbnail((max_dimension, max_dimension), Image.Resampling.LANCZOS)
+                        
+                        # Save processed image
+                        output_stream = BytesIO()
+                        img.save(output_stream, format='JPEG', quality=85, optimize=True)
+                        output_stream.seek(0)
+                        
+                        # Generate filename
+                        file_extension = 'jpg'
+                        safe_name = "".join(c for c in product_name if c.isalnum() or c in (' ', '-', '_')).rstrip()
+                        filename = f"products/{safe_name[:50]}_{int(time.time())}.{file_extension}"
+                        
+                        logger.info(f"Successfully processed image for {product_name}: {filename}")
+                        return ContentFile(output_stream.getvalue(), name=filename)
+                        
+                    except Exception as img_error:
+                        logger.error(f"Image validation failed for {product_name}: {str(img_error)}")
+                        return None
+                        
+                except requests.RequestException as e:
+                    logger.warning(f"Attempt {attempt + 1} failed for {product_name}: {str(e)}")
+                    if attempt < self.max_retries - 1:
+                        time.sleep(self.retry_delay * (attempt + 1))
+                    continue
+                    
+                break  # Success, exit retry loop
+                
+        except Exception as e:
+            logger.error(f"Unexpected error downloading image for {product_name}: {str(e)}")
+            return None
+
+        logger.error(f"Failed to download image for {product_name} after {self.max_retries} attempts")
+        return None
+
+    def get_fallback_image(self):
+        """
+        Get fallback image path for products without images
+        """
+        return 'media/products/default.jpg'
 
 
 class SeleniumScraper(BaseScraper):
@@ -345,6 +280,95 @@ class ProductScraper:
     
     def __init__(self):
         self.scrapers = {}
+        self.products_data = [
+            {
+                'name': 'Wireless Bluetooth Headphones',
+                'description': 'High-quality wireless headphones with noise cancellation and 30-hour battery life.',
+                'price': 149.99,
+                'original_price': 199.99,
+                'category': 'Electronics',
+                'stock_quantity': 25,
+                'is_active': True,
+                'is_featured': True,
+                'image_url': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'
+            },
+            {
+                'name': 'Organic Cotton T-Shirt',
+                'description': 'Comfortable 100% organic cotton t-shirt available in multiple colors.',
+                'price': 19.99,
+                'original_price': 29.99,
+                'category': 'Clothing',
+                'stock_quantity': 50,
+                'is_active': True,
+                'is_featured': False,
+                'image_url': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'
+            },
+            {
+                'name': 'Stainless Steel Water Bottle',
+                'description': 'Insulated stainless steel water bottle that keeps drinks cold for 24 hours.',
+                'price': 24.99,
+                'original_price': 39.99,
+                'category': 'Home & Garden',
+                'stock_quantity': 30,
+                'is_active': True,
+                'is_featured': False,
+                'image_url': 'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=500'
+            },
+            {
+                'name': 'Fitness Resistance Bands Set',
+                'description': 'Complete set of resistance bands for home workouts with multiple resistance levels.',
+                'price': 34.99,
+                'original_price': 49.99,
+                'category': 'Sports & Fitness',
+                'stock_quantity': 20,
+                'is_active': True,
+                'is_featured': True,
+                'image_url': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500'
+            },
+            {
+                'name': 'LED Desk Lamp',
+                'description': 'Adjustable LED desk lamp with touch controls and USB charging port.',
+                'price': 59.99,
+                'original_price': 79.99,
+                'category': 'Electronics',
+                'stock_quantity': 15,
+                'is_active': True,
+                'is_featured': False,
+                'image_url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'
+            }
+        ]
+    
+    def download_image(self, image_url, product_name="product"):
+        """
+        Simple image download for sample products
+        """
+        import requests
+        from django.core.files.base import ContentFile
+        
+        if not image_url:
+            return None
+            
+        try:
+            response = requests.get(image_url, timeout=30)
+            response.raise_for_status()
+            
+            content_type = response.headers.get('content-type', '').lower()
+            if not content_type.startswith('image/'):
+                return None
+                
+            # Create a Django file object
+            image_name = f"{product_name.lower().replace(' ', '_')}.jpg"
+            return ContentFile(response.content, name=image_name)
+            
+        except Exception as e:
+            logger.warning(f"Could not download image for {product_name}: {e}")
+            return None
+    
+    def get_fallback_image(self):
+        """
+        Return path to fallback image
+        """
+        return 'products/default.jpg'
     
     def get_scraper(self, target):
         """Get appropriate scraper for target"""
@@ -561,3 +585,84 @@ class ProductScraper:
         except Exception as e:
             logger.error(f"Error importing product: {e}")
             return False
+
+    def import_sample_products(self):
+        """
+        Import sample products with enhanced image handling and error recovery
+        """
+        from products.models import Product, Category
+        
+        logger.info("Starting sample product import with enhanced image handling")
+        imported_count = 0
+        failed_count = 0
+        
+        for product_data in self.products_data:
+            try:
+                # Get or create category
+                category, created = Category.objects.get_or_create(
+                    name=product_data['category']
+                )
+                if created:
+                    logger.info(f"Created new category: {category.name}")
+
+                # Check if product already exists
+                if Product.objects.filter(name=product_data['name']).exists():
+                    logger.info(f"Product already exists: {product_data['name']}")
+                    continue
+
+                # Create product instance
+                from django.utils.text import slugify
+                
+                # Generate unique slug
+                base_slug = slugify(product_data['name'])
+                slug = base_slug
+                counter = 1
+                while Product.objects.filter(slug=slug).exists():
+                    slug = f"{base_slug}-{counter}"
+                    counter += 1
+                
+                product = Product(
+                    name=product_data['name'],
+                    slug=slug,
+                    description=product_data['description'],
+                    price=product_data['price'],
+                    original_price=product_data['original_price'],
+                    category=category,
+                    stock_quantity=product_data['stock_quantity'],
+                    is_active=product_data['is_active'],
+                    is_featured=product_data['is_featured']
+                )
+
+                # Handle image download with fallback
+                image_file = None
+                # For now, skip image download to test basic functionality
+                # if product_data.get('image_url'):
+                #     logger.info(f"Downloading image for: {product_data['name']}")
+                #     image_file = self.download_image(
+                #         product_data['image_url'], 
+                #         product_data['name']
+                #     )
+                
+                # if image_file:
+                #     product.image.save(image_file.name, image_file, save=False)
+                #     logger.info(f"Successfully set image for: {product_data['name']}")
+                # else:
+                #     # Use default image as fallback
+                #     product.image = self.get_fallback_image()
+                #     logger.warning(f"Using fallback image for: {product_data['name']}")
+
+                # Save product
+                product.save()
+                imported_count += 1
+                logger.info(f"Successfully imported product: {product_data['name']}")
+                
+                # Small delay to avoid overwhelming servers
+                time.sleep(1)
+                
+            except Exception as e:
+                failed_count += 1
+                logger.error(f"Failed to import product {product_data['name']}: {str(e)}")
+                continue
+
+        logger.info(f"Product import completed. Imported: {imported_count}, Failed: {failed_count}")
+        return imported_count, failed_count

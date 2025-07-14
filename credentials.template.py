@@ -63,13 +63,13 @@ SAMPLE_USERS = [
     {
         'username': 'bonafs',
         'email': 'bonafs@yahoo.com',
-        'first_name': 'Bonafs',
-        'last_name': '',
+        'first_name': 'Mobolaji',
+        'last_name': 'Onafuwa',
         'password': 'expressdeals',
         'profile_data': {
-            'phone': '',
-            'date_of_birth': '',
-            'address': ''
+            'phone': '+447989241776',
+            'date_of_birth': '22/06/1971',
+            'address': '18P Goudhurst Road, Bromley, BR1 4QB'
         }
     }
 ]
