@@ -67,6 +67,10 @@
                                 <i class="fas fa-user me-1"></i>{{ user.username }}
                             </a>
                             <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'products:product_list' %}">
+                                    <i class="fas fa-bolt me-2 text-primary"></i>Express Deals
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
                                     <i class="fas fa-user me-2"></i>Profile
                                 </a></li>
