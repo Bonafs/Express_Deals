@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Subscription - Express Deals{% endblock %}
+
+{% block extra_head %}
+<style>
+    .subscription-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+    }
+    .status-active { background: #28a745; }
+    .status-trialing { background: #17a2b8; }
+    .status-past-due { background: #ffc107; color: #212529; }
+    .status-canceled { background: #dc3545; }
+    
+    .payment-history {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .payment-item {
+        border-left: 4px solid #007bff;
+        padding-left: 1rem;
+        margin-bottom: 1rem;
+    }
+    .payment-item.success { border-color: #28a745; }
+    .payment-item.failed { border-color: #dc3545; }
+    
+    .action-buttons .btn {
+        margin: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Manage Your Subscription</h1>
+        </div>
+    </div>
+
+    {% if subscription %}
+    <!-- Current Subscription -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="subscription-card">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3>{{ subscription.plan.name }} Plan</h3>
+                        <p class="mb-2">{{ subscription.plan.description }}</p>
+                        <p class="mb-0">
+                            <strong>£{{ subscription.plan.price }}</strong> per {{ subscription.plan.billing_interval }}
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-right">
+                        <span class="status-badge status-{{ subscription.status }}">
+                            {{ subscription.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Details -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Subscription Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p><strong>Status:</strong> 
+                                <span class="badge badge-{{ subscription.status == 'active' and 'success' or subscription.status == 'trialing' and 'info' or subscription.status == 'canceled' and 'danger' or 'warning' }}">
+                                    {{ subscription.get_status_display }}
+                                </span>
+                            </p>
+                            <p><strong>Current Period:</strong><br>
+                                {{ subscription.current_period_start|date:"M d, Y" }} - {{ subscription.current_period_end|date:"M d, Y" }}
+                            </p>
+                            {% if subscription.trial_end %}
+                            <p><strong>Trial Ends:</strong><br>
+                                {{ subscription.trial_end|date:"M d, Y" }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6">
+                            <p><strong>Subscription ID:</strong><br>
+                                <code>{{ subscription.stripe_subscription_id }}</code>
+                            </p>
+                            <p><strong>Started:</strong><br>
+                                {{ subscription.created_at|date:"M d, Y" }}
+                            </p>
+                            {% if subscription.canceled_at %}
+                            <p><strong>Canceled:</strong><br>
+                                {{ subscription.canceled_at|date:"M d, Y" }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if subscription.status == 'active' or subscription.status == 'trialing' %}
+                    <hr>
+                    <div class="action-buttons">
+                        <h6>Subscription Actions:</h6>
+                        <a href="{% url 'subscriptions:plans' %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-up"></i> Upgrade Plan
+                        </a>
+                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#cancelModal">
+                            <i class="fas fa-pause"></i> Cancel Subscription
+                        </button>
+                        <a href="#" class="btn btn-info" onclick="updatePaymentMethod()">
+                            <i class="fas fa-credit-card"></i> Update Payment Method
+                        </a>
+                    </div>
+                    {% elif subscription.status == 'canceled' %}
+                    <hr>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Your subscription has been canceled. You'll continue to have access until {{ subscription.current_period_end|date:"M d, Y" }}.
+                    </div>
+                    <a href="{% url 'subscriptions:plans' %}" class="btn btn-success">
+                        <i class="fas fa-redo"></i> Resubscribe
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'subscriptions:manual_payment' %}" class="btn btn-outline-primary btn-block">
+                            <i class="fas fa-plus"></i> Make One-time Payment
+                        </a>
+                        <a href="#" class="btn btn-outline-info btn-block" onclick="downloadInvoices()">
+                            <i class="fas fa-download"></i> Download Invoices
+                        </a>
+                        <a href="#" class="btn btn-outline-secondary btn-block" onclick="contactSupport()">
+                            <i class="fas fa-headset"></i> Contact Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Billing -->
+            {% if subscription.status == 'active' and not subscription.canceled_at %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Next Billing</h5>
+                </div>
+                <div class="card-body text-center">
+                    <h4 class="text-primary">£{{ subscription.plan.price }}</h4>
+                    <p class="mb-0">{{ subscription.current_period_end|date:"M d, Y" }}</p>
+                    <small class="text-muted">{{ subscription.current_period_end|timeuntil }} remaining</small>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% else %}
+    <!-- No Active Subscription -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card text-center">
+                <div class="card-body py-5">
+                    <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
+                    <h4>No Active Subscription</h4>
+                    <p class="text-muted mb-4">You don't have an active subscription. Choose a plan to get started with Express Deals premium features.</p>
+                    <a href="{% url 'subscriptions:plans' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-rocket"></i> Choose a Plan
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Payment History -->
+    {% if payment_history %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Payment History</h5>
+                    <small class="text-muted">Last 10 transactions</small>
+                </div>
+                <div class="card-body payment-history">
+                    {% for payment in payment_history %}
+                    <div class="payment-item {{ payment.status }}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">
+                                    {{ payment.get_payment_type_display }}
+                                    {% if payment.status == 'succeeded' %}
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    {% else %}
+                                        <i class="fas fa-times-circle text-danger"></i>
+                                    {% endif %}
+                                </h6>
+                                <p class="mb-1">{{ payment.description|default:"Payment" }}</p>
+                                <small class="text-muted">{{ payment.created_at|date:"M d, Y g:i A" }}</small>
+                            </div>
+                            <div class="text-right">
+                                <h6 class="mb-0">£{{ payment.amount }}</h6>
+                                <small class="text-muted">{{ payment.currency|upper }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Cancel Subscription Modal -->
+{% if subscription and subscription.status == 'active' or subscription.status == 'trialing' %}
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel Subscription</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel your <strong>{{ subscription.plan.name }}</strong> subscription?</p>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="cancelType" id="cancelAtPeriodEnd" value="true" checked>
+                    <label class="form-check-label" for="cancelAtPeriodEnd">
+                        <strong>Cancel at period end</strong><br>
+                        <small class="text-muted">Continue using until {{ subscription.current_period_end|date:"M d, Y" }}</small>
+                    </label>
+                </div>
+                
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="cancelType" id="cancelImmediately" value="false">
+                    <label class="form-check-label" for="cancelImmediately">
+                        <strong>Cancel immediately</strong><br>
+                        <small class="text-muted">Lose access right away (no refund)</small>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Keep Subscription</button>
+                <button type="button" class="btn btn-danger" onclick="confirmCancel()">Cancel Subscription</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmCancel() {
+    const atPeriodEnd = document.querySelector('input[name="cancelType"]:checked').value === 'true';
+    
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "subscriptions:cancel_subscription" %}';
+    
+    const csrfToken = document.createElement('input');
+    csrfToken.type = 'hidden';
+    csrfToken.name = 'csrfmiddlewaretoken';
+    csrfToken.value = '{{ csrf_token }}';
+    
+    const atPeriodEndInput = document.createElement('input');
+    atPeriodEndInput.type = 'hidden';
+    atPeriodEndInput.name = 'at_period_end';
+    atPeriodEndInput.value = atPeriodEnd;
+    
+    form.appendChild(csrfToken);
+    form.appendChild(atPeriodEndInput);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function updatePaymentMethod() {
+    alert('Payment method update functionality will be implemented with Stripe Customer Portal.');
+}
+
+function downloadInvoices() {
+    alert('Invoice download functionality will be implemented with Stripe billing portal.');
+}
+
+function contactSupport() {
+    alert('Support contact functionality - redirect to support page or open chat.');
+}
+
+// Success message handling
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('success') === 'true') {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success alert-dismissible fade show';
+    alert.innerHTML = `
+        <strong>Success!</strong> Your subscription has been activated successfully.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    `;
+    document.querySelector('.container').insertBefore(alert, document.querySelector('.container').firstChild);
+    
+    // Remove success parameter from URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+</script>
+{% endblock %}

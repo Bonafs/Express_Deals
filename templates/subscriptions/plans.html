@@ -1,0 +1,392 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Subscription Plans - Express Deals{% endblock %}
+
+{% block extra_head %}
+<!-- Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+    .plan-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 2px solid transparent;
+    }
+    .plan-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-color: #007bff;
+    }
+    .plan-card.featured {
+        border-color: #28a745;
+        transform: scale(1.05);
+    }
+    .current-plan {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+    }
+    .price-display {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+    .billing-period {
+        font-size: 1.1rem;
+        color: #6c757d;
+    }
+    .feature-list {
+        list-style: none;
+        padding: 0;
+    }
+    .feature-list li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .feature-list li:last-child {
+        border-bottom: none;
+    }
+    .feature-list li i {
+        color: #28a745;
+        margin-right: 0.5rem;
+    }
+    .payment-form {
+        display: none;
+        margin-top: 2rem;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    #card-element {
+        padding: 1rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        background: white;
+    }
+    .card-error {
+        color: #dc3545;
+        margin-top: 0.5rem;
+    }
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 9999;
+    }
+    .loading-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: white;
+    }
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #007bff;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Page Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-3">Choose Your Plan</h1>
+            <p class="lead">Select the perfect subscription plan for your Express Deals experience</p>
+            {% if current_subscription %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    You currently have the <strong>{{ current_subscription.plan.name }}</strong> plan
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Subscription Plans -->
+    <div class="row">
+        {% for plan in plans %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card plan-card h-100 {% if current_subscription and current_subscription.plan.id == plan.id %}current-plan{% elif plan.name == 'Pro' %}featured{% endif %}">
+                <div class="card-header text-center">
+                    <h3 class="card-title">{{ plan.name }}</h3>
+                    {% if plan.name == 'Pro' %}
+                        <span class="badge badge-success">Most Popular</span>
+                    {% endif %}
+                </div>
+                <div class="card-body text-center">
+                    <div class="price-display">£{{ plan.price }}</div>
+                    <div class="billing-period">per {{ plan.billing_interval }}</div>
+                    
+                    {% if plan.trial_period_days > 0 %}
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-gift"></i>
+                            {{ plan.trial_period_days }} days free trial
+                        </div>
+                    {% endif %}
+                    
+                    <p class="mt-3">{{ plan.description }}</p>
+                    
+                    <ul class="feature-list mt-4">
+                        {% if plan.name == 'Basic' %}
+                            <li><i class="fas fa-check"></i> Access to all products</li>
+                            <li><i class="fas fa-check"></i> Basic price alerts</li>
+                            <li><i class="fas fa-check"></i> Email notifications</li>
+                            <li><i class="fas fa-check"></i> Standard support</li>
+                        {% elif plan.name == 'Pro' %}
+                            <li><i class="fas fa-check"></i> Everything in Basic</li>
+                            <li><i class="fas fa-check"></i> Advanced price tracking</li>
+                            <li><i class="fas fa-check"></i> SMS & WhatsApp alerts</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> Exclusive deals</li>
+                        {% elif plan.name == 'Premium' %}
+                            <li><i class="fas fa-check"></i> Everything in Pro</li>
+                            <li><i class="fas fa-check"></i> Personal shopping assistant</li>
+                            <li><i class="fas fa-check"></i> Custom price targets</li>
+                            <li><i class="fas fa-check"></i> 24/7 VIP support</li>
+                            <li><i class="fas fa-check"></i> Early access to sales</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="card-footer text-center">
+                    {% if current_subscription and current_subscription.plan.id == plan.id %}
+                        <button class="btn btn-outline-light btn-lg" disabled>Current Plan</button>
+                        <div class="mt-2">
+                            <a href="{% url 'subscriptions:management' %}" class="btn btn-sm btn-outline-light">Manage Subscription</a>
+                        </div>
+                    {% elif current_subscription %}
+                        <button class="btn btn-primary btn-lg" onclick="showUpgradeConfirm('{{ plan.name }}', '{{ plan.price }}', '{{ plan.id }}')">
+                            {% if plan.price > current_subscription.plan.price %}Upgrade{% else %}Switch{% endif %} to {{ plan.name }}
+                        </button>
+                    {% else %}
+                        <button class="btn btn-success btn-lg" onclick="selectPlan('{{ plan.id }}', '{{ plan.name }}', '{{ plan.price }}')">
+                            Choose {{ plan.name }}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Payment Form -->
+    <div id="payment-form" class="payment-form">
+        <h4 class="mb-4">Complete Your Subscription</h4>
+        <form id="subscription-form">
+            {% csrf_token %}
+            <input type="hidden" id="selected-plan-id" name="plan_id">
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Payment Details</h5>
+                    <div id="card-element">
+                        <!-- Stripe Elements will create form elements here -->
+                    </div>
+                    <div id="card-errors" class="card-error"></div>
+                </div>
+                <div class="col-md-6">
+                    <h5>Subscription Summary</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <p><strong>Plan:</strong> <span id="summary-plan-name"></span></p>
+                            <p><strong>Price:</strong> £<span id="summary-price"></span> per month</p>
+                            <p><strong>Billing:</strong> Monthly recurring</p>
+                            <hr>
+                            <p><strong>Total:</strong> £<span id="summary-total"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <button type="button" class="btn btn-secondary mr-3" onclick="cancelPayment()">Cancel</button>
+                    <button type="submit" id="submit-button" class="btn btn-success btn-lg">
+                        <i class="fas fa-lock"></i> Start Subscription
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loading-content">
+        <div class="spinner"></div>
+        <h4>Processing your subscription...</h4>
+        <p>Please wait while we set up your account</p>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal fade" id="upgradeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Plan Change</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to change to the <strong id="upgrade-plan-name"></strong> plan?</p>
+                <p>Your billing will be prorated and the new plan will take effect immediately.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmUpgrade()">Confirm Change</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize Stripe
+const stripe = Stripe('{{ stripe_publishable_key }}');
+const elements = stripe.elements();
+
+// Create card element
+const cardElement = elements.create('card', {
+    style: {
+        base: {
+            fontSize: '16px',
+            color: '#424770',
+            '::placeholder': {
+                color: '#aab7c4',
+            },
+        },
+    },
+});
+
+let selectedPlanId = null;
+let selectedPlanName = null;
+let selectedPlanPrice = null;
+
+// Function to select a plan
+function selectPlan(planId, planName, planPrice) {
+    selectedPlanId = planId;
+    selectedPlanName = planName;
+    selectedPlanPrice = planPrice;
+    
+    // Update form
+    document.getElementById('selected-plan-id').value = planId;
+    document.getElementById('summary-plan-name').textContent = planName;
+    document.getElementById('summary-price').textContent = planPrice;
+    document.getElementById('summary-total').textContent = planPrice;
+    
+    // Show payment form
+    document.getElementById('payment-form').style.display = 'block';
+    cardElement.mount('#card-element');
+    
+    // Scroll to payment form
+    document.getElementById('payment-form').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Function to cancel payment
+function cancelPayment() {
+    document.getElementById('payment-form').style.display = 'none';
+    cardElement.unmount();
+    selectedPlanId = null;
+}
+
+// Function to show upgrade confirmation
+function showUpgradeConfirm(planName, planPrice, planId) {
+    document.getElementById('upgrade-plan-name').textContent = planName;
+    $('#upgradeModal').modal('show');
+    
+    // Store upgrade details
+    window.upgradePlanId = planId;
+    window.upgradePlanName = planName;
+    window.upgradePlanPrice = planPrice;
+}
+
+// Function to confirm upgrade
+function confirmUpgrade() {
+    $('#upgradeModal').modal('hide');
+    selectPlan(window.upgradePlanId, window.upgradePlanName, window.upgradePlanPrice);
+}
+
+// Handle form submission
+document.getElementById('subscription-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    
+    const submitButton = document.getElementById('submit-button');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    
+    // Show loading
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    loadingOverlay.style.display = 'block';
+    
+    try {
+        // Create subscription
+        const response = await fetch('{% url "subscriptions:create_subscription" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: `plan_id=${selectedPlanId}`
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            throw new Error(result.error);
+        }
+        
+        // Confirm payment with Stripe
+        const {error} = await stripe.confirmCardPayment(result.client_secret, {
+            payment_method: {
+                card: cardElement,
+                billing_details: {
+                    name: '{{ user.get_full_name|default:user.username }}',
+                    email: '{{ user.email }}',
+                }
+            }
+        });
+        
+        if (error) {
+            throw new Error(error.message);
+        }
+        
+        // Success! Redirect to management page
+        window.location.href = '{% url "subscriptions:management" %}?success=true';
+        
+    } catch (error) {
+        // Hide loading
+        loadingOverlay.style.display = 'none';
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="fas fa-lock"></i> Start Subscription';
+        
+        // Show error
+        document.getElementById('card-errors').textContent = error.message;
+        
+        console.error('Subscription error:', error);
+    }
+});
+
+// Handle card errors
+cardElement.on('change', (event) => {
+    const displayError = document.getElementById('card-errors');
+    if (event.error) {
+        displayError.textContent = event.error.message;
+    } else {
+        displayError.textContent = '';
+    }
+});
+</script>
+{% endblock %}

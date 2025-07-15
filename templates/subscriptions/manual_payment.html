@@ -1,0 +1,392 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}One-Time Payment - Express Deals{% endblock %}
+
+{% block extra_head %}
+<!-- Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+    .payment-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .payment-form {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    #card-element {
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        background: white;
+        transition: border-color 0.3s ease;
+    }
+    #card-element:focus-within {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    }
+    .card-errors {
+        color: #dc3545;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .amount-input {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-align: center;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    .amount-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    }
+    .preset-amounts {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+    .preset-amount {
+        flex: 1;
+        min-width: 80px;
+        padding: 0.75rem;
+        border: 2px solid #e9ecef;
+        background: white;
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .preset-amount:hover {
+        border-color: #007bff;
+        background: #f0f8ff;
+    }
+    .preset-amount.active {
+        border-color: #007bff;
+        background: #007bff;
+        color: white;
+    }
+    .payment-summary {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+    }
+    .loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    .success-message {
+        text-align: center;
+        padding: 3rem;
+    }
+    .success-message i {
+        font-size: 4rem;
+        color: #28a745;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="payment-container">
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4">Make a Payment</h1>
+            <p class="lead">Make a secure one-time payment to your Express Deals account</p>
+        </div>
+
+        <!-- Payment Form -->
+        <div id="payment-form-container">
+            <form id="payment-form" class="payment-form">
+                {% csrf_token %}
+                
+                <!-- Amount Selection -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h4 class="mb-3">Payment Amount</h4>
+                        
+                        <!-- Preset Amounts -->
+                        <div class="preset-amounts">
+                            <div class="preset-amount" data-amount="10">£10</div>
+                            <div class="preset-amount" data-amount="25">£25</div>
+                            <div class="preset-amount" data-amount="50">£50</div>
+                            <div class="preset-amount" data-amount="100">£100</div>
+                            <div class="preset-amount" data-amount="250">£250</div>
+                        </div>
+                        
+                        <!-- Custom Amount -->
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">£</span>
+                            </div>
+                            <input type="number" 
+                                   id="amount-input" 
+                                   class="form-control amount-input" 
+                                   placeholder="Enter amount" 
+                                   min="1" 
+                                   max="10000" 
+                                   step="0.01"
+                                   required>
+                        </div>
+                        <small class="form-text text-muted">Minimum payment: £1.00 | Maximum payment: £10,000.00</small>
+                    </div>
+                </div>
+
+                <!-- Payment Description -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h4 class="mb-3">Payment Description (Optional)</h4>
+                        <textarea id="description-input" 
+                                  class="form-control" 
+                                  rows="3" 
+                                  placeholder="What is this payment for? (e.g., Account credit, Service fee, etc.)"></textarea>
+                    </div>
+                </div>
+
+                <!-- Payment Details -->
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <h4 class="mb-3">Payment Method</h4>
+                        <div id="card-element">
+                            <!-- Stripe Elements will create form elements here -->
+                        </div>
+                        <div id="card-errors" class="card-errors"></div>
+                        
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-lock"></i>
+                                Your payment information is secure and encrypted. We use Stripe for payment processing.
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Summary -->
+                    <div class="col-lg-4">
+                        <h4 class="mb-3">Payment Summary</h4>
+                        <div class="payment-summary">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Amount:</span>
+                                <span id="summary-amount">£0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Processing Fee:</span>
+                                <span class="text-muted">Included</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <strong>Total:</strong>
+                                <strong id="summary-total">£0.00</strong>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <p class="mb-1"><strong>Payment Method:</strong></p>
+                                <p class="text-muted">Credit/Debit Card</p>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <p class="mb-1"><strong>Account:</strong></p>
+                                <p class="text-muted">{{ user.get_full_name|default:user.username }}<br>{{ user.email }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <button type="submit" id="submit-button" class="btn btn-success btn-lg px-5" disabled>
+                            <i class="fas fa-lock"></i> Complete Payment
+                        </button>
+                        <div class="mt-2">
+                            <small class="text-muted">By clicking "Complete Payment", you agree to our terms and conditions.</small>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Success Message (hidden initially) -->
+        <div id="success-message" class="success-message" style="display: none;">
+            <i class="fas fa-check-circle"></i>
+            <h2>Payment Successful!</h2>
+            <p class="lead">Your payment has been processed successfully.</p>
+            <p>Payment ID: <code id="payment-id"></code></p>
+            <div class="mt-4">
+                <a href="{% url 'subscriptions:management' %}" class="btn btn-primary">View Payment History</a>
+                <a href="{% url 'products:product_list' %}" class="btn btn-outline-primary">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize Stripe
+const stripe = Stripe('{{ stripe_publishable_key }}');
+const elements = stripe.elements();
+
+// Create card element
+const cardElement = elements.create('card', {
+    style: {
+        base: {
+            fontSize: '16px',
+            color: '#424770',
+            '::placeholder': {
+                color: '#aab7c4',
+            },
+        },
+        invalid: {
+            color: '#9e2146',
+        },
+    },
+});
+
+// Mount card element
+cardElement.mount('#card-element');
+
+// Elements
+const amountInput = document.getElementById('amount-input');
+const descriptionInput = document.getElementById('description-input');
+const submitButton = document.getElementById('submit-button');
+const summaryAmount = document.getElementById('summary-amount');
+const summaryTotal = document.getElementById('summary-total');
+const presetAmounts = document.querySelectorAll('.preset-amount');
+const paymentForm = document.getElementById('payment-form');
+const paymentFormContainer = document.getElementById('payment-form-container');
+const successMessage = document.getElementById('success-message');
+
+// Handle preset amount selection
+presetAmounts.forEach(preset => {
+    preset.addEventListener('click', () => {
+        const amount = preset.dataset.amount;
+        amountInput.value = amount;
+        updateSummary();
+        
+        // Update active state
+        presetAmounts.forEach(p => p.classList.remove('active'));
+        preset.classList.add('active');
+    });
+});
+
+// Handle amount input changes
+amountInput.addEventListener('input', () => {
+    updateSummary();
+    
+    // Remove active state from presets if custom amount
+    const currentAmount = parseFloat(amountInput.value) || 0;
+    const matchingPreset = Array.from(presetAmounts).find(
+        preset => parseFloat(preset.dataset.amount) === currentAmount
+    );
+    
+    presetAmounts.forEach(p => p.classList.remove('active'));
+    if (matchingPreset) {
+        matchingPreset.classList.add('active');
+    }
+});
+
+// Update payment summary
+function updateSummary() {
+    const amount = parseFloat(amountInput.value) || 0;
+    const formatted = `£${amount.toFixed(2)}`;
+    
+    summaryAmount.textContent = formatted;
+    summaryTotal.textContent = formatted;
+    
+    // Enable/disable submit button
+    submitButton.disabled = amount < 1;
+}
+
+// Handle card errors
+cardElement.on('change', (event) => {
+    const displayError = document.getElementById('card-errors');
+    if (event.error) {
+        displayError.textContent = event.error.message;
+    } else {
+        displayError.textContent = '';
+    }
+});
+
+// Handle form submission
+paymentForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    
+    const amount = parseFloat(amountInput.value);
+    const description = descriptionInput.value.trim();
+    
+    if (amount < 1) {
+        alert('Please enter a valid amount (minimum £1.00)');
+        return;
+    }
+    
+    // Show loading state
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    paymentForm.classList.add('loading');
+    
+    try {
+        // Create payment intent
+        const response = await fetch('{% url "subscriptions:create_payment_intent" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify({
+                amount: amount,
+                description: description
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            throw new Error(result.error);
+        }
+        
+        // Confirm payment
+        const {error, paymentIntent} = await stripe.confirmCardPayment(result.client_secret, {
+            payment_method: {
+                card: cardElement,
+                billing_details: {
+                    name: '{{ user.get_full_name|default:user.username }}',
+                    email: '{{ user.email }}',
+                }
+            }
+        });
+        
+        if (error) {
+            throw new Error(error.message);
+        }
+        
+        // Payment successful
+        document.getElementById('payment-id').textContent = paymentIntent.id;
+        paymentFormContainer.style.display = 'none';
+        successMessage.style.display = 'block';
+        
+        // Scroll to success message
+        successMessage.scrollIntoView({ behavior: 'smooth' });
+        
+    } catch (error) {
+        // Show error
+        document.getElementById('card-errors').textContent = error.message;
+        console.error('Payment error:', error);
+    } finally {
+        // Reset button state
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="fas fa-lock"></i> Complete Payment';
+        paymentForm.classList.remove('loading');
+    }
+});
+
+// Initialize summary
+updateSummary();
+</script>
+{% endblock %}
