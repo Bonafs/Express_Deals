@@ -9,6 +9,12 @@ from pathlib import Path
 import dj_database_url
 import logging.config
 
+# Import cloudinary settings for proper initialization
+try:
+    from . import cloudinary_settings  # noqa: F401
+except ImportError:
+    pass
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -161,9 +167,9 @@ STATICFILES_DIRS = [
 
 # Cloudinary media storage
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dzecfjfju',
-    'API_KEY': '853483899852935',
-    'API_SECRET': 'tFJ6Rb9xofDzV2Y1YrBZWaIZkhs',
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = '/media/'
