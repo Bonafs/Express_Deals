@@ -192,7 +192,8 @@ media/
 
 ### **Heroku Deployment**
 **Configuration:**
-- **App Name**: express-deals-16b6c1fa4311.herokuapp.com
+- **App Name**: express-deals (EU region)
+- **Live URL**: https://express-deals-16b6c1fa4311.herokuapp.com
 - **Dynos**: Web dyno with Gunicorn
 - **Add-ons**: Heroku Postgres, Heroku Redis
 - **Buildpacks**: Python, Node.js (if needed)
