@@ -13,10 +13,10 @@ from django.contrib.auth.models import User
 
 def create_test_admin():
     try:
-        # Test admin credentials
-        TEST_USERNAME = 'testadmin'
-        TEST_EMAIL = 'testadmin@expressdeals.com'
-        TEST_PASSWORD = 'TestAdmin123!'
+        # Test admin credentials - Use environment variables for security
+        TEST_USERNAME = os.environ.get('TEST_ADMIN_USERNAME', 'testadmin')
+        TEST_EMAIL = os.environ.get('TEST_ADMIN_EMAIL', 'testadmin@example.com')
+        TEST_PASSWORD = os.environ.get('TEST_ADMIN_PASSWORD', 'please_set_secure_test_password')
         
         # Delete existing test admin if exists
         existing_user = User.objects.filter(username=TEST_USERNAME).first()
