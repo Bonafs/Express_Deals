@@ -261,7 +261,6 @@ LOGGING = {
 
 # Celery Configuration
 # Use Heroku Redis in production, local Redis in development
-import os
 redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 CELERY_BROKER_URL = redis_url
 CELERY_RESULT_BACKEND = redis_url
