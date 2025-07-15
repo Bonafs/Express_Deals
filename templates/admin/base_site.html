@@ -1,0 +1,150 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+/* Enhanced admin layout with sticky footer */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: "Roboto","Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
+}
+
+#container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#header {
+    background: #417690;
+    color: #ffc;
+    overflow: hidden;
+}
+
+#content {
+    flex: 1;
+    padding: 20px;
+    background: #f8f8f8;
+}
+
+#footer {
+    background: #417690;
+    color: #ffc;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 11px;
+    margin-top: auto;
+    border-top: 1px solid #205067;
+}
+
+/* Dashboard specific styling */
+.dashboard .module table {
+    width: 100%;
+}
+
+.dashboard .module {
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dashboard .module h2 {
+    background: #79aec8;
+    color: white;
+    font-size: 14px;
+    margin: 0;
+    padding: 10px 15px;
+    font-weight: normal;
+}
+
+.dashboard .module table {
+    border-collapse: collapse;
+}
+
+.dashboard .module table th,
+.dashboard .module table td {
+    padding: 8px 15px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+.dashboard .module table th {
+    background: #f1f1f1;
+    font-weight: normal;
+    font-size: 12px;
+}
+
+.dashboard .module table td a {
+    color: #447e9b;
+    text-decoration: none;
+}
+
+.dashboard .module table td a:hover {
+    color: #036;
+    text-decoration: underline;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+    background: #79aec8;
+    padding: 10px 40px;
+    border: none;
+    font-size: 14px;
+    color: #c4dce8;
+}
+
+.breadcrumbs a {
+    color: #c4dce8;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+    #content {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    #content {
+        padding: 10px;
+    }
+    
+    .dashboard .module table th,
+    .dashboard .module table td {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}
+
+/* Print styles */
+@media print {
+    #footer {
+        display: none;
+    }
+}
+</style>
+{% endblock %}
+
+{% block footer %}
+<div id="footer">
+    <div class="footer-content">
+        Express Deals Admin Panel | 
+        <a href="{% url 'admin:index' %}" style="color: #ffc;">Dashboard</a> | 
+        {% now "Y" %} Express Deals. All rights reserved.
+    </div>
+</div>
+{% endblock %}

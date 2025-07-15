@@ -1,0 +1,53 @@
+{% extends "admin/base.html" %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+/* Fix admin footer to bottom of viewport */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#content {
+    flex: 1;
+}
+
+#footer {
+    margin-top: auto;
+    background: #f8f8f8;
+    border-top: 1px solid #ddd;
+    padding: 10px 0;
+    font-size: 11px;
+    text-align: center;
+    color: #666;
+}
+
+/* Additional styling for better admin layout */
+.module {
+    margin-bottom: 20px;
+}
+
+.dashboard #content {
+    padding: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #container {
+        min-height: 100vh;
+    }
+    
+    #content {
+        padding: 10px;
+    }
+}
+</style>
+{% endblock %}
