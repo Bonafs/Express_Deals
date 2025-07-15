@@ -6,13 +6,35 @@ Comprehensive service for checking product availability and tracking effectivene
 import logging
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
-from django.core.exceptions import ValidationError
+from urllib.parse import urlparse, urljoin
+import time
+from django.conf import settings
 from django.utils import timezone
-from decimal import Decimal
+from datetime import timedelta
+from typing import Tuple, Optional, Dict, Any  # Add type hints
 import re
+from decimal import Decimal
 
 logger = logging.getLogger(__name__)
+
+class ValidationResult:
+    """
+    Structured result for URL validation to prevent parameter order confusion
+    """
+    def __init__(self, is_valid: bool, retailer_name: Optional[str] = None, error_message: Optional[str] = None):
+        self.is_valid = is_valid
+        self.retailer_name = retailer_name
+        self.error_message = error_message
+    
+    def as_tuple(self) -> Tuple[bool, Optional[str], Optional[str]]:
+        """Return as tuple for backward compatibility"""
+        return (self.is_valid, self.retailer_name, self.error_message)
+    
+    def __iter__(self):
+        """Allow tuple unpacking"""
+        yield self.is_valid
+        yield self.retailer_name
+        yield self.error_message
 
 
 class URLTrackingService:
@@ -73,18 +95,19 @@ class URLTrackingService:
             'Upgrade-Insecure-Requests': '1',
         }
     
-    def validate_url(self, url):
+    def validate_url(self, url) -> ValidationResult:
         """
         Validate if URL is from a supported retailer
-        Returns: (is_valid, retailer_name, error_message)
+        Returns: ValidationResult(is_valid, retailer_name, error_message)
         """
         try:
             if not url or not isinstance(url, str):
-                return False, None, "URL is required"
+                return ValidationResult(False, None, "URL is required")
             
             # Basic URL validation
             if not url.startswith(('http://', 'https://')):
-                return False, None, "URL must start with http:// or https://"
+                return ValidationResult(False, None, 
+                                      "URL must start with http:// or https://")
             
             parsed_url = urlparse(url)
             domain = parsed_url.netloc.lower()
@@ -96,15 +119,16 @@ class URLTrackingService:
             # Check against supported retailers
             for supported_domain, retailer_info in self.SUPPORTED_RETAILERS.items():
                 if domain == supported_domain or domain.endswith('.' + supported_domain):
-                    return True, retailer_info['name'], None
+                    return ValidationResult(True, retailer_info['name'], None)
             
             # Not a supported retailer
             supported_sites = list(self.SUPPORTED_RETAILERS.keys())
-            return False, None, f"URL must be from a supported retailer: {', '.join(supported_sites)}"
+            error_msg = f"URL must be from a supported retailer: {', '.join(supported_sites)}"
+            return ValidationResult(False, None, error_msg)
             
         except Exception as e:
             logger.error(f"URL validation error: {e}")
-            return False, None, f"Invalid URL format: {str(e)}"
+            return ValidationResult(False, None, f"Invalid URL format: {str(e)}")
     
     def check_product_availability(self, url, timeout=10):
         """
@@ -121,7 +145,8 @@ class URLTrackingService:
         """
         try:
             # Validate URL first
-            is_valid, retailer_name, error = self.validate_url(url)
+            validation_result = self.validate_url(url)
+            is_valid, retailer_name, error = validation_result.as_tuple()
             if not is_valid:
                 return {
                     'available': False,
@@ -321,7 +346,8 @@ class URLTrackingService:
         Based on supported features and reliability
         """
         try:
-            is_valid, retailer_name, error = self.validate_url(url)
+            validation_result = self.validate_url(url)
+            is_valid, retailer_name, error = validation_result.as_tuple()
             if not is_valid:
                 return 0, error
             
@@ -367,7 +393,8 @@ class URLTrackingService:
         
         try:
             # URL validation (20 points)
-            is_valid, retailer_name, validation_msg = self.validate_url(url)
+            validation_result = self.validate_url(url)
+            is_valid, retailer_name, validation_msg = validation_result.as_tuple()
             if is_valid:
                 result['score'] += 20
                 result['factors'].append(f"✅ Supported retailer: {retailer_name}")
@@ -451,7 +478,8 @@ class URLTrackingService:
             from .models import PriceAlert
             
             # Validate URL
-            is_valid, retailer_name, validation_message = self.validate_url(url)
+            validation_result = self.validate_url(url)
+            is_valid, retailer_name, validation_message = validation_result.as_tuple()
             if not is_valid:
                 return False, validation_message, None
             
@@ -531,7 +559,8 @@ class URLTrackingService:
                 'validation': {}
             }
             
-            is_valid, retailer, message = self.validate_url(url)
+            validation_result = self.validate_url(url)
+            is_valid, retailer, message = validation_result.as_tuple()
             result['validation'] = {
                 'is_valid': is_valid,
                 'message': message,
