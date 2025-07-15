@@ -361,31 +361,31 @@ PRICE_CHANGE_THRESHOLD = 0.01  # Minimum price change to trigger alert
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 
-# Cache Configuration (Development - Redis local)
-if os.environ.get('REDIS_URL'):
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-            'LOCATION': os.environ.get('REDIS_URL'),
-            'OPTIONS': {
-                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-                'CONNECTION_POOL_KWARGS': {
-                    'max_connections': 10,
-                    'retry_on_timeout': True,
-                }
-            }
-        }
+# Cache Configuration (Temporarily disabled Redis to fix 500 errors)
+# if os.environ.get('REDIS_URL'):
+#     CACHES = {
+#         'default': {
+#             'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+#             'LOCATION': os.environ.get('REDIS_URL'),
+#             'OPTIONS': {
+#                 'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#                 'CONNECTION_POOL_KWARGS': {
+#                     'max_connections': 10,
+#                     'retry_on_timeout': True,
+#                 }
+#             }
+#         }
+#     }
+# else:
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
-else:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        }
-    }
+}
 
 # Session Configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Use database sessions for stability
-SESSION_CACHE_ALIAS = 'default'
+# Remove SESSION_CACHE_ALIAS to avoid Redis conflicts
 SESSION_COOKIE_AGE = 86400  # 24 hours
 
 # User Agent Configuration for Web Scraping
