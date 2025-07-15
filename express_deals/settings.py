@@ -22,8 +22,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '.herokuapp.com',
-    'express-deals-16b6c1fa4311.herokuapp.com',
-    '*'  # Allow all hosts for debugging
+    'express-deals-16b6c1fa4311.herokuapp.com'
 ]
 
 # CSRF trusted origins for Heroku
