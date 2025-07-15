@@ -1,5 +1,5 @@
 # Core Django Framework
-Django>=4.2,<5.0
+Django==5.2.4
 djangorestframework>=3.14.0
 
 # Database
