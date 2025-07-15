@@ -385,7 +385,7 @@ else:
     }
 
 # Session Configuration
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Use database sessions for stability
 SESSION_CACHE_ALIAS = 'default'
 SESSION_COOKIE_AGE = 86400  # 24 hours
 
