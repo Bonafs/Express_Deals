@@ -31,6 +31,11 @@ def create_test_admin():
             password=TEST_PASSWORD
         )
         
+        # Explicitly ensure staff and superuser status
+        test_admin.is_staff = True
+        test_admin.is_superuser = True
+        test_admin.save()
+        
         print(f"🎉 Created test admin user successfully!")
         print(f"\n✅ Test Admin Login Details:")
         print(f"   Username: {TEST_USERNAME}")
@@ -38,6 +43,7 @@ def create_test_admin():
         print(f"   Password: {TEST_PASSWORD}")
         print(f"   Staff status: {test_admin.is_staff}")
         print(f"   Superuser status: {test_admin.is_superuser}")
+        print(f"   Active status: {test_admin.is_active}")
         
         # Show all admin users
         all_admins = User.objects.filter(is_superuser=True)
