@@ -26,6 +26,12 @@ ALLOWED_HOSTS = [
     '*'  # Allow all hosts for debugging
 ]
 
+# CSRF trusted origins for Heroku
+CSRF_TRUSTED_ORIGINS = [
+    'https://express-deals-16b6c1fa4311.herokuapp.com',
+    'https://*.herokuapp.com',
+]
+
 
 # Application definition
 
@@ -62,7 +68,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',  # Temporarily disabled for debugging
+    'django.middleware.csrf.CsrfViewMiddleware',  # Re-enabled CSRF middleware
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
