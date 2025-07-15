@@ -1,8 +1,4 @@
-from django.shortcuts    def post(self, request):
-        if request.user.is_authenticated:
-            return redirect('products:product_list')
-        
-        form = CustomUserRegistrationForm(request.POST)rt render, redirect
+from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
