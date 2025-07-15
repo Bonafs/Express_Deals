@@ -588,7 +588,16 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
                     this.disabled = false;
                 }, 2000);
             } else {
-                throw new Error(data.message || 'Error adding product to cart');
+                // Check if user needs to login
+                if (data.redirect_to_login) {
+                    showToast(data.message || 'Please sign in to add items to your cart', 'warning');
+                    // Optionally redirect to login page after a short delay
+                    setTimeout(() => {
+                        window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent(window.location.pathname);
+                    }, 2000);
+                } else {
+                    throw new Error(data.message || 'Error adding product to cart');
+                }
             }
         })
         .catch(error => {

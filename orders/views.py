@@ -28,12 +28,24 @@ class CartView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
 
-class AddToCartView(LoginRequiredMixin, View):
+class AddToCartView(View):
     """
     Add item to shopping cart (AJAX and regular POST)
     """
     
     def post(self, request):
+        # Check if user is authenticated
+        if not request.user.is_authenticated:
+            error_message = "Please sign in to add items to your cart"
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False, 
+                    'message': error_message,
+                    'redirect_to_login': True
+                })
+            messages.error(request, error_message)
+            return redirect('accounts:login')
+        
         try:
             product_id = request.POST.get('product_id')
             quantity = int(request.POST.get('quantity', 1))
@@ -58,13 +70,14 @@ class AddToCartView(LoginRequiredMixin, View):
                     cart_item.quantity = 100
                 cart_item.save()
             
-            messages.success(request, f"Added {product.name} to your cart!")
+            success_message = f"Added {product.name} to your cart!"
+            messages.success(request, success_message)
             
             # Return JSON response for AJAX requests
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': True,
-                    'message': f"Added {product.name} to your cart!",
+                    'message': success_message,
                     'cart_total_items': cart.total_items,
                     'cart_subtotal': str(cart.subtotal),
                 })

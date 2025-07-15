@@ -395,7 +395,12 @@ document.querySelector('.add-to-cart-form')?.addEventListener('submit', function
         },
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             button.innerHTML = '<i class="fas fa-check"></i> Added to Cart!';
@@ -417,21 +422,39 @@ document.querySelector('.add-to-cart-form')?.addEventListener('submit', function
                 button.disabled = false;
             }, 2000);
         } else {
-            button.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
-            button.classList.remove('btn-primary');
-            button.classList.add('btn-danger');
-            
-            // Reset button after 3 seconds
-            setTimeout(() => {
-                button.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
-                button.classList.remove('btn-danger');
-                button.classList.add('btn-primary');
-                button.disabled = false;
-            }, 3000);
+            // Check if user needs to login
+            if (data.redirect_to_login) {
+                button.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In Required';
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-warning');
+                
+                // Show user-friendly message
+                alert(data.message || 'Please sign in to add items to your cart');
+                
+                // Redirect to login page after a short delay
+                setTimeout(() => {
+                    window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent(window.location.pathname);
+                }, 1500);
+            } else {
+                button.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-danger');
+                
+                alert(data.message || 'Error adding product to cart');
+                
+                // Reset button after 3 seconds
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
+                    button.classList.remove('btn-danger');
+                    button.classList.add('btn-primary');
+                    button.disabled = false;
+                }, 3000);
+            }
         }
     })
     .catch(error => {
         console.error('Error:', error);
+        alert('Please sign in to add items to your cart');
         button.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
         button.disabled = false;
     });
@@ -458,16 +481,31 @@ document.querySelector('.add-to-cart-form')?.addEventListener('submit', function
 document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', function() {
         const productId = this.dataset.productId;
+        const originalText = this.innerHTML;
         
-        fetch(`/orders/add-to-cart/${productId}/`, {
+        // Show loading state
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('product_id', productId);
+        formData.append('quantity', 1);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        
+        fetch('{% url "orders:add_to_cart" %}', {
             method: 'POST',
             headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
             },
-            body: JSON.stringify({quantity: 1})
+            body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 this.innerHTML = '<i class="fas fa-check"></i> Added!';
@@ -475,11 +513,33 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
                 this.classList.add('btn-success');
                 
                 setTimeout(() => {
-                    this.innerHTML = 'Add to Cart';
+                    this.innerHTML = originalText;
                     this.classList.remove('btn-success');
                     this.classList.add('btn-outline-primary');
+                    this.disabled = false;
                 }, 1500);
+            } else {
+                // Check if user needs to login
+                if (data.redirect_to_login) {
+                    alert(data.message || 'Please sign in to add items to your cart');
+                    // Redirect to login page
+                    setTimeout(() => {
+                        window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent(window.location.pathname);
+                    }, 1000);
+                } else {
+                    alert(data.message || 'Error adding product to cart');
+                }
+                
+                // Reset button
+                this.innerHTML = originalText;
+                this.disabled = false;
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Please sign in to add items to your cart');
+            this.innerHTML = originalText;
+            this.disabled = false;
         });
     });
 });
