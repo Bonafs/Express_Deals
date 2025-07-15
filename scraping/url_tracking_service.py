@@ -28,9 +28,9 @@ class URLTrackingService:
         },
         'currys.co.uk': {
             'name': 'Currys PC World',
-            'price_selector': '.current-price',
-            'title_selector': 'h1',
-            'availability_selector': '.stock-status',
+            'price_selector': '.price, .current-price, [data-qa="price"], .sr-only + span',
+            'title_selector': 'h1, [data-qa="product-name"], .sr-only + span',
+            'availability_selector': '.stock-status, [data-qa="stock"], .availability',
             'requires_headers': True
         },
         'johnlewis.com': {
@@ -367,7 +367,7 @@ class URLTrackingService:
         
         try:
             # URL validation (20 points)
-            is_valid, validation_msg, retailer_name = self.validate_url(url)
+            is_valid, retailer_name, validation_msg = self.validate_url(url)
             if is_valid:
                 result['score'] += 20
                 result['factors'].append(f"✅ Supported retailer: {retailer_name}")
@@ -451,7 +451,7 @@ class URLTrackingService:
             from .models import PriceAlert
             
             # Validate URL
-            is_valid, validation_message, retailer_name = self.validate_url(url)
+            is_valid, retailer_name, validation_message = self.validate_url(url)
             if not is_valid:
                 return False, validation_message, None
             
@@ -531,7 +531,7 @@ class URLTrackingService:
                 'validation': {}
             }
             
-            is_valid, message, retailer = self.validate_url(url)
+            is_valid, retailer, message = self.validate_url(url)
             result['validation'] = {
                 'is_valid': is_valid,
                 'message': message,
