@@ -20,6 +20,7 @@ def test_all_retailers():
     """Test validation for all supported retailers"""
     
     test_urls = {
+        # EXISTING RETAILERS (retain all)
         'Amazon UK': [
             'https://www.amazon.co.uk/dp/B08N5WRWNW',
             'https://amazon.co.uk/gp/product/B08N5WRWNW'
@@ -43,6 +44,48 @@ def test_all_retailers():
         'Next': [
             'https://www.next.co.uk/style/st123456/789012',
             'https://next.co.uk/g12345'
+        ],
+        
+        # NEW TOP UK RETAILERS
+        'Tesco': [
+            'https://www.tesco.com/groceries/en-GB/products/123456789',
+            'https://tesco.com/groceries/product/details/?id=123456'
+        ],
+        'eBay UK': [
+            'https://www.ebay.co.uk/itm/123456789012',
+            'https://ebay.co.uk/itm/987654321098'
+        ],
+        'Boots': [
+            'https://www.boots.com/product/123456',
+            'https://boots.com/health-pharmacy/product-123456'
+        ],
+        'Marks & Spencer': [
+            'https://www.marksandspencer.com/product/p123456789',
+            'https://marksandspencer.com/l/clothing/product/p987654'
+        ],
+        'Very': [
+            'https://www.very.co.uk/product/123456.prd',
+            'https://very.co.uk/item/987654.prd'
+        ],
+        'ASDA': [
+            'https://www.asda.com/product/123456789',
+            'https://asda.com/groceries/product/987654321'
+        ],
+        'AO.com': [
+            'https://www.ao.com/product/PRODUCT123456.html',
+            'https://ao.com/category/product-987654.html'
+        ],
+        'Screwfix': [
+            'https://www.screwfix.com/p/product-name/123456',
+            'https://screwfix.com/c/category/product/987654'
+        ],
+        'Wickes': [
+            'https://www.wickes.co.uk/products/123456',
+            'https://wickes.co.uk/category/product-987654'
+        ],
+        'Dunelm': [
+            'https://www.dunelm.com/products/123456',
+            'https://dunelm.com/category/product-987654'
         ]
     }
     

@@ -82,6 +82,134 @@ class URLTrackingService:
             'title_selector': 'h1',
             'availability_selector': '.StockMessage',
             'requires_headers': True
+        },
+        
+        # TOP 20 UK RETAILERS - New additions for enhanced market coverage
+        'tesco.com': {
+            'name': 'Tesco',
+            'price_selector': '.price-per-sellable-unit, .value',
+            'title_selector': 'h1, .product-title',
+            'availability_selector': '.availability, .stock-level',
+            'requires_headers': True
+        },
+        'ebay.co.uk': {
+            'name': 'eBay UK',
+            'price_selector': '.notranslate',
+            'title_selector': 'h1#x-title-label-lbl',
+            'availability_selector': '.u-flL.condText',
+            'requires_headers': True
+        },
+        'boots.com': {
+            'name': 'Boots',
+            'price_selector': '.pd-price, .price',
+            'title_selector': 'h1, .pdp-product-name',
+            'availability_selector': '.stock-level-indicator',
+            'requires_headers': True
+        },
+        'marksandspencer.com': {
+            'name': 'Marks & Spencer',
+            'price_selector': '.price-current',
+            'title_selector': 'h1',
+            'availability_selector': '.availability-message',
+            'requires_headers': True
+        },
+        'very.co.uk': {
+            'name': 'Very',
+            'price_selector': '.product-price',
+            'title_selector': 'h1',
+            'availability_selector': '.product-stock',
+            'requires_headers': True
+        },
+        'asda.com': {
+            'name': 'ASDA',
+            'price_selector': '.co-product__price',
+            'title_selector': 'h1',
+            'availability_selector': '.pdp-product-availability',
+            'requires_headers': True
+        },
+        'ao.com': {
+            'name': 'AO.com',
+            'price_selector': '.price-now',
+            'title_selector': 'h1',
+            'availability_selector': '.delivery-options',
+            'requires_headers': True
+        },
+        'screwfix.com': {
+            'name': 'Screwfix',
+            'price_selector': '.price',
+            'title_selector': 'h1',
+            'availability_selector': '.availability',
+            'requires_headers': True
+        },
+        'wickes.co.uk': {
+            'name': 'Wickes',
+            'price_selector': '.price-current',
+            'title_selector': 'h1',
+            'availability_selector': '.stock-message',
+            'requires_headers': True
+        },
+        'dunelm.com': {
+            'name': 'Dunelm',
+            'price_selector': '.price',
+            'title_selector': 'h1',
+            'availability_selector': '.stock-level',
+            'requires_headers': True
+        },
+        'diy.com': {
+            'name': 'B&Q',
+            'price_selector': '.price',
+            'title_selector': 'h1',
+            'availability_selector': '.stock-availability',
+            'requires_headers': True
+        },
+        'homebase.co.uk': {
+            'name': 'Homebase',
+            'price_selector': '.price-now',
+            'title_selector': 'h1',
+            'availability_selector': '.availability-status',
+            'requires_headers': True
+        },
+        'matalan.co.uk': {
+            'name': 'Matalan',
+            'price_selector': '.price-current',
+            'title_selector': 'h1',
+            'availability_selector': '.stock-level',
+            'requires_headers': True
+        },
+        'zalando.co.uk': {
+            'name': 'Zalando UK',
+            'price_selector': '.price',
+            'title_selector': 'h1',
+            'availability_selector': '.availability',
+            'requires_headers': True
+        },
+        'sportsdirect.com': {
+            'name': 'Sports Direct',
+            'price_selector': '.price, .CurrentPrice',
+            'title_selector': 'h1',
+            'availability_selector': '.stockMessage',
+            'requires_headers': True
+        },
+        'jdsports.co.uk': {
+            'name': 'JD Sports',
+            'price_selector': '.price',
+            'title_selector': 'h1',
+            'availability_selector': '.stock-message',
+            'requires_headers': True
+        },
+        'wayfair.co.uk': {
+            'name': 'Wayfair UK',
+            'price_selector': '.price',
+            'title_selector': 'h1',
+            'availability_selector': '.delivery-message',
+            'requires_headers': True
+        },
+        'hmv.com': {
+            'name': 'HMV',
+            'price_selector': '.price',
+            'title_selector': 'h1',
+            'availability_selector': '.stock-level',
+            'requires_headers': True
         }
     }
     
