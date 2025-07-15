@@ -1,4 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts    def post(self, request):
+        if request.user.is_authenticated:
+            return redirect('products:product_list')
+        
+        form = CustomUserRegistrationForm(request.POST)rt render, redirect
 from django.views.generic import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -14,14 +18,14 @@ class RegisterView(View):
     
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('products:home')
+            return redirect('products:product_list')
         
         form = CustomUserRegistrationForm()
         return render(request, 'accounts/register.html', {'form': form})
     
     def post(self, request):
         if request.user.is_authenticated:
-            return redirect('products:home')
+            return redirect('products:product_list')
         
         form = CustomUserRegistrationForm(request.POST)
         if form.is_valid():
@@ -49,14 +53,14 @@ class LoginView(View):
     
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('products:home')
+            return redirect('products:product_list')
         
         form = CustomLoginForm()
         return render(request, 'accounts/login.html', {'form': form})
     
     def post(self, request):
         if request.user.is_authenticated:
-            return redirect('products:home')
+            return redirect('products:product_list')
         
         form = CustomLoginForm(request.POST)
         if form.is_valid():
@@ -86,7 +90,7 @@ class LoginView(View):
                 messages.success(request, f'Welcome back, {user.first_name or user.username}! 🎉')
                 
                 # Redirect to next page or home
-                next_page = request.GET.get('next', 'products:home')
+                next_page = request.GET.get('next', 'products:product_list')
                 return redirect(next_page)
             else:
                 messages.error(request, 'Invalid username/email or password. Please try again.')
@@ -103,7 +107,7 @@ class LogoutView(View):
             logout(request)
             messages.success(request, f'You have been successfully logged out. See you soon, {user_name}! 👋')
         
-        return redirect('products:home')
+        return redirect('products:product_list')
 
 
 @method_decorator(login_required, name='dispatch')
