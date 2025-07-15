@@ -7,6 +7,7 @@ Optimized for e-commerce platform with hardcoded development settings.
 import os
 from pathlib import Path
 import dj_database_url
+import logging.config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -207,6 +208,7 @@ LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)
 
 # Logging Configuration
+LOGGING_CONFIG = None  # Disable Django's default logging configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -386,3 +388,6 @@ USER_AGENTS = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
 ]
+
+# Initialize Django logging
+logging.config.dictConfig(LOGGING)
