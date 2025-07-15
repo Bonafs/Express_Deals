@@ -11,10 +11,10 @@ django.setup()
 
 from django.contrib.auth.models import User
 
-# Admin credentials
-ADMIN_USERNAME = 'admin'
-ADMIN_EMAIL = '527626@waes.ac.uk'
-ADMIN_PASSWORD = 'Mobolaji'
+# Admin credentials - Use environment variables for security
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@example.com')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'please_set_secure_password')
 
 def create_admin_user():
     try:
