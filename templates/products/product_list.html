@@ -204,10 +204,11 @@
                                      class="w-100 h-100" 
                                      alt="{{ product.name }}" 
                                      style="object-fit: cover;"
-                                     loading="lazy">
+                                     loading="lazy"
+                                     onerror="this.onerror=null; this.src='{% static 'images/image_not_available.png' %}';">
                             {% else %}
                                 <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
-                                    <i class="fas fa-image fa-3x text-muted"></i>
+                                    <img src="{% static 'images/image_not_available.png' %}" alt="Image not available" class="img-fluid">
                                 </div>
                             {% endif %}
                             

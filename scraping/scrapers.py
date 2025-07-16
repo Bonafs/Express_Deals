@@ -24,6 +24,9 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from cloudinary.uploader import upload
 from cloudinary.exceptions import Error as CloudinaryError
+from selenium.common.exceptions import (
+    NoSuchElementException, TimeoutException, WebDriverException
+)
 from io import BytesIO
 from PIL import Image
 
@@ -95,8 +98,15 @@ class BaseScraper:
             # Image
             img_elem = product_element.select_one(self.target.image_selector)
             if img_elem:
-                data['image_url'] = img_elem.get('src') or img_elem.get('data-src') or ''
-            
+                image_src = img_elem.get('src') or img_elem.get('data-src')
+                if image_src:
+                    data['image_url'] = urljoin(self.target.base_url, image_src)
+            else:
+                # Fallback to Open Graph image
+                og_image = soup.select_one("meta[property='og:image']")
+                if og_image and og_image.get('content'):
+                    data['image_url'] = urljoin(self.target.base_url, og_image['content'])
+
             # URL
             url_elem = product_element.select_one(self.target.url_selector)
             if url_elem:
@@ -633,25 +643,22 @@ class ProductScraper:
                     return True
                 return False
             
-            # Download image from scraped image_url
-            image_file = None
+            # Download image from scraped image_url and upload to Cloudinary
+            image_field = None
             if scraped_product.image_url:
                 try:
                     logger.info(f"Attempting to download image for scraped product: {scraped_product.title} from {scraped_product.image_url}")
                     response = requests.get(scraped_product.image_url, timeout=10)
-                    logger.info(f"Image download response code: {response.status_code}")
-                    content_type = response.headers.get('Content-Type', '')
-                    logger.info(f"Image content type: {content_type}")
-                    if response.status_code == 200 and 'image' in content_type:
-                        temp = tempfile.NamedTemporaryFile(delete=True, suffix='.jpg')
-                        temp.write(response.content)
-                        temp.flush()
-                        image_file = File(temp, name=f"scraped_{scraped_product.external_id}.jpg")
-                        logger.info(f"Image file prepared for product: {scraped_product.title}")
+                    if response.status_code == 200 and 'image' in response.headers.get('Content-Type', ''):
+                        image_content = BytesIO(response.content)
+                        # Upload to Cloudinary
+                        upload_result = upload(image_content, folder="products")
+                        image_field = upload_result['public_id']
+                        logger.info(f"Image uploaded to Cloudinary for product: {scraped_product.title}")
                     else:
                         logger.warning(f"Image URL did not return a valid image: {scraped_product.image_url}")
-                except Exception as img_exc:
-                    logger.warning(f"Could not download image for scraped product: {img_exc}")
+                except (requests.RequestException, CloudinaryError) as img_exc:
+                    logger.warning(f"Could not download or upload image for scraped product: {img_exc}")
             else:
                 logger.info(f"No image URL found for scraped product: {scraped_product.title}")
 
@@ -664,11 +671,9 @@ class ProductScraper:
                 is_active=True,
                 stock_quantity=100,  # Default stock
             )
-            if image_file:
-                logger.info(f"Saving image for product: {product.name}")
-                product.image.save(image_file.name, image_file, save=False)
-            else:
-                logger.info(f"No image file to save for product: {product.name}")
+            if image_field:
+                product.image = image_field
+            
             product.save()
 
             scraped_product.imported_product = product
@@ -737,14 +742,16 @@ class ProductScraper:
                     # Handle image download if no image exists
                     if not existing_product.image and product_data.get('image_url'):
                         logger.info(f"Downloading image for existing product: {product_data['name']}")
-                        image_file = self.download_image(
-                            product_data['image_url'], 
-                            product_data['name']
-                        )
-                        if image_file:
-                            existing_product.image.save(image_file.name, image_file, save=False)
-                            logger.info(f"Added image to existing product: {product_data['name']}")
-                    
+                        try:
+                            response = requests.get(product_data['image_url'], timeout=10)
+                            if response.status_code == 200:
+                                image_content = BytesIO(response.content)
+                                upload_result = upload(image_content, folder="products")
+                                existing_product.image = upload_result['public_id']
+                                logger.info(f"Added image to existing product: {product_data['name']}")
+                        except (requests.RequestException, CloudinaryError) as e:
+                            logger.warning(f"Failed to download/upload image for {product_data['name']}: {e}")
+
                     existing_product.save()
                     updated_count += 1
                     logger.info(f"Updated existing product: {product_data['name']}")
@@ -776,18 +783,22 @@ class ProductScraper:
                 # Handle image download with fallback
                 if product_data.get('image_url'):
                     logger.info(f"Downloading image for: {product_data['name']}")
-                    image_file = self.download_image(
-                        product_data['image_url'], 
-                        product_data['name']
-                    )
-                    
-                    if image_file:
-                        product.image.save(image_file.name, image_file, save=False)
-                        logger.info(f"Successfully set image for: {product_data['name']}")
-                    else:
-                        # Use default image as fallback
+                    try:
+                        response = requests.get(product_data['image_url'], timeout=10)
+                        if response.status_code == 200:
+                            image_content = BytesIO(response.content)
+                            upload_result = upload(image_content, folder="products")
+                            product.image = upload_result['public_id']
+                            logger.info(f"Successfully set image for: {product_data['name']}")
+                        else:
+                            product.image = self.get_fallback_image()
+                            logger.warning(f"Using fallback image for: {product_data['name']} due to status code {response.status_code}")
+                    except (requests.RequestException, CloudinaryError) as e:
                         product.image = self.get_fallback_image()
-                        logger.warning(f"Using fallback image for: {product_data['name']}")
+                        logger.warning(f"Using fallback image for: {product_data['name']} due to error: {e}")
+                else:
+                    product.image = self.get_fallback_image()
+                    logger.warning(f"No image URL provided for {product_data['name']}, using fallback.")
 
                 # Save product
                 product.save()
