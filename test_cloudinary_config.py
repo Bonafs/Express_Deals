@@ -74,7 +74,11 @@ def test_product_images():
             print(f"  Image Field: {product.image}")
             if product.image:
                 print(f"  Image URL: {product.image.url}")
-                print(f"  Image Name: {product.image.name}")
+                # CloudinaryField doesn't have .name attribute, use public_id instead
+                if hasattr(product.image, 'public_id'):
+                    print(f"  Image Public ID: {product.image.public_id}")
+                else:
+                    print(f"  Image Resource: {str(product.image)}")
             
         print("\n✅ Product images are properly configured!")
         return True
