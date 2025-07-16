@@ -495,10 +495,6 @@ class WorldClassSeleniumScraper(WorldClassBaseScraper):
             except:
                 pass
             self.driver = None
-        
-        except Exception as e:
-            logger.error(f"Error fetching {url} with Selenium: {e}")
-            return None
     
     def __del__(self):
         if self.driver:
