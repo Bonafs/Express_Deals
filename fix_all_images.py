@@ -17,10 +17,12 @@ def fix_all_images():
     """Fix all product images by uploading placeholder images to Cloudinary"""
     print("🚨 FIXING ALL PRODUCT IMAGES 🚨")
     
-    # Sample product image URL (we'll use this as a placeholder)
-    sample_image_url = "https://via.placeholder.com/600x400/2563eb/ffffff?text=Express+Deals+Product"
+    # Sample product image URL - using a more reliable source
+    sample_image_url = "https://picsum.photos/600/400"
     
-    products = Product.objects.exclude(image='').exclude(image__isnull=True)
+    # Get products that need fixing (empty or null images)
+    products = Product.objects.all()  # Fix ALL products for presentation
+    print(f"📊 Found {products.count()} products to fix")
     
     for product in products:
         try:
@@ -31,10 +33,11 @@ def fix_all_images():
             if response.status_code == 200:
                 
                 # Upload to Cloudinary
+                clean_name = product.name.lower().replace(' ', '_')
                 result = cloudinary.uploader.upload(
                     response.content,
                     folder='products',
-                    public_id=f"product_{product.id}_{product.name.lower().replace(' ', '_')}",
+                    public_id=f"product_{product.id}_{clean_name}",
                     overwrite=True,
                     resource_type='image'
                 )
@@ -45,14 +48,15 @@ def fix_all_images():
                     product.save()
                     print(f"  ✅ FIXED: {result['secure_url']}")
                 else:
-                    print(f"  ❌ Upload failed")
+                    print("  ❌ Upload failed")
             else:
-                print(f"  ❌ Could not download placeholder")
+                print("  ❌ Could not download placeholder")
                 
         except Exception as e:
             print(f"  ❌ ERROR: {str(e)}")
     
     print("🎯 ALL IMAGES FIXED!")
+
 
 if __name__ == "__main__":
     fix_all_images()

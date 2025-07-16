@@ -21,7 +21,7 @@ def check_scraping_status():
     # Scraping records
     scraped_products = ScrapedProduct.objects.count()
     total_jobs = ScrapeJob.objects.count()
-    active_targets = ScrapeTarget.objects.filter(is_active=True).count()
+    active_targets = ScrapeTarget.objects.filter(status='active').count()
     
     print(f"🔄 Total Scraping Jobs: {total_jobs}")
     print(f"📊 ScrapedProduct Records: {scraped_products}")
@@ -37,13 +37,14 @@ def check_scraping_status():
     print(f"❌ Failed Jobs: {failed_jobs}")
     
     print("\n🎯 ACTIVE SCRAPE TARGETS:")
-    for target in ScrapeTarget.objects.filter(is_active=True)[:10]:
+    for target in ScrapeTarget.objects.filter(status='active')[:10]:
         print(f"  • {target.name} - {target.base_url}")
     
     print("\n📈 RECENT SCRAPING ATTEMPTS:")
-    for job in ScrapeJob.objects.order_by('-created_at')[:10]:
+    for job in ScrapeJob.objects.order_by('-started_at')[:10]:
         status_icon = "✅" if job.status == 'completed' else "❌" if job.status == 'failed' else "⏳"
-        print(f"  {status_icon} {job.created_at.strftime('%Y-%m-%d %H:%M')} - {job.target.name}")
+        started_time = job.started_at.strftime('%Y-%m-%d %H:%M') if job.started_at else "Not started"
+        print(f"  {status_icon} {started_time} - {job.target.name}")
         print(f"     Status: {job.status} | Found: {job.products_found} | Imported: {job.products_imported}")
     
     print("\n🏪 CURRENT PRODUCTS:")
