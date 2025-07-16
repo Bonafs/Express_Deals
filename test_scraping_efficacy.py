@@ -15,10 +15,10 @@ from products.models import Product
 from scraping.models import ScrapeTarget, ScrapedProduct, ScrapeJob
 
 def test_scraping_efficacy():
-    """Test the quality of scraped data"""
+    """Test the quality of scraped data and analyze performance"""
     
-    print("🔍 WORLD-CLASS SCRAPING EFFICACY TEST")
-    print("=" * 60)
+    print("🔍 WORLD-CLASS SCRAPING EFFICACY & PERFORMANCE TEST")
+    print("=" * 70)
     
     # Overall statistics
     total_products = Product.objects.count()
@@ -32,9 +32,9 @@ def test_scraping_efficacy():
     print(f"   Featured Products: {featured_products}")
     print(f"   Products with Images: {products_with_images}")
     
-    if total_products > 0:
-        image_success_rate = (products_with_images / total_products) * 100
-        print(f"   Image Success Rate: {image_success_rate:.1f}%")
+    # Calculate image success rate (initialize to 0 if no products)
+    image_success_rate = (products_with_images / total_products) * 100 if total_products > 0 else 0
+    print(f"   Image Success Rate: {image_success_rate:.1f}%")
     
     # Test product quality
     print(f"\n📦 PRODUCT QUALITY TEST:")

@@ -1,6 +1,6 @@
 """
 Express Deals - World-Class Web Scraping Engine
-Enterprise-grade scraping with advanced anti-detection and proxy rotation
+Enterprise-grade scraping with advanced anti-detection, proxy rotation, and error optimization
 """
 
 import requests
@@ -20,6 +20,7 @@ from django.conf import settings
 from django.utils import timezone
 from .models import ScrapeTarget, ScrapeJob, ScrapedProduct
 from .proxy_manager import proxy_manager
+from .performance_optimizer import scraping_optimizer
 from products.models import Product, Category
 from urllib.parse import urljoin, urlparse
 from django.core.files.base import ContentFile
@@ -92,11 +93,20 @@ class WorldClassBaseScraper:
         })
     
     def get_page(self, url, delay=True, max_retries=3):
-        """Enhanced page fetching with intelligent retry logic"""
+        """Enhanced page fetching with intelligent retry logic and error optimization"""
+        # Get optimized settings based on error history
+        domain = urlparse(url).netloc
+        settings = scraping_optimizer.get_optimized_request_settings(domain)
+        
+        # Use optimized settings
+        max_retries = settings['max_retries']
+        timeout = settings['timeout']
+        base_delay = settings['delay']
+        
         if delay:
-            # Human-like delays with variation
-            delay_time = random.uniform(2, 5) + random.gauss(0, 0.5)
-            time.sleep(max(1, delay_time))
+            # Use optimized delay
+            delay_time = base_delay + random.uniform(0, 1)
+            time.sleep(delay_time)
         
         for attempt in range(max_retries):
             start_time = time.time()
@@ -106,7 +116,13 @@ class WorldClassBaseScraper:
                 if random.random() < 0.3:
                     self.session.headers['User-Agent'] = self.ua.random
                 
-                response = self.session.get(url, timeout=30)
+                # Use premium proxy if recommended
+                if settings['use_premium_proxy']:
+                    self.current_proxy = proxy_manager.get_proxy(target_country='UK')
+                    if self.current_proxy:
+                        self.session.proxies.update(self.current_proxy.dict)
+                
+                response = self.session.get(url, timeout=timeout)
                 response_time = time.time() - start_time
                 
                 self.request_count += 1
@@ -124,7 +140,16 @@ class WorldClassBaseScraper:
                     return response
                 
                 elif response.status_code in [403, 429, 503]:
-                    # Blocked or rate limited - switch proxy
+                    # Record error for analysis
+                    scraping_optimizer.record_error(
+                        error_type='http_blocking',
+                        target_url=url,
+                        proxy_used=self.current_proxy.url if self.current_proxy else None,
+                        http_status=response.status_code,
+                        error_message=f"HTTP {response.status_code} blocking",
+                        retry_count=attempt
+                    )
+                    
                     logger.warning(f"Blocked response {response.status_code} for {url}")
                     self._handle_blocking()
                     
@@ -133,26 +158,68 @@ class WorldClassBaseScraper:
                     return None
                     
                 else:
+                    # Record unexpected status
+                    scraping_optimizer.record_error(
+                        error_type='http_error',
+                        target_url=url,
+                        proxy_used=self.current_proxy.url if self.current_proxy else None,
+                        http_status=response.status_code,
+                        error_message=f"HTTP {response.status_code}",
+                        retry_count=attempt
+                    )
                     logger.warning(f"Unexpected status {response.status_code} for {url}")
                 
             except requests.exceptions.ProxyError:
+                # Record proxy error
+                scraping_optimizer.record_error(
+                    error_type='proxy_error',
+                    target_url=url,
+                    proxy_used=self.current_proxy.url if self.current_proxy else None,
+                    error_message="Proxy connection failed",
+                    retry_count=attempt
+                )
                 logger.warning(f"Proxy error on attempt {attempt + 1}")
                 self._handle_proxy_failure()
                 
             except requests.exceptions.Timeout:
+                # Record timeout error
+                scraping_optimizer.record_error(
+                    error_type='timeout',
+                    target_url=url,
+                    proxy_used=self.current_proxy.url if self.current_proxy else None,
+                    error_message=f"Timeout after {timeout}s",
+                    retry_count=attempt
+                )
                 logger.warning(f"Timeout on attempt {attempt + 1} for {url}")
                 
             except requests.exceptions.RequestException as e:
+                # Record general request error
+                scraping_optimizer.record_error(
+                    error_type='request_error',
+                    target_url=url,
+                    proxy_used=self.current_proxy.url if self.current_proxy else None,
+                    error_message=str(e),
+                    retry_count=attempt
+                )
                 logger.error(f"Request error on attempt {attempt + 1}: {e}")
             
             # Record failed proxy usage
             if self.current_proxy:
                 proxy_manager.record_proxy_usage(self.current_proxy, False)
             
-            # Progressive delay on retries
+            # Progressive delay on retries with optimization
             if attempt < max_retries - 1:
-                retry_delay = (attempt + 1) * 5 + random.uniform(1, 3)
+                retry_delay = (attempt + 1) * base_delay + random.uniform(1, 3)
                 time.sleep(retry_delay)
+        
+        # Record final failure
+        scraping_optimizer.record_error(
+            error_type='total_failure',
+            target_url=url,
+            proxy_used=self.current_proxy.url if self.current_proxy else None,
+            error_message=f"Failed after {max_retries} attempts",
+            retry_count=max_retries
+        )
         
         logger.error(f"Failed to fetch {url} after {max_retries} attempts")
         return None
