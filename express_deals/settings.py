@@ -166,6 +166,16 @@ STATICFILES_DIRS = [
 # WhiteNoise static files storage for production - disable manifest for debugging
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
+# Ensure proper MIME types for static files
+import mimetypes
+mimetypes.add_type("text/css", ".css", True)
+mimetypes.add_type("application/javascript", ".js", True)
+mimetypes.add_type("image/svg+xml", ".svg", True)
+
+# WhiteNoise configuration for proper MIME types
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
+
 # Media files (User uploads)
 
 # Cloudinary media storage
