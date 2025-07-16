@@ -19,10 +19,23 @@ except ImportError:
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'ExpressDeals2025SecureProductionKeyForDjangoApplicationWithEnoughCharactersAndComplexity!@#$%^&*()1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
+# Generate a secure random key for production
+import secrets
+import string
+
+def generate_secret_key():
+    """Generate a cryptographically secure random secret key."""
+    alphabet = string.ascii_letters + string.digits + '!@#$%^&*(-_=+)'
+    return ''.join(secrets.choice(alphabet) for i in range(64))
+
+SECRET_KEY = os.environ.get('SECRET_KEY', generate_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+# DEBUG should NEVER be True in production - force False for Heroku
+if 'DYNO' in os.environ:  # Running on Heroku
+    DEBUG = False
+else:
+    DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -50,10 +63,8 @@ INSTALLED_APPS = [
     
     # Third-party apps
     'rest_framework',
-    # 'channels',  # Temporarily disabled - causing import errors
-    # 'notifications',  # Temporarily disabled due to Django 5.2 compatibility
-    'django_celery_beat',
-    'django_celery_results',
+    # 'django_celery_beat',        # REMOVED - Not needed for basic operation
+    # 'django_celery_results',     # REMOVED - Not needed for basic operation
     
     # Local apps
     'products.apps.ProductsConfig',
@@ -166,15 +177,12 @@ STATICFILES_DIRS = [
 # WhiteNoise static files storage for production - disable manifest for debugging
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-# Ensure proper MIME types for static files
-import mimetypes
-mimetypes.add_type("text/css", ".css", True)
-mimetypes.add_type("application/javascript", ".js", True)
-mimetypes.add_type("image/svg+xml", ".svg", True)
-
 # WhiteNoise configuration for proper MIME types
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
+
+# MIME types will be configured by WhiteNoise automatically
+# No global mimetypes configuration needed
 
 # Media files (User uploads)
 
@@ -212,16 +220,23 @@ else:
     )
 
 # Security Settings for Production
-if not DEBUG:
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_PRELOAD = True  # Added for security compliance
-    SECURE_REDIRECT_EXEMPT = []
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_PRELOAD = True
+
+# Force HTTPS and secure cookies in production
+if not DEBUG or 'DYNO' in os.environ:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+else:
+    # Development settings
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -278,19 +293,12 @@ LOGGING = {
     },
 }
 
-# Celery Configuration
-# Use Heroku Redis in production, local Redis in development
-redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-CELERY_BROKER_URL = redis_url
-CELERY_RESULT_BACKEND = redis_url
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+# Task Queue Configuration - DISABLED
+# Background tasks will run synchronously without Redis/Celery
+# This ensures Heroku doesn't try to connect to Redis services
 
-# Only start Celery if Redis is available
-CELERY_TASK_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', 'False').lower() == 'true'
+# All background tasks disabled - run synchronously for stability
+USE_ASYNC_TASKS = False
 
 # Channels Configuration - Temporarily disabled
 # ASGI_APPLICATION = 'express_deals.asgi.application'
@@ -379,27 +387,18 @@ PRICE_CHANGE_THRESHOLD = 0.01  # Minimum price change to trigger alert
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 
-# Cache Configuration (Redis restored with proper session handling)
-if os.environ.get('REDIS_URL'):
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-            'LOCATION': os.environ.get('REDIS_URL'),
-            'OPTIONS': {
-                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-                'CONNECTION_POOL_KWARGS': {
-                    'max_connections': 10,
-                    'retry_on_timeout': True,
-                }
-            }
+# Cache Configuration - Database only (no Redis dependency)
+# Use stable database caching instead of Redis for reliability
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cache_table',
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,
+            'CULL_PERCENTAGE': 25,
         }
     }
-else:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        }
-    }
+}
 
 # Session Configuration (Database sessions for stability, Redis for caching)
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Keep sessions in PostgreSQL

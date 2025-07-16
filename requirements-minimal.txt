@@ -1,0 +1,53 @@
+# Core Django Framework
+Django==5.2.4
+djangorestframework>=3.14.0
+
+# Database
+psycopg2-binary==2.9.10
+
+# Static Files & Storage
+whitenoise==6.8.2
+Pillow==11.1.0
+
+# Media Storage
+django-cloudinary-storage
+cloudinary
+
+# Payment Processing
+stripe==12.3.0
+
+# Configuration
+dj-database-url==2.3.0
+gunicorn==21.2.0
+
+# Web Scraping & Data Collection (Essential only)
+beautifulsoup4>=4.12.2
+requests>=2.31.0
+lxml>=4.9.3
+
+# Notifications & Communication (Essential only)
+django-notifications-hq>=1.8.3
+
+# OPTIONAL: Redis/Celery Dependencies (only install if needed)
+# Uncomment these lines only if you need background tasks:
+# django-redis==5.4.0
+# redis>=5.0.1
+# celery>=5.3.4
+# django-celery-beat>=2.5.0
+# django-celery-results>=2.6.0
+
+# OPTIONAL: Advanced scraping (only if needed)
+# scrapy>=2.11.0
+# selenium>=4.15.2
+# playwright>=1.40.0
+
+# OPTIONAL: Real-time features (only if needed)
+# channels>=4.0.0
+# channels-redis>=4.1.0
+# websockets>=12.0
+
+# OPTIONAL: Extended notifications (only if needed)
+# twilio>=8.10.0
+# sendgrid>=6.10.0
+# django-mail-templated>=2.6.5
+# premailer>=3.10.0
