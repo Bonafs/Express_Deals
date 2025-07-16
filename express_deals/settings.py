@@ -7,7 +7,6 @@ Optimized for e-commerce platform with hardcoded development settings.
 import os
 from pathlib import Path
 import dj_database_url
-import logging.config
 
 # Import cloudinary settings for proper initialization
 try:
@@ -28,7 +27,11 @@ def generate_secret_key():
     alphabet = string.ascii_letters + string.digits + '!@#$%^&*(-_=+)'
     return ''.join(secrets.choice(alphabet) for i in range(64))
 
-SECRET_KEY = os.environ.get('SECRET_KEY', generate_secret_key())
+# Use environment variable or generate a strong random key
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    # Generate a strong default key for development
+    SECRET_KEY = 'django-dev-' + generate_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG should NEVER be True in production - force False for Heroku
@@ -227,7 +230,9 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_PRELOAD = True
 
 # Force HTTPS and secure cookies in production
-if not DEBUG or 'DYNO' in os.environ:
+IS_PRODUCTION = not DEBUG or 'DYNO' in os.environ
+
+if IS_PRODUCTION:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -248,7 +253,7 @@ LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)
 
 # Logging Configuration
-LOGGING_CONFIG = None  # Disable Django's default logging configuration
+# Use Django's default logging configuration with our custom settings
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -412,5 +417,5 @@ USER_AGENTS = [
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
 ]
 
-# Initialize Django logging
-logging.config.dictConfig(LOGGING)
+# Note: Django will automatically initialize logging using the LOGGING setting
+# No need to manually call logging.config.dictConfig(LOGGING) here

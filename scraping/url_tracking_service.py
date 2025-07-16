@@ -8,8 +8,6 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
 import time
-from django.conf import settings
-from django.utils import timezone
 from datetime import timedelta
 from typing import Tuple, Optional, Dict, Any  # Add type hints
 import re
@@ -215,12 +213,16 @@ class URLTrackingService:
     
     def __init__(self):
         self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
             'Accept-Encoding': 'gzip, deflate, br',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/avif,*/*;q=0.8',
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Cache-Control': 'max-age=0'
         }
     
     def validate_url(self, url) -> ValidationResult:
@@ -309,12 +311,43 @@ class URLTrackingService:
                     'error': 'Retailer configuration not found'
                 }
             
-            # Make request to check availability
+            # Make request to check availability with retry logic
             session = requests.Session()
             session.headers.update(self.headers)
             
-            response = session.get(url, timeout=timeout, allow_redirects=True)
-            response.raise_for_status()
+            max_retries = 2
+            last_error = None
+            
+            for attempt in range(max_retries + 1):
+                try:
+                    start_time = time.time()
+                    response = session.get(url, timeout=timeout, allow_redirects=True)
+                    response_time = time.time() - start_time
+                    response.raise_for_status()
+                    
+                    # Success - break out of retry loop
+                    break
+                    
+                except requests.exceptions.HTTPError as e:
+                    last_error = e
+                    if e.response and e.response.status_code in [429, 503, 502]:
+                        # Rate limited or server error - retry with delay
+                        if attempt < max_retries:
+                            wait_time = (attempt + 1) * 2  # 2s, 4s delays
+                            logger.warning(f"HTTP {e.response.status_code} for {url}, retrying in {wait_time}s")
+                            time.sleep(wait_time)
+                            continue
+                    # Other HTTP errors or max retries reached
+                    raise e
+                except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+                    last_error = e
+                    if attempt < max_retries:
+                        wait_time = (attempt + 1) * 1  # 1s, 2s delays
+                        logger.warning(f"Request failed for {url}, retrying in {wait_time}s: {str(e)}")
+                        time.sleep(wait_time)
+                        continue
+                    # Max retries reached
+                    raise e
             
             # Parse the page
             soup = BeautifulSoup(response.content, 'html.parser')
@@ -327,7 +360,8 @@ class URLTrackingService:
                 'currency': 'GBP',
                 'stock_status': self._extract_stock_status(soup, retailer_config),
                 'retailer': retailer_name,
-                'error': None
+                'error': None,
+                'response_time': response_time
             }
             
             # Validate that we found at least a title
@@ -358,14 +392,23 @@ class URLTrackingService:
                 'error': 'Connection error - unable to reach the website'
             }
         except requests.exceptions.HTTPError as e:
-            status_code = e.response.status_code if e.response else 'Unknown'
-            error_messages = {
-                404: 'Product not found (404) - URL may be invalid or product removed',
-                403: 'Access forbidden (403) - site may be blocking automated access',
-                429: 'Too many requests (429) - rate limited by website',
-                500: 'Server error (500) - website experiencing issues',
-            }
-            error_msg = error_messages.get(status_code, f'HTTP error {status_code}')
+            # Handle HTTP errors with proper status code extraction
+            if e.response is not None:
+                status_code = e.response.status_code
+                error_messages = {
+                    404: 'Product not found (404) - URL may be invalid or product removed',
+                    403: 'Access forbidden (403) - site may be blocking automated access',
+                    429: 'Too many requests (429) - rate limited by website',
+                    500: 'Server error (500) - website experiencing issues',
+                    502: 'Bad gateway (502) - website server error',
+                    503: 'Service unavailable (503) - website temporarily down',
+                    504: 'Gateway timeout (504) - website server timeout',
+                }
+                error_msg = error_messages.get(status_code, f'HTTP error {status_code}')
+            else:
+                # No response object available
+                error_msg = f'HTTP error: {str(e)}'
+            
             return {
                 'available': False,
                 'title': None,
@@ -468,38 +511,6 @@ class URLTrackingService:
             logger.error(f"Price parsing error: {e}")
             return None
     
-    def get_tracking_effectiveness_score(self, url):
-        """
-        Calculate tracking effectiveness score (0-100)
-        Based on supported features and reliability
-        """
-        try:
-            validation_result = self.validate_url(url)
-            is_valid, retailer_name, error = validation_result.as_tuple()
-            if not is_valid:
-                return 0, error
-            
-            # Base score for supported retailer
-            score = 60
-            
-            # Check if we can extract product data
-            availability = self.check_product_availability(url)
-            
-            if availability['available']:
-                score += 20  # Site is accessible
-                
-                if availability['title']:
-                    score += 10  # Can extract title
-                
-                if availability['price']:
-                    score += 10  # Can extract price
-            
-            return min(score, 100), None
-            
-        except Exception as e:
-            logger.error(f"Tracking effectiveness error: {e}")
-            return 0, str(e)
-    
     def get_tracking_effectiveness(self, url: str) -> dict:
         """
         Assess how effectively we can track a URL
@@ -571,7 +582,28 @@ class URLTrackingService:
                     
             else:
                 result['can_track'] = False
-                result['factors'].append(f"❌ Product not accessible: {availability.get('error', 'Unknown error')}")
+                error_msg = availability.get('error', 'Unknown error')
+                result['factors'].append(f"❌ Product not accessible: {error_msg}")
+                
+                # Add specific recommendations based on error type
+                if 'timeout' in error_msg.lower():
+                    result['recommendations'].append("❌ Poor tracking potential")
+                    result['recommendations'].append("Website is too slow for reliable tracking")
+                elif 'connection error' in error_msg.lower():
+                    result['recommendations'].append("❌ Poor tracking potential") 
+                    result['recommendations'].append("Check if the website is accessible from your network")
+                elif '403' in error_msg or 'forbidden' in error_msg.lower():
+                    result['recommendations'].append("❌ Poor tracking potential")
+                    result['recommendations'].append("Website blocks automated access - tracking not possible")
+                elif '404' in error_msg or 'not found' in error_msg.lower():
+                    result['recommendations'].append("❌ Poor tracking potential")
+                    result['recommendations'].append("Product page not found - check if URL is correct")
+                elif '429' in error_msg or 'rate limit' in error_msg.lower():
+                    result['recommendations'].append("❌ Poor tracking potential") 
+                    result['recommendations'].append("Website rate limiting detected - try again later")
+                else:
+                    result['recommendations'].append("❌ Poor tracking potential")
+                    result['recommendations'].append("Check if the product URL is correct and accessible")
                 result['recommendations'].append("Check if the product URL is correct and accessible")
         
         except Exception as e:
@@ -602,6 +634,9 @@ class URLTrackingService:
         Returns:
             (success: bool, message: str, alert_object: PriceAlert or None)
         """
+        from django.utils import timezone
+        from django.core.exceptions import ValidationError
+        
         try:
             from .models import PriceAlert
             
