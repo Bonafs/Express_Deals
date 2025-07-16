@@ -163,7 +163,7 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# WhiteNoise static files storage for production
+# WhiteNoise static files storage for production - disable manifest for debugging
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Media files (User uploads)
