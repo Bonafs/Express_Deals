@@ -270,13 +270,21 @@
                     {% for item in cart_items %}
                     <div class="product-item">
                         <div class="d-flex align-items-center">
-                            <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'images/no-image.jpg' %}{% endif %}" 
+                            {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" 
                                  alt="{{ item.product.name }}" class="product-image me-3"
+                                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="product-image bg-light d-flex align-items-center justify-content-center" style="display: none; width: 60px; height: 60px;">
+                            <div class="product-image bg-gradient d-flex align-items-center justify-content-center me-3" 
+                                 style="display: none; width: 60px; height: 60px; border-radius: 8px; background: linear-gradient(45deg, #f8f9fa, #e9ecef);">
                                 <i class="fas fa-image text-muted"></i>
-                                <div class="fw-light">No Image</div>
                             </div>
+                            {% else %}
+                            <div class="product-image bg-gradient d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 60px; height: 60px; border-radius: 8px; background: linear-gradient(45deg, #f8f9fa, #e9ecef);">
+                                <i class="fas fa-image text-muted"></i>
+                            </div>
+                            {% endif %}
                             <div class="flex-grow-1">
                                 <h6 class="mb-1">{{ item.product.name }}</h6>
                                 <small class="text-muted">Qty: {{ item.quantity }}</small>

@@ -222,9 +222,18 @@
                         <div class="cart-item" data-item-id="{{ item.id }}">
                             <div class="cart-item-image">
                                 {% if item.product.image %}
-                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;"
+                                         onerror="this.style.display='none'; this.parentElement.querySelector('.image-fallback').style.display='flex';">
+                                    <div class="image-fallback d-flex align-items-center justify-content-center" 
+                                         style="display: none; width: 100%; height: 100%; border-radius: 8px; background: linear-gradient(45deg, #f8f9fa, #e9ecef);">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
                                 {% else %}
-                                    <i class="fas fa-image"></i>
+                                    <div class="image-fallback d-flex align-items-center justify-content-center" 
+                                         style="width: 100%; height: 100%; border-radius: 8px; background: linear-gradient(45deg, #f8f9fa, #e9ecef);">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
                                 {% endif %}
                             </div>
                             
