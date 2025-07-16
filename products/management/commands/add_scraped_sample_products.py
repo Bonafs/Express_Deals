@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from scraping.scrapers import ProductScraper
+from scraping.scrapers import WorldClassProductScraper
 
 
 class Command(BaseCommand):
@@ -13,8 +13,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        # Create ProductScraper instance and import sample products
-        scraper = ProductScraper()
+        # Create WorldClassProductScraper instance and import sample products
+        scraper = WorldClassProductScraper()
         try:
             new_count, updated_count, failed_count = scraper.import_sample_products(
                 clear_existing=options['clear']
