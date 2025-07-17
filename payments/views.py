@@ -349,3 +349,59 @@ class RefundView(LoginRequiredMixin, View):
             messages.error(request, 'An unexpected error occurred while processing the refund.')
         
         return redirect('orders:order_detail', pk=order_id)
+
+
+class PaymentDashboardView(LoginRequiredMixin, TemplateView):
+    """
+    Display payment dashboard with demo credit cards for testing
+    """
+    template_name = 'payments/payment_dashboard.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Import here to avoid circular imports
+        from .models import DemoCard, PaymentMethod
+        
+        # Get user's assigned demo cards
+        user_demo_cards = DemoCard.objects.filter(
+            assigned_to=self.request.user
+        ).select_related('payment_method')
+        
+        # Get all user's payment methods
+        user_payment_methods = PaymentMethod.objects.filter(
+            user=self.request.user
+        ).select_related('demo_card')
+        
+        # Get recent payments for user
+        recent_payments = Payment.objects.filter(
+            user=self.request.user
+        ).order_by('-created_at')[:10]
+        
+        # Payment status stats
+        payment_stats = {
+            'total_payments': Payment.objects.filter(
+                user=self.request.user
+            ).count(),
+            'successful_payments': Payment.objects.filter(
+                user=self.request.user,
+                status='succeeded'
+            ).count(),
+            'pending_payments': Payment.objects.filter(
+                user=self.request.user,
+                status='pending'
+            ).count(),
+            'failed_payments': Payment.objects.filter(
+                user=self.request.user,
+                status='failed'
+            ).count(),
+        }
+        
+        context.update({
+            'user_demo_cards': user_demo_cards,
+            'user_payment_methods': user_payment_methods,
+            'recent_payments': recent_payments,
+            'payment_stats': payment_stats,
+        })
+        
+        return context

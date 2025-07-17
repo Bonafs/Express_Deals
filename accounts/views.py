@@ -101,6 +101,10 @@ class LogoutView(View):
         if request.user.is_authenticated:
             user_name = request.user.first_name or request.user.username
             logout(request)
+            # Clear all existing messages before adding logout message
+            storage = messages.get_messages(request)
+            for message in storage:
+                pass  # This consumes all messages
             messages.success(request, f'You have been successfully logged out. See you soon, {user_name}! 👋')
         
         return redirect('products:product_list')
