@@ -188,3 +188,76 @@ def track_url_click(request):
             return JsonResponse({'success': False, 'error': 'Failed to track URL'})
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+def search_products(request):
+    """Handle product search requests - alias for product_search"""
+    return product_search(request)
+
+
+def check_url_tracking(request):
+    """Check if URL tracking is available for a product"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Authentication required'})
+    
+    try:
+        product_id = request.GET.get('product_id')
+        if not product_id:
+            return JsonResponse({'success': False, 'error': 'Product ID required'})
+        
+        # Check if product exists
+        product = get_object_or_404(Product, id=product_id)
+        
+        # Mock response for URL tracking availability
+        response = {
+            'success': True,
+            'tracking_available': True,
+            'product_name': product.name,
+            'supported_retailers': ['amazon', 'walmart', 'target'],
+            'message': 'URL tracking is available for this product'
+        }
+        
+        return JsonResponse(response)
+        
+    except Exception as e:
+        logger.error(f"URL tracking check error: {e}")
+        return JsonResponse({'success': False, 'error': 'Server error occurred'})
+
+
+def create_url_alert(request):
+    """Create URL tracking alert for a product"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Authentication required'})
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    
+    try:
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
+        target_url = data.get('target_url')
+        target_price = data.get('target_price')
+        
+        if not all([product_id, target_url]):
+            return JsonResponse({'success': False, 'error': 'Missing required fields'})
+        
+        # Check if product exists
+        product = get_object_or_404(Product, id=product_id)
+        
+        # Mock response for URL alert creation
+        response = {
+            'success': True,
+            'alert_id': f"url_alert_{product_id}_{request.user.id}",
+            'product_name': product.name,
+            'target_url': target_url,
+            'target_price': target_price,
+            'message': 'URL tracking alert created successfully'
+        }
+        
+        logger.info(f"URL alert created for user {request.user.id}: {target_url}")
+        
+        return JsonResponse(response)
+        
+    except Exception as e:
+        logger.error(f"URL alert creation error: {e}")
+        return JsonResponse({'success': False, 'error': 'Server error occurred'})
