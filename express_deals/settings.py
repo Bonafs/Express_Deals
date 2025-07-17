@@ -131,9 +131,11 @@ if 'DATABASE_URL' in os.environ:
         os.environ.get('DATABASE_URL')
     )
     DATABASES['default']['CONN_MAX_AGE'] = 60
-    DATABASES['default']['OPTIONS'] = {
-        'MAX_CONNS': 20
-    }
+    # Only add MAX_CONNS for PostgreSQL databases
+    if 'postgresql' in DATABASES['default']['ENGINE']:
+        DATABASES['default']['OPTIONS'] = {
+            'MAX_CONNS': 20
+        }
 
 
 # Password validation
