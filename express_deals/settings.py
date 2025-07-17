@@ -74,12 +74,12 @@ INSTALLED_APPS = [
     'orders.apps.OrdersConfig',
     'accounts.apps.AccountsConfig',
     'payments.apps.PaymentsConfig',
-    # 'alerts.apps.AlertsConfig',    # Temporarily disabled for deployment
+    # 'alerts.apps.AlertsConfig',  # Temporarily disabled due to null bytes issue
 
-    'scraping.apps.ScrapingConfig',
+    # 'scraping.apps.ScrapingConfig',  # Temporarily disabled
     # 'realtime.apps.RealtimeConfig',  # Temporarily disabled - depends on channels
-    'cloudinary',
-    'cloudinary_storage',
+    # 'cloudinary',  # Temporarily disabled - module not available
+    # 'cloudinary_storage',  # Temporarily disabled - module not available
 ]
 
 MIDDLEWARE = [
@@ -188,15 +188,16 @@ WHITENOISE_AUTOREFRESH = True
 # No global mimetypes configuration needed
 
 # Media files (User uploads)
-
-# Cloudinary media storage
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-}
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Cloudinary media storage - disabled for now
+# CLOUDINARY_STORAGE = {
+#     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+#     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+#     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+# }
+# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Stripe Configuration
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', 'pk_test_placeholder_key')

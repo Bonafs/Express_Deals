@@ -15,7 +15,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('orders/', include('orders.urls')),
     path('payments/', include('payments.urls')),
-    # path('alerts/', include('alerts.urls')),    # Temporarily disabled for deployment
+    # path('alerts/', include('alerts.urls')),  # Temporarily disabled
 ]
 
 # Serve media files in development

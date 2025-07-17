@@ -1,4 +1,4 @@
-Django """
+"""
 Enhanced Django Admin Configuration for Express Deals User Management
 
 This module provides a production-ready admin interface with:
