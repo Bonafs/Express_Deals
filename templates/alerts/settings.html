@@ -1,0 +1,425 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Alert Settings - Express Deals{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .settings-section {
+        background: white;
+        border-radius: 8px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .section-title {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-title i {
+        margin-right: 12px;
+        color: #007bff;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 8px;
+    }
+    
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        transition: border-color 0.3s;
+    }
+    
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    }
+    
+    .notification-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    
+    .notification-toggle:hover {
+        background: #f8f9fa;
+    }
+    
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+    
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+    
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+        background-color: #28a745;
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+    
+    .plan-card {
+        border: 2px solid #eee;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    
+    .plan-card.active {
+        border-color: #007bff;
+        background: #f8f9fa;
+    }
+    
+    .plan-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .plan-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .plan-price {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #007bff;
+        margin-bottom: 15px;
+    }
+    
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .plan-features li {
+        padding: 5px 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .plan-features li i {
+        color: #28a745;
+        margin-right: 10px;
+    }
+    
+    .current-plan {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+    
+    .current-plan .plan-title,
+    .current-plan .plan-price {
+        color: white;
+    }
+    
+    .current-plan .plan-features li i {
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <div class="text-center mb-4">
+        <h1><i class="fas fa-cog text-primary"></i> Alert Settings</h1>
+        <p class="text-muted">Customize your price alert preferences</p>
+    </div>
+    
+    <!-- Notification Preferences -->
+    <div class="settings-section">
+        <h2 class="section-title">
+            <i class="fas fa-bell"></i>
+            Notification Preferences
+        </h2>
+        
+        <form method="post" action="{% url 'alerts:settings' %}">
+            {% csrf_token %}
+            
+            <div class="notification-toggle">
+                <div>
+                    <strong>Email Notifications</strong>
+                    <br>
+                    <small class="text-muted">Get alerts via email</small>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="email_enabled" {% if user.profile.email_notifications %}checked{% endif %}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="notification-toggle">
+                <div>
+                    <strong>SMS Notifications</strong>
+                    <br>
+                    <small class="text-muted">Get alerts via text message</small>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="sms_enabled" {% if user.profile.sms_notifications %}checked{% endif %}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="notification-toggle">
+                <div>
+                    <strong>Push Notifications</strong>
+                    <br>
+                    <small class="text-muted">Get browser push notifications</small>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="push_enabled" {% if user.profile.push_notifications %}checked{% endif %}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Phone Number (for SMS)</label>
+                <input type="tel" class="form-control" name="phone_number" 
+                       value="{{ user.profile.phone_number|default:'' }}" 
+                       placeholder="+44 7XXX XXX XXX">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Quiet Hours</label>
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="time" class="form-control" name="quiet_start" 
+                               value="{{ user.profile.quiet_start|default:'22:00' }}">
+                        <small class="text-muted">Start time</small>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="time" class="form-control" name="quiet_end" 
+                               value="{{ user.profile.quiet_end|default:'08:00' }}">
+                        <small class="text-muted">End time</small>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Preferences
+            </button>
+        </form>
+    </div>
+    
+    <!-- Alert Limits -->
+    <div class="settings-section">
+        <h2 class="section-title">
+            <i class="fas fa-chart-line"></i>
+            Alert Limits
+        </h2>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <h4 class="text-primary">{{ user_alerts_count }}</h4>
+                    <p class="text-muted">Active Alerts</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <h4 class="text-success">{{ max_alerts }}</h4>
+                    <p class="text-muted">Max Alerts</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <h4 class="text-warning">{{ max_alerts|sub:user_alerts_count }}</h4>
+                    <p class="text-muted">Remaining</p>
+                </div>
+            </div>
+        </div>
+        
+        {% if user_alerts_count >= max_alerts %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            You've reached your alert limit. Consider upgrading to create more alerts.
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Subscription Plans -->
+    <div class="settings-section">
+        <h2 class="section-title">
+            <i class="fas fa-star"></i>
+            Subscription Plans
+        </h2>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="plan-card {% if not user_subscription %}active current-plan{% endif %}">
+                    <div class="plan-title">Free</div>
+                    <div class="plan-price">£0/month</div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> Up to 3 alerts</li>
+                        <li><i class="fas fa-check"></i> Email notifications</li>
+                        <li><i class="fas fa-check"></i> Daily price checks</li>
+                    </ul>
+                    {% if not user_subscription %}
+                        <button class="btn btn-outline-primary w-100" disabled>Current Plan</button>
+                    {% else %}
+                        <button class="btn btn-outline-primary w-100">Downgrade</button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="plan-card {% if user_subscription.plan.name == 'pro' %}active current-plan{% endif %}">
+                    <div class="plan-title">Pro</div>
+                    <div class="plan-price">£4.99/month</div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> Up to 25 alerts</li>
+                        <li><i class="fas fa-check"></i> Email + SMS notifications</li>
+                        <li><i class="fas fa-check"></i> Hourly price checks</li>
+                        <li><i class="fas fa-check"></i> Price history charts</li>
+                    </ul>
+                    {% if user_subscription.plan.name == 'pro' %}
+                        <button class="btn btn-outline-primary w-100" disabled>Current Plan</button>
+                    {% else %}
+                        <button class="btn btn-primary w-100">Upgrade to Pro</button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="plan-card {% if user_subscription.plan.name == 'premium' %}active current-plan{% endif %}">
+                    <div class="plan-title">Premium</div>
+                    <div class="plan-price">£9.99/month</div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> Unlimited alerts</li>
+                        <li><i class="fas fa-check"></i> All notification types</li>
+                        <li><i class="fas fa-check"></i> Real-time price checks</li>
+                        <li><i class="fas fa-check"></i> Advanced analytics</li>
+                        <li><i class="fas fa-check"></i> Priority support</li>
+                    </ul>
+                    {% if user_subscription.plan.name == 'premium' %}
+                        <button class="btn btn-outline-primary w-100" disabled>Current Plan</button>
+                    {% else %}
+                        <button class="btn btn-primary w-100">Upgrade to Premium</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Account Management -->
+    <div class="settings-section">
+        <h2 class="section-title">
+            <i class="fas fa-user-cog"></i>
+            Account Management
+        </h2>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Data Export</h5>
+                <p class="text-muted">Download your alert data and notification history</p>
+                <button class="btn btn-outline-info">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+            </div>
+            <div class="col-md-6">
+                <h5>Delete Account</h5>
+                <p class="text-muted">Permanently delete your account and all alerts</p>
+                <button class="btn btn-outline-danger" onclick="confirmDelete()">
+                    <i class="fas fa-trash"></i> Delete Account
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center">
+        <a href="{% url 'alerts:dashboard' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<script>
+function confirmDelete() {
+    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        // Redirect to account deletion confirmation
+        window.location.href = '/accounts/delete/';
+    }
+}
+
+// Push notification permission
+document.addEventListener('DOMContentLoaded', function() {
+    const pushToggle = document.querySelector('input[name="push_enabled"]');
+    
+    if (pushToggle) {
+        pushToggle.addEventListener('change', function() {
+            if (this.checked) {
+                if ('Notification' in window) {
+                    Notification.requestPermission().then(function(permission) {
+                        if (permission !== 'granted') {
+                            pushToggle.checked = false;
+                            alert('Push notifications require browser permission. Please enable in your browser settings.');
+                        }
+                    });
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

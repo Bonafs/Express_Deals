@@ -7,16 +7,24 @@ from products.models import Product
 
 class Cart(models.Model):
     """Shopping cart for users"""
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, null=True, blank=True
+    )
+    session_key = models.CharField(
+        max_length=40, unique=True, null=True, blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         verbose_name = 'Shopping Cart'
         verbose_name_plural = 'Shopping Carts'
+        ordering = ['-updated_at']
     
     def __str__(self):
-        return f"Cart for {self.user.username}"
+        if self.user:
+            return f"Cart for {self.user.username}"
+        return f"Cart for session {self.session_key}"
     
     @property
     def total_items(self):
@@ -62,9 +70,13 @@ class CartItem(models.Model):
         ordering = ['-added_at']
     
     def __str__(self):
+        cart_owner = (
+            self.cart.user.username if self.cart.user
+            else f"session {self.cart.session_key}"
+        )
         return (
             f"{self.quantity} x {self.product.name} in "
-            f"{self.cart.user.username}'s cart"
+            f"{cart_owner}'s cart"
         )
     
     def get_total_price(self):

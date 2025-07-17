@@ -1,0 +1,445 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Product Alert - {{ product.name }} - Express Deals{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-alert-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .product-preview {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .product-image {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 20px;
+    }
+    
+    .product-info {
+        flex: 1;
+    }
+    
+    .product-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .product-price {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #007bff;
+        margin-bottom: 15px;
+    }
+    
+    .product-description {
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    .alert-form {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 8px;
+    }
+    
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        padding: 12px;
+        transition: border-color 0.3s;
+    }
+    
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    }
+    
+    .alert-type-card {
+        border: 2px solid #eee;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .alert-type-card:hover {
+        border-color: #007bff;
+        background: #f8f9fa;
+    }
+    
+    .alert-type-card.selected {
+        border-color: #007bff;
+        background: #e3f2fd;
+    }
+    
+    .alert-type-title {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    
+    .alert-type-description {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .price-input-group {
+        position: relative;
+    }
+    
+    .price-input-group .form-control {
+        padding-left: 2.5rem;
+    }
+    
+    .price-input-group::before {
+        content: '£';
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 3;
+        color: #6c757d;
+        font-weight: bold;
+    }
+    
+    .notification-preferences {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .notification-option {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .notification-option input[type="checkbox"] {
+        margin-right: 10px;
+        transform: scale(1.2);
+    }
+    
+    .notification-option label {
+        margin-bottom: 0;
+        cursor: pointer;
+    }
+    
+    .price-suggestion {
+        background: #e8f5e8;
+        border: 1px solid #d4edda;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .price-suggestion h6 {
+        color: #155724;
+        margin-bottom: 8px;
+    }
+    
+    .price-suggestion-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    
+    .price-suggestion-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .price-suggestion-btn {
+        background: none;
+        border: none;
+        color: #007bff;
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    
+    .price-suggestion-btn:hover {
+        color: #0056b3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-alert-container">
+    <div class="text-center mb-4">
+        <h1><i class="fas fa-bell text-primary"></i> Create Product Alert</h1>
+        <p class="text-muted">Get notified when this product goes on sale</p>
+    </div>
+    
+    <!-- Product Preview -->
+    <div class="product-preview">
+        <div class="d-flex align-items-start">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+            <div class="product-info">
+                <h2 class="product-name">{{ product.name }}</h2>
+                <div class="product-price">£{{ product.price }}</div>
+                <p class="product-description">{{ product.description|truncatewords:30 }}</p>
+                
+                {% if product.original_price and product.original_price > product.price %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-tag"></i>
+                        Currently {{ product.discount_percentage }}% off! 
+                        Original price: £{{ product.original_price }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alert Form -->
+    <div class="alert-form">
+        <h3 class="mb-4">Set Up Your Alert</h3>
+        
+        <form method="post" action="{% url 'alerts:product_alert' product.id %}">
+            {% csrf_token %}
+            
+            <!-- Alert Type Selection -->
+            <div class="form-group">
+                <label class="form-label">Alert Type</label>
+                
+                <div class="alert-type-card" data-type="price_drop">
+                    <div class="alert-type-title">
+                        <i class="fas fa-arrow-down text-success me-2"></i>
+                        Price Drop Alert
+                    </div>
+                    <div class="alert-type-description">
+                        Get notified when the price drops below your target price
+                    </div>
+                </div>
+                
+                <div class="alert-type-card" data-type="stock_alert">
+                    <div class="alert-type-title">
+                        <i class="fas fa-box text-warning me-2"></i>
+                        Back in Stock Alert
+                    </div>
+                    <div class="alert-type-description">
+                        Get notified when this product becomes available again
+                    </div>
+                </div>
+                
+                <div class="alert-type-card" data-type="any_change">
+                    <div class="alert-type-title">
+                        <i class="fas fa-sync text-info me-2"></i>
+                        Any Price Change
+                    </div>
+                    <div class="alert-type-description">
+                        Get notified of any price changes (up or down)
+                    </div>
+                </div>
+                
+                <input type="hidden" name="alert_type" id="alert_type" value="price_drop">
+            </div>
+            
+            <!-- Target Price (shown for price_drop) -->
+            <div class="form-group" id="target_price_group">
+                <label class="form-label">Target Price</label>
+                
+                <!-- Price Suggestions -->
+                <div class="price-suggestion">
+                    <h6><i class="fas fa-lightbulb me-2"></i>Smart Price Suggestions</h6>
+                    
+                    <div class="price-suggestion-item">
+                        <span>5% off current price:</span>
+                        <button type="button" class="price-suggestion-btn" 
+                                data-price="{{ product.price|floatformat:2|mul:0.95 }}">
+                            £{{ product.price|floatformat:2|mul:0.95 }}
+                        </button>
+                    </div>
+                    
+                    <div class="price-suggestion-item">
+                        <span>10% off current price:</span>
+                        <button type="button" class="price-suggestion-btn" 
+                                data-price="{{ product.price|floatformat:2|mul:0.90 }}">
+                            £{{ product.price|floatformat:2|mul:0.90 }}
+                        </button>
+                    </div>
+                    
+                    <div class="price-suggestion-item">
+                        <span>20% off current price:</span>
+                        <button type="button" class="price-suggestion-btn" 
+                                data-price="{{ product.price|floatformat:2|mul:0.80 }}">
+                            £{{ product.price|floatformat:2|mul:0.80 }}
+                        </button>
+                    </div>
+                    
+                    {% if product.lowest_price %}
+                        <div class="price-suggestion-item">
+                            <span>Historical lowest:</span>
+                            <button type="button" class="price-suggestion-btn" 
+                                    data-price="{{ product.lowest_price }}">
+                                £{{ product.lowest_price }}
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="price-input-group">
+                    <input type="number" class="form-control" name="target_price" 
+                           id="target_price" step="0.01" min="0" 
+                           placeholder="Enter your target price"
+                           value="{{ product.price|floatformat:2|mul:0.90 }}">
+                </div>
+                
+                <small class="text-muted">
+                    We'll notify you when the price drops to or below this amount
+                </small>
+            </div>
+            
+            <!-- Notification Preferences -->
+            <div class="notification-preferences">
+                <h5><i class="fas fa-bell me-2"></i>Notification Preferences</h5>
+                
+                <div class="notification-option">
+                    <input type="checkbox" id="email_enabled" name="email_enabled" checked>
+                    <label for="email_enabled">
+                        <i class="fas fa-envelope me-2"></i>Email notifications
+                    </label>
+                </div>
+                
+                <div class="notification-option">
+                    <input type="checkbox" id="sms_enabled" name="sms_enabled">
+                    <label for="sms_enabled">
+                        <i class="fas fa-sms me-2"></i>SMS notifications
+                    </label>
+                </div>
+                
+                <div class="notification-option">
+                    <input type="checkbox" id="push_enabled" name="push_enabled">
+                    <label for="push_enabled">
+                        <i class="fas fa-bell me-2"></i>Push notifications
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-lg w-100">
+                <i class="fas fa-plus me-2"></i>Create Alert
+            </button>
+        </form>
+    </div>
+    
+    <div class="text-center mt-4">
+        <a href="{% url 'products:product_detail' product.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Product
+        </a>
+        <a href="{% url 'alerts:dashboard' %}" class="btn btn-outline-primary">
+            <i class="fas fa-tachometer-alt me-2"></i>View All Alerts
+        </a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Alert type selection
+    const alertTypeCards = document.querySelectorAll('.alert-type-card');
+    const alertTypeInput = document.getElementById('alert_type');
+    const targetPriceGroup = document.getElementById('target_price_group');
+    
+    alertTypeCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove selected class from all cards
+            alertTypeCards.forEach(c => c.classList.remove('selected'));
+            
+            // Add selected class to clicked card
+            this.classList.add('selected');
+            
+            // Update hidden input
+            const alertType = this.dataset.type;
+            alertTypeInput.value = alertType;
+            
+            // Show/hide target price group
+            if (alertType === 'price_drop') {
+                targetPriceGroup.style.display = 'block';
+            } else {
+                targetPriceGroup.style.display = 'none';
+            }
+        });
+    });
+    
+    // Initialize first card as selected
+    alertTypeCards[0].classList.add('selected');
+    
+    // Price suggestion buttons
+    const priceSuggestionBtns = document.querySelectorAll('.price-suggestion-btn');
+    const targetPriceInput = document.getElementById('target_price');
+    
+    priceSuggestionBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const price = this.dataset.price;
+            targetPriceInput.value = price;
+        });
+    });
+    
+    // Form validation
+    const form = document.querySelector('form');
+    
+    form.addEventListener('submit', function(e) {
+        const alertType = alertTypeInput.value;
+        const targetPrice = targetPriceInput.value;
+        
+        if (alertType === 'price_drop' && (!targetPrice || parseFloat(targetPrice) <= 0)) {
+            e.preventDefault();
+            alert('Please enter a valid target price');
+            targetPriceInput.focus();
+            return;
+        }
+        
+        // Check if at least one notification method is selected
+        const emailEnabled = document.getElementById('email_enabled').checked;
+        const smsEnabled = document.getElementById('sms_enabled').checked;
+        const pushEnabled = document.getElementById('push_enabled').checked;
+        
+        if (!emailEnabled && !smsEnabled && !pushEnabled) {
+            e.preventDefault();
+            alert('Please select at least one notification method');
+            return;
+        }
+    });
+    
+    // Real-time price validation
+    targetPriceInput.addEventListener('input', function() {
+        const currentPrice = {{ product.price }};
+        const targetPrice = parseFloat(this.value);
+        
+        if (targetPrice > currentPrice) {
+            this.style.borderColor = '#ffc107';
+            this.style.backgroundColor = '#fff3cd';
+        } else {
+            this.style.borderColor = '#28a745';
+            this.style.backgroundColor = '#d4edda';
+        }
+    });
+});
+</script>
+{% endblock %}

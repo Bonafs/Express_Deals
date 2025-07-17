@@ -74,7 +74,7 @@ INSTALLED_APPS = [
     'orders.apps.OrdersConfig',
     'accounts.apps.AccountsConfig',
     'payments.apps.PaymentsConfig',
-    'alerts.apps.AlertsConfig',
+    # 'alerts.apps.AlertsConfig',    # Temporarily disabled for deployment
 
     'scraping.apps.ScrapingConfig',
     # 'realtime.apps.RealtimeConfig',  # Temporarily disabled - depends on channels

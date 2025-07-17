@@ -1,0 +1,260 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import View, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from django.http import JsonResponse
+from django.core.paginator import Paginator
+from django.db.models import Q, Count
+from django.utils import timezone
+from decimal import Decimal
+import json
+
+from .models import PriceAlert, DealCategory, AlertNotification, UserSubscription
+from products.models import Product
+from payments.models import SubscriptionPlan
+
+
+class AlertsDashboardView(LoginRequiredMixin, TemplateView):
+    """Main alerts dashboard showing all user alerts"""
+    template_name = 'alerts/dashboard.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get user's active alerts
+        user_alerts = PriceAlert.objects.filter(
+            user=self.request.user,
+            is_active=True
+        ).select_related('product', 'category').order_by('-created_at')
+        
+        # Get recent notifications
+        recent_notifications = AlertNotification.objects.filter(
+            alert__user=self.request.user
+        ).select_related('alert', 'alert__product').order_by('-sent_at')[:10]
+        
+        # Get user subscription info
+        user_subscription = None
+        try:
+            user_subscription = UserSubscription.objects.get(
+                user=self.request.user, 
+                is_active=True
+            )
+        except UserSubscription.DoesNotExist:
+            pass
+        
+        # Alert statistics
+        alert_stats = {
+            'total_alerts': user_alerts.count(),
+            'price_drop_alerts': user_alerts.filter(alert_type='price_drop').count(),
+            'stock_alerts': user_alerts.filter(alert_type='stock_available').count(),
+            'category_alerts': user_alerts.filter(alert_type='deal_category').count(),
+            'triggered_today': recent_notifications.filter(
+                sent_at__date=timezone.now().date()
+            ).count(),
+        }
+        
+        context.update({
+            'user_alerts': user_alerts,
+            'recent_notifications': recent_notifications,
+            'user_subscription': user_subscription,
+            'alert_stats': alert_stats,
+            'available_categories': DealCategory.objects.filter(is_active=True),
+        })
+        
+        return context
+
+
+class CreateAlertView(LoginRequiredMixin, View):
+    """Create new price alert"""
+    
+    def post(self, request):
+        alert_type = request.POST.get('alert_type')
+        product_id = request.POST.get('product_id')
+        category_id = request.POST.get('category_id')
+        target_price = request.POST.get('target_price')
+        
+        try:
+            # Create alert based on type
+            alert_data = {
+                'user': request.user,
+                'alert_type': alert_type,
+                'is_active': True,
+            }
+            
+            if alert_type == 'price_drop' and product_id:
+                product = get_object_or_404(Product, id=product_id)
+                alert_data['product'] = product
+                if target_price:
+                    alert_data['target_price'] = Decimal(target_price)
+            
+            elif alert_type == 'stock_available' and product_id:
+                product = get_object_or_404(Product, id=product_id)
+                alert_data['product'] = product
+            
+            elif alert_type == 'deal_category' and category_id:
+                category = get_object_or_404(DealCategory, id=category_id)
+                alert_data['category'] = category
+            
+            # Check if alert already exists
+            existing_alert = PriceAlert.objects.filter(
+                user=request.user,
+                product=alert_data.get('product'),
+                category=alert_data.get('category'),
+                alert_type=alert_type,
+                is_active=True
+            ).first()
+            
+            if existing_alert:
+                messages.warning(request, 'You already have a similar alert set up!')
+                return redirect('alerts:dashboard')
+            
+            # Create the alert
+            alert = PriceAlert.objects.create(**alert_data)
+            
+            if alert_type == 'price_drop':
+                messages.success(
+                    request, 
+                    f'✅ Price drop alert created for {product.name}!'
+                )
+            elif alert_type == 'stock_available':
+                messages.success(
+                    request, 
+                    f'✅ Stock alert created for {product.name}!'
+                )
+            elif alert_type == 'deal_category':
+                messages.success(
+                    request, 
+                    f'✅ Category alert created for {category.name}!'
+                )
+            
+            return redirect('alerts:dashboard')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating alert: {str(e)}')
+            return redirect('alerts:dashboard')
+
+
+class ManageAlertView(LoginRequiredMixin, View):
+    """Manage existing alerts (activate/deactivate/delete)"""
+    
+    def post(self, request, alert_id):
+        alert = get_object_or_404(
+            PriceAlert, 
+            id=alert_id, 
+            user=request.user
+        )
+        
+        action = request.POST.get('action')
+        
+        if action == 'toggle':
+            alert.is_active = not alert.is_active
+            alert.save()
+            status = 'activated' if alert.is_active else 'deactivated'
+            messages.success(request, f'Alert {status} successfully!')
+        
+        elif action == 'delete':
+            alert_name = str(alert)
+            alert.delete()
+            messages.success(request, f'Alert "{alert_name}" deleted successfully!')
+        
+        return redirect('alerts:dashboard')
+
+
+class ProductAlertView(LoginRequiredMixin, View):
+    """Quick alert creation from product page"""
+    
+    def post(self, request, product_id):
+        product = get_object_or_404(Product, id=product_id)
+        alert_type = request.POST.get('alert_type', 'price_drop')
+        target_price = request.POST.get('target_price')
+        
+        try:
+            alert_data = {
+                'user': request.user,
+                'product': product,
+                'alert_type': alert_type,
+                'is_active': True,
+            }
+            
+            if alert_type == 'price_drop' and target_price:
+                alert_data['target_price'] = Decimal(target_price)
+            
+            # Check for existing alert
+            existing_alert = PriceAlert.objects.filter(
+                user=request.user,
+                product=product,
+                alert_type=alert_type,
+                is_active=True
+            ).first()
+            
+            if existing_alert:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'You already have this alert set up!'
+                })
+            
+            alert = PriceAlert.objects.create(**alert_data)
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Alert created for {product.name}!',
+                'alert_id': alert.id
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error creating alert: {str(e)}'
+            })
+
+
+class AlertSettingsView(LoginRequiredMixin, TemplateView):
+    """Alert notification settings and preferences"""
+    template_name = 'alerts/settings.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get user subscription
+        user_subscription = None
+        try:
+            user_subscription = UserSubscription.objects.get(
+                user=self.request.user, 
+                is_active=True
+            )
+        except UserSubscription.DoesNotExist:
+            pass
+        
+        # Get available subscription plans
+        subscription_plans = SubscriptionPlan.objects.filter(is_active=True)
+        
+        context.update({
+            'user_subscription': user_subscription,
+            'subscription_plans': subscription_plans,
+        })
+        
+        return context
+
+
+class NotificationHistoryView(LoginRequiredMixin, TemplateView):
+    """View notification history"""
+    template_name = 'alerts/notification_history.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get all notifications for user
+        notifications = AlertNotification.objects.filter(
+            alert__user=self.request.user
+        ).select_related('alert', 'alert__product', 'alert__category').order_by('-sent_at')
+        
+        # Pagination
+        paginator = Paginator(notifications, 20)
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
+        context.update({
+            'notifications': page_obj,
+        })
+        
+        return context
