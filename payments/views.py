@@ -12,7 +12,7 @@ import stripe
 import json
 import logging
 
-from orders.models import Order
+from orders.models import Order, Cart
 from .models import Payment, StripeWebhookEvent
 
 # Configure logging
@@ -108,6 +108,19 @@ class PaymentSuccessView(LoginRequiredMixin, TemplateView):
                 )
                 context['order'] = payment.order
                 context['payment'] = payment
+                
+                # Clear user's cart if payment was successful
+                if payment.status == 'succeeded':
+                    try:
+                        cart = Cart.objects.get(user=self.request.user)
+                        cart.items.all().delete()
+                        logger.info(
+                            f"Cart cleared for user {self.request.user.username} "
+                            f"on payment success page"
+                        )
+                    except Cart.DoesNotExist:
+                        pass
+                        
             except Payment.DoesNotExist:
                 messages.error(self.request, 'Payment not found.')
         
@@ -216,7 +229,20 @@ class StripeWebhookView(View):
                 order.stripe_payment_intent_id = payment_intent['id']
                 order.save()
                 
-                logger.info(f"Payment succeeded for order {order.order_number}")
+                # Clear user's cart after successful payment
+                try:
+                    cart = Cart.objects.get(user=order.user)
+                    cart.items.all().delete()
+                    logger.info(
+                        f"Cart cleared for user {order.user.username} "
+                        f"after successful payment"
+                    )
+                except Cart.DoesNotExist:
+                    logger.info(f"No cart found for user {order.user.username}")
+                
+                logger.info(
+                    f"Payment succeeded for order {order.order_number}"
+                )
                 
         except Payment.DoesNotExist:
             logger.error(f"Payment not found for payment_intent {payment_intent['id']}")

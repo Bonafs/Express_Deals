@@ -226,8 +226,8 @@ class CheckoutView(LoginRequiredMixin, View):
                         price=cart_item.product.price,
                     )
                 
-                # Clear cart
-                cart.items.all().delete()
+                # Don't clear cart here - only clear after successful payment
+                # Cart will be cleared in payment success webhook or after payment completion
                 
                 messages.success(request, f"Order {order.order_number} created successfully!")
                 return redirect('payments:payment', order_id=order.id)
