@@ -36,6 +36,12 @@ import undetected_chromedriver as uc
 from fake_useragent import UserAgent
 import cloudscraper
 
+# Import new commercial services
+from .services.fetch_service import fetch_service
+from .services.extract_service import extractor
+from .services.transform_service import transformer
+from .services.load_service import loader
+
 logger = logging.getLogger(__name__)
 
 
