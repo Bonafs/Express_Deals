@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('orders', '0003_fix_transaction_id_constraint'),
+        ('orders', '0002_rename_total_amount_order_subtotal_and_more'),
         ('payments', '0002_stripewebhookevent_remove_payment_stripe_charge_id_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
