@@ -3,6 +3,15 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from orders.models import Order
 import json
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+from .utils import generate_payment_transaction_id
+
+
+def generate_transaction_id():
+    """Generate unique transaction ID"""
+    from .utils import generate_payment_transaction_id
+    return generate_payment_transaction_id()
 
 
 class PaymentMethod(models.Model):
@@ -84,12 +93,20 @@ class Payment(models.Model):
     stripe_customer_id = models.CharField(max_length=100, blank=True)
     
     # Transaction Details
-    transaction_id = models.CharField(max_length=100, unique=True)
+    transaction_id = models.CharField(max_length=100, unique=True, default=generate_transaction_id)
     gateway_response = models.JSONField(default=dict)
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+@receiver(pre_save, sender=Payment)
+def ensure_unique_transaction_id(sender, instance, **kwargs):
+    if not instance.transaction_id or Payment.objects.filter(transaction_id=instance.transaction_id).exclude(pk=instance.pk).exists():
+        new_id = generate_payment_transaction_id()
+        while Payment.objects.filter(transaction_id=new_id).exists():
+            new_id = generate_payment_transaction_id()
+        instance.transaction_id = new_id
     completed_at = models.DateTimeField(null=True, blank=True)
     
     class Meta:
