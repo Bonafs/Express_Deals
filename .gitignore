@@ -3,6 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# CONFIDENTIAL PROJECT FILES - DO NOT COMMIT
+.project_commits_log.md
+.scraping_secrets.md
+.commercial_strategies.md
+
 # C extensions
 *.so
 
