@@ -1,6 +1,6 @@
 """
 Production settings for Express Deals e-commerce platform.
-This file contains production-specific settings that override base settings.
+Commercial-grade configuration for production deployment with ML scraping.
 """
 import os
 import dj_database_url
@@ -8,6 +8,19 @@ from .settings import *
 
 # Override debug setting for production
 DEBUG = False
+
+# COMMERCIAL SCRAPING CONFIGURATION
+COMMERCIAL_SCRAPING_ENABLED = True
+ML_EXTRACTION_ENABLED = True
+PROXY_ROTATION_ENABLED = True
+MAX_CONCURRENT_SCRAPERS = 10
+SCRAPING_RATE_LIMIT = 1  # requests per second
+
+# ADVANCED ANTI-DETECTION
+ANTI_DETECTION_LEVEL = 'high'
+USE_RESIDENTIAL_PROXIES = True
+BEHAVIORAL_SIMULATION = True
+TLS_FINGERPRINT_ROTATION = True
 
 # Production allowed hosts
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')

@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-07-18T17:33:07.023766",
+  "overall_status": "FAIR",
+  "components": {
+    "django": "OPERATIONAL",
+    "database": "FAILED",
+    "scraping_services": "FAILED",
+    "ml_extraction": "OPERATIONAL",
+    "anti_detection": "OPERATIONAL",
+    "background_tasks": "OPERATIONAL",
+    "scraping_targets": "FAILED",
+    "recent_activity": "FAILED"
+  },
+  "health_score": 50.0
+}

@@ -74,9 +74,8 @@ INSTALLED_APPS = [
     'orders.apps.OrdersConfig',
     'accounts.apps.AccountsConfig',
     'payments.apps.PaymentsConfig',
+    'scraping.apps.ScrapingConfig',  # Commercial scraping system enabled
     # 'alerts.apps.AlertsConfig',  # Temporarily disabled due to null bytes issue
-
-    # 'scraping.apps.ScrapingConfig',  # Temporarily disabled
     # 'realtime.apps.RealtimeConfig',  # Temporarily disabled - depends on channels
     # 'cloudinary',  # Temporarily disabled - module not available
     # 'cloudinary_storage',  # Temporarily disabled - module not available
