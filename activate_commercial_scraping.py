@@ -60,31 +60,61 @@ async def activate_commercial_scraping():
         print("⚠️ No active scraping targets found")
         print("   Creating sample targets...")
         
-        # Create sample targets for testing
-        sample_targets = [
-            {
-                'name': 'John Lewis',
-                'base_url': 'https://www.johnlewis.com',
-                'target_type': 'category',
-                'is_active': True
-            },
-            {
-                'name': 'Argos',
-                'base_url': 'https://www.argos.co.uk',
-                'target_type': 'category',
-                'is_active': True
-            }
-        ]
-        
-        for target_data in sample_targets:
-            target, created = ScrapeTarget.objects.get_or_create(
-                name=target_data['name'],
-                defaults=target_data
-            )
-            if created:
-                print(f"✅ Created target: {target.name}")
-        
-        print(f"🎯 Created {len(sample_targets)} sample targets")
+        try:
+            # Create sample targets for testing
+            sample_targets = [
+                {
+                    'name': 'John Lewis',
+                    'base_url': 'https://www.johnlewis.com',
+                    'target_type': 'category',
+                    'is_active': True,
+                    'site_choice': 'john_lewis'
+                },
+                {
+                    'name': 'Argos',
+                    'base_url': 'https://www.argos.co.uk',
+                    'target_type': 'category',
+                    'is_active': True,
+                    'site_choice': 'argos'
+                }
+            ]
+            
+            for target_data in sample_targets:
+                target, created = ScrapeTarget.objects.get_or_create(
+                    name=target_data['name'],
+                    defaults=target_data
+                )
+                if created:
+                    print(f"✅ Created target: {target.name}")
+            
+            print(f"🎯 Created {len(sample_targets)} sample targets")
+            
+        except Exception as e:
+            print(f"❌ Error creating targets: {e}")
+            print("🔄 Running migrations to create tables...")
+            
+            # Run migrations
+            import subprocess
+            result = subprocess.run(['python', 'manage.py', 'migrate'], 
+                                  capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                print("✅ Migrations completed successfully")
+                print("🔄 Retrying target creation...")
+                
+                # Retry creating targets
+                for target_data in sample_targets:
+                    target, created = ScrapeTarget.objects.get_or_create(
+                        name=target_data['name'],
+                        defaults=target_data
+                    )
+                    if created:
+                        print(f"✅ Created target: {target.name}")
+                
+                print(f"🎯 Created {len(sample_targets)} sample targets")
+            else:
+                print(f"❌ Migration failed: {result.stderr}")
+                return
 
 if __name__ == "__main__":
     asyncio.run(activate_commercial_scraping())

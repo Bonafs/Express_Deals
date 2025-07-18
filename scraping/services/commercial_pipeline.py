@@ -8,11 +8,11 @@ import logging
 from typing import List, Dict, Optional
 from datetime import datetime
 from django.utils import timezone
-from .models import ScrapeTarget, ScrapeJob
-from .services.fetch_service import fetch_service
-from .services.extract_service import extractor
-from .services.transform_service import transformer
-from .services.load_service import loader
+from ..models import ScrapeTarget, ScrapeJob
+from .fetch_service import fetch_service
+from .extract_service import extractor
+from .transform_service import transformer
+from .load_service import loader
 
 logger = logging.getLogger(__name__)
 
