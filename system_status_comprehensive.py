@@ -177,7 +177,7 @@ def check_system_status():
     try:
         from scraping.models import ScrapeTarget
         
-        active_targets = ScrapeTarget.objects.filter(is_active=True)
+        active_targets = ScrapeTarget.objects.filter(status='active')
         
         if active_targets.exists():
             print(f"✅ Active Targets: {active_targets.count()}")

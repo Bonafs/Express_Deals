@@ -105,7 +105,7 @@ def create_sample_targets():
             else:
                 print(f"📋 Target already exists: {target.name}")
         
-        total_targets = ScrapeTarget.objects.filter(is_active=True).count()
+        total_targets = ScrapeTarget.objects.filter(status='active').count()
         print(f"\n📊 Total active targets: {total_targets}")
         print(f"📊 New targets created: {created_count}")
         

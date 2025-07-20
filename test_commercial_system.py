@@ -20,7 +20,7 @@ async def test_commercial_capabilities():
     print("=" * 45)
     
     # Get a test target
-    target = ScrapeTarget.objects.filter(is_active=True).first()
+    target = ScrapeTarget.objects.filter(status='active').first()
     
     if target:
         print(f"🎯 Testing target: {target.name}")

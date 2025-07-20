@@ -163,7 +163,7 @@ def deploy_commercial_system():
     
     try:
         # Test with a simple target
-        targets = ScrapeTarget.objects.filter(is_active=True)
+        targets = ScrapeTarget.objects.filter(status='active')
         if targets.exists():
             test_target = targets.first()
             print(f"🎯 Testing with target: {test_target.name}")
@@ -184,7 +184,7 @@ def deploy_commercial_system():
         from products.models import Product
         from scraping.models import ScrapeTarget, ScrapeJob
         
-        targets_count = ScrapeTarget.objects.filter(is_active=True).count()
+        targets_count = ScrapeTarget.objects.filter(status='active').count()
         products_count = Product.objects.count()
         jobs_count = ScrapeJob.objects.count()
         

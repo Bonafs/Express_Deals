@@ -38,7 +38,7 @@ def enable_commercial_features():
     print("✅ High-Performance Loading: ENABLED")
     
     # Test commercial capabilities
-    targets = ScrapeTarget.objects.filter(is_active=True)
+    targets = ScrapeTarget.objects.filter(status='active')
     products = Product.objects.all()
     
     print(f"\n📊 COMMERCIAL SYSTEM STATUS:")

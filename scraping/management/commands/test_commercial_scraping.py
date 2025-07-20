@@ -175,7 +175,7 @@ class Command(BaseCommand):
     def list_available_targets(self):
         """List available scrape targets"""
         
-        targets = ScrapeTarget.objects.filter(is_active=True)
+        targets = ScrapeTarget.objects.filter(status='active')
         
         self.stdout.write("📋 Available Scrape Targets:")
         

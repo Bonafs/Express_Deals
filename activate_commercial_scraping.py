@@ -22,7 +22,7 @@ async def activate_commercial_scraping():
     print("=" * 50)
     
     # Get active scraping targets
-    targets = ScrapeTarget.objects.filter(is_active=True)
+    targets = ScrapeTarget.objects.filter(status='active')
     print(f"📊 Found {targets.count()} active targets")
     
     # Test commercial pipeline with first target
@@ -67,14 +67,14 @@ async def activate_commercial_scraping():
                     'name': 'John Lewis',
                     'base_url': 'https://www.johnlewis.com',
                     'target_type': 'category',
-                    'is_active': True,
+                    'status': 'active',
                     'site_choice': 'john_lewis'
                 },
                 {
                     'name': 'Argos',
                     'base_url': 'https://www.argos.co.uk',
                     'target_type': 'category',
-                    'is_active': True,
+                    'status': 'active',
                     'site_choice': 'argos'
                 }
             ]
